@@ -115,7 +115,7 @@ class NewPatient extends Component {
             )}
           </div>
           <div className="form-group">
-            <label htmlFor="firstName" className="text-danger">
+            <label htmlFor="firstName" className="text-info">
               First Name
             </label>
             <input
@@ -129,7 +129,7 @@ class NewPatient extends Component {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="lastName" className="text-danger">
+            <label htmlFor="lastName" className="text-info">
               Last Name
             </label>
             <input
@@ -143,7 +143,7 @@ class NewPatient extends Component {
             />
           </div>
           <div className="form-group">
-            <label className="text-danger">Gender</label>
+            <label className="text-info">Gender</label>
           </div>
           <div className="form-group">
             <div className="form-check form-check-inline">
@@ -190,7 +190,7 @@ class NewPatient extends Component {
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="birthday" className="text-danger">
+            <label htmlFor="birthday" className="text-info">
               Birthday
             </label>
           </div>
@@ -205,7 +205,7 @@ class NewPatient extends Component {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="caseDescription" className="text-danger">
+            <label htmlFor="caseDescription" className="text-info">
               Case Description
             </label>
             <textarea
@@ -220,7 +220,7 @@ class NewPatient extends Component {
           <div className="form-group">
             <button
               type="button"
-              className="btn btn-danger"
+              className="btn btn-primary"
               onClick={() => this.submit()}
               disabled={this.state.submitDisabled}
             >
@@ -228,7 +228,7 @@ class NewPatient extends Component {
             </button>
             <button
               type="button"
-              className="btn btn-default"
+              className="btn btn-default btn-outline-danger "
               onClick={() => this.reset()}
               disabled={this.state.resetDisabled}
             >

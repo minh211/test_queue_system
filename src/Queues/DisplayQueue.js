@@ -53,7 +53,8 @@ class DisplayQueue extends Component {
               style={{ height: "250px" }}
             >
               <div className="card-body">
-                <h1 className="text-danger display-4">
+                Current queue number:
+                <h1 className="text-info display-4">
                   <strong>
                     {latestTicketWithDoctor.ticketNumber
                       .toString()
@@ -63,11 +64,11 @@ class DisplayQueue extends Component {
               </div>
               <div className="card-text">
                 <p>
-                  <strong className="text-danger">Doctor: </strong>
+                  <strong className="text-info">Doctor: </strong>
                   {latestTicketWithDoctor.doctor}
                 </p>
                 <p>
-                  <strong className="text-danger">Patient: </strong>
+                  <strong className="text-info">Patient: </strong>
                   {latestTicketWithDoctor.patient}
                 </p>
               </div>
@@ -82,17 +83,18 @@ class DisplayQueue extends Component {
                 className="col-sm-4 card text-center"
               >
                 <div className="card-body">
-                  <h1 className="text-danger">
+                  Queue number:
+                  <h1 className="text-info">
                     {ticketWithDoctor.ticketNumber.toString().padStart(4, "0")}
                   </h1>
                 </div>
                 <div className="card-text">
                   <p>
-                    <strong className="text-danger">Doctor: </strong>
+                    <strong className="text-info">Doctor: </strong>
                     {ticketWithDoctor.doctor}
                   </p>
                   <p>
-                    <strong className="text-danger">Patient: </strong>
+                    <strong className="text-info">Patient: </strong>
                     {ticketWithDoctor.patient}
                   </p>
                 </div>

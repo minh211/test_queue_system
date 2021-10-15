@@ -58,7 +58,7 @@ class QueueControl extends Component {
         <button
           type="button"
           onClick={() => this.closeActiveQueue()}
-          className="btn btn-danger"
+          className="btn btn-primary"
         >
           Close Queue
         </button>
@@ -68,7 +68,7 @@ class QueueControl extends Component {
         <button
           type="button"
           onClick={() => this.openNewQueue()}
-          className="btn btn-danger"
+          className="btn btn-primary"
         >
           Open New Queue
         </button>
@@ -85,7 +85,7 @@ class QueueControl extends Component {
           style={{ marginTop: "20px", marginBottom: "20px" }}
         >
           {!this.state.hasOpenQueue && (
-            <div className="alert alert-danger">
+            <div className="alert alert-warning">
               No queue is currently open. Click <em>Open New Queue</em> to
               start.
             </div>
@@ -93,15 +93,15 @@ class QueueControl extends Component {
           <div className="card-header text-danger">Queue Control</div>
           <ul className="list-group list-group-flush">
             <li className="list-group-item">
-              <span className="text text-danger"> Active Tickets: </span>
+              <span className="text text-info"> Active Tickets: </span>
               <span className="text">{this.props.activeTickets}</span>
             </li>
             <li className="list-group-item">
-              <span className="text text-danger"> Total Tickets: </span>
+              <span className="text text-info"> Total Tickets: </span>
               <span className="text">{this.state.totalTickets}</span>
             </li>
             <li className="list-group-item">
-              <span className="text text-danger"> Date/Time Started: </span>
+              <span className="text text-info"> Date/Time Started: </span>
               <span className="text">{this.state.startDate}</span>
             </li>
           </ul>

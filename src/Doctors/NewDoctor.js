@@ -100,7 +100,7 @@ class NewDoctor extends Component {
             )}
           </div>
           <div className="form-group">
-            <label htmlFor="firstName" className="text-danger">
+            <label htmlFor="firstName" className="text-info">
               First Name
             </label>
             <input
@@ -114,7 +114,7 @@ class NewDoctor extends Component {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="lastName" className="text-danger">
+            <label htmlFor="lastName" className="text-info">
               Last Name
             </label>
             <input
@@ -142,7 +142,7 @@ class NewDoctor extends Component {
           <div className="form-group">
             <button
               type="button"
-              className="btn btn-danger"
+              className="btn btn-primary"
               onClick={() => this.submit()}
               disabled={this.state.submitDisabled}
             >

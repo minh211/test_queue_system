@@ -10,7 +10,13 @@ class Doctors extends Component {
     this.URL = config.URL;
     this.state = {
       doctors: [],
+      firstName: "",
+      lastName: "",
+      submitDisabled: true,
+      resetDisabled: false,
     };
+    this.initialState = this.state;
+
   }
 
   async componentDidMount() {
@@ -23,6 +29,25 @@ class Doctors extends Component {
       doctors,
     });
   }
+
+  deleteDoctor = async (doctorId) => {
+    try {
+      let result = (
+          await axios
+              .delete(`${this.URL}/doctors/${doctorId}`, {
+            doctorId
+          })).data;
+      if(result.success) {
+      }
+        let doctors = (await axios.get(`${this.URL}/doctors/getalldoctors`)).data;
+        this.setState({
+          doctors,
+        })
+    }
+      catch (e) {
+      console.log(e);
+    }
+  };
 
   toggleDuty = async (doctorId) => {
     try {
@@ -62,8 +87,12 @@ class Doctors extends Component {
               <AllDoctors
                 doctors={this.state.doctors}
                 toggleDuty={this.toggleDuty}
+                updateFirstName={this.updateFirstName}
+                update={this.updateDoctor}
+                delete={this.deleteDoctor}
                 refresh={() => this.refresh()}
               />
+
             </div>
           </div>
         </div>

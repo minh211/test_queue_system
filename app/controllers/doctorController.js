@@ -202,3 +202,59 @@ exports.nextPatient = async function (req, res) {
 
   res.send(result);
 };
+
+exports.deleteDoctor = async function (req, res) {
+  let { doctorId } = req.params;
+  let result = {
+    success: false,
+    message: null,
+  };
+  try {
+    let doctor = await Doctor.findByPk(doctorId)
+    if (doctor) {
+      await doctor.destroy({
+        where : {
+          id : doctorId,
+        }
+      });
+      result.success = true;
+      result.message = "Successfully deleted doctor.";
+    } else {
+      result.success = false;
+      result.message = "Doctor not found.";
+    }
+  } catch (e) {
+    result.success = false;
+    result.message = e.toString();
+  }
+  queue.emit("doctorDelete");
+  res.send(result);
+};
+
+exports.updateDoctor = async function (req, res) {
+  let { doctorId }= req.params;
+  let { firstName, lastName } = req.body;
+  let result = {
+    success: false,
+    message: null,
+  };
+
+  try {
+    let doctor = await Doctor.findByPk(doctorId);
+    await Doctor.update(
+        {firstName, lastName},
+        {
+          where: {id: doctorId}
+        }
+        );
+
+    console.log(doctor)
+    result.success = true;
+    result.message = "Successfully updated doctor information.";
+  } catch (e) {
+    result.success = false;
+    result.message = e.toString();
+  }
+  res.send(result);
+};
+

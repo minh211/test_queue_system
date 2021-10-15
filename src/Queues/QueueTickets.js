@@ -15,12 +15,12 @@ class QueueTickets extends Component {
         >
           <thead>
             <tr>
-              <th className="text-danger">Ticket #</th>
-              <th className="text-danger">Patient</th>
-              <th className="text-danger">Gender</th>
-              <th className="text-danger">Birthday</th>
-              <th className="text-danger">Case Description</th>
-              <th className="text-danger">Attending Physician</th>
+              <th className="text-info">Ticket #</th>
+              <th className="text-info">Patient</th>
+              <th className="text-info">Gender</th>
+              <th className="text-info">Birthday</th>
+              <th className="text-info">Case Description</th>
+              <th className="text-info">Attending Physician</th>
             </tr>
           </thead>
           <tbody>

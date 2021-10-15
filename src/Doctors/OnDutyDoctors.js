@@ -48,7 +48,7 @@ class OnDutyDoctors extends Component {
     } else {
       return (
         <React.Fragment>
-          <strong className="text-danger">Patient: </strong>No patient.
+          <strong className="text-info">Patient: </strong>No patient.
         </React.Fragment>
       );
     }
@@ -84,7 +84,7 @@ class OnDutyDoctors extends Component {
                 <h1>{this.getTicket(onDutyDoctor)}</h1>
                 <div className="card-text">
                   <p>
-                    <strong className="text-danger">Doctor:</strong>{" "}
+                    <strong className="text-info">Doctor:</strong>{" "}
                     {onDutyDoctor.doctorFirstName +
                       " " +
                       onDutyDoctor.doctorLastName}
@@ -92,7 +92,7 @@ class OnDutyDoctors extends Component {
                   <p>{this.getPatient(onDutyDoctor)}</p>
                 </div>
                 <button
-                  className="btn btn-sm btn-danger"
+                  className="btn btn-sm btn-primary"
                   onClick={() => this.nextPatient(onDutyDoctor.doctorId)}
                 >
                   Next Patient
