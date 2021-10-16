@@ -1,4 +1,1 @@
-var URL = "http://localhost:1604";
-export const config = {
-  URL,
-};
+export const baseUrl = "http://localhost:1604";

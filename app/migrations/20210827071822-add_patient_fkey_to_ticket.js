@@ -2,7 +2,8 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.addConstraint("Tickets", ["patientId"], {
+    return queryInterface.addConstraint("Tickets", {
+      fields: ["patientId"],
       type: "foreign key",
       name: "Tickets_patientId_fkey",
       references: {

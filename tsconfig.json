@@ -1,0 +1,37 @@
+{
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "newLine": "LF",
+    "noEmitOnError": true,
+    "noErrorTruncation": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es5",
+    "jsx": "react",
+    "outDir": "srcLib",
+    "esModuleInterop": true,
+    "stripInternal": true,
+    "incremental": true,
+    "declarationMap": true,
+    "downlevelIteration": true,
+    "allowJs": true,
+    "skipLibCheck": true
+  },
+  "ts-node": {
+    "transpileOnly": true
+  }
+}

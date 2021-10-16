@@ -39,12 +39,12 @@ app.get("/doctors/getalldoctors", doctorController.getAllDoctors);
 app.post("/doctors/toggleduty", doctorController.toggleDuty);
 app.get("/doctors/getondutydoctors", doctorController.getOnDutyDoctors);
 app.post("/doctors/nextpatient", doctorController.nextPatient);
-app.put("/doctors/:doctorId", doctorController.updateDoctor)
-app.delete("/doctors/:doctorId", doctorController.deleteDoctor)
+app.put("/doctors/:doctorId", doctorController.updateDoctor);
+app.delete("/doctors/:doctorId", doctorController.deleteDoctor);
 
 // Handle React routing, return all requests to React app
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../build", "index.html"));
+  res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
 // start the server
