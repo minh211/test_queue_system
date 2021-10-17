@@ -3,37 +3,36 @@ import { baseUrl } from "../Config/config.js";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNames } from "../Doctors/useNames";
 
 const NewPatient: React.FC = () => {
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
+  const {
+    firstName,
+    lastName,
+    updateLastName,
+    updateFirstName,
+    errorMessages,
+    isEditing: isEditingNames,
+    isValid,
+    reset: resetNames,
+  } = useNames();
+
   const [gender, setGender] = React.useState("");
   const [birthday, setBirthday] = React.useState<Date | null>(null);
   const [caseDescription, setCaseDescription] = React.useState("");
-  // const [submitDisabled, setSubmitDisabled] = React.useState(true);
-  const [resetDisabled, setResetDisabled] = React.useState(false);
-  // const [errorMessages, setErrorMessages] = React.useState<string[]>([]);
-
-  const updateFirstName = (value: string) => {
-    setFirstName(value);
-  };
-
-  const updateLastName = (value: string) => {
-    setLastName(value);
-  };
 
   const reset = React.useCallback(() => {
-    setFirstName("");
-    setLastName("");
     setGender("");
     setBirthday(null);
     setCaseDescription("");
-    setResetDisabled(false);
-  }, []);
+    resetNames();
+  }, [resetNames]);
+
+  const isEditingPatient = React.useMemo(() => {
+    return isEditingNames || gender !== "" || birthday !== null || caseDescription !== "";
+  }, [birthday, caseDescription, gender, isEditingNames]);
 
   const submit = React.useCallback(async () => {
-    setResetDisabled(true);
-
     await axios
       .post(`${baseUrl}/patients/create`, {
         firstName,
@@ -42,37 +41,18 @@ const NewPatient: React.FC = () => {
         birthday,
         gender,
       })
-      .then(() => reset())
+      .then(reset)
       .catch(function (error) {
         console.log(error);
       });
-    setResetDisabled(false);
   }, [birthday, caseDescription, firstName, gender, lastName, reset]);
-
-  const errorMessages = React.useMemo(() => {
-    if (!firstName && !lastName) {
-      return [];
-    }
-    let errorMessages = [];
-    if (!firstName) {
-      errorMessages.push("First name field is required.");
-    }
-    if (!lastName) {
-      errorMessages.push("Last name field is required.");
-    }
-    return errorMessages;
-  }, [firstName, lastName]);
-
-  const submitDisabled = React.useMemo(() => {
-    return !firstName && !lastName;
-  }, [firstName, lastName]);
 
   return (
     <React.Fragment>
       <div className="container card" style={{ marginTop: "20px", marginBottom: "20px" }}>
         <div className="form-group" style={{ marginTop: "20px" }}>
           <h4 className="text-danger">New Patient</h4>
-          {errorMessages.length > 0 && (
+          {isEditingPatient && errorMessages.length > 0 && (
             <div className="alert alert-danger" role="alert">
               {errorMessages.map((errorMessage) => (
                 <li key={errorMessage}>{errorMessage}</li>
@@ -184,14 +164,14 @@ const NewPatient: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <button type="button" className="btn btn-primary" onClick={submit} disabled={submitDisabled}>
+          <button type="button" className="btn btn-primary" onClick={submit} disabled={!isValid}>
             Submit
           </button>
           <button
             type="button"
             className="btn btn-default btn-outline-danger "
             onClick={reset}
-            disabled={resetDisabled}>
+            disabled={!isEditingPatient}>
             Reset
           </button>
         </div>

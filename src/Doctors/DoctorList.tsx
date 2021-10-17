@@ -1,79 +1,28 @@
 import * as React from "react";
 import { Button } from "reactstrap";
-import axios from "axios";
 import { Doctor } from "./Doctors";
-import { baseUrl } from "../Config/config";
 import { UpdateDoctorModal } from "./UpdateDoctorModal";
 
 interface DoctorListProps {
   refresh(): void;
   doctors: Doctor[];
-  className?: string;
   toggleDuty(doctorId: string): Promise<void>;
   deleteDoctor(doctorId: string): Promise<void>;
 }
 
-const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, className, toggleDuty, deleteDoctor }) => {
+const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, toggleDuty, deleteDoctor }) => {
   const [modal, setModal] = React.useState(false);
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
-  const [submitDisabled, setSubmitDisabled] = React.useState(true);
-  const [errorMessages, setErrorMessages] = React.useState<string[]>([]);
 
-  const toggle = React.useCallback(() => setModal((oldModal) => !oldModal), []);
+  const [currentDoctor, setCurrentDoctor] = React.useState<Doctor | undefined>(undefined);
 
-  const validate = React.useCallback(() => {
-    let errorMessages = [];
-    if (!firstName) {
-      errorMessages.push("First name field is required.");
-    }
-    if (!lastName) {
-      errorMessages.push("Last name field is required.");
-    }
-    setErrorMessages(errorMessages);
-    if (errorMessages.length === 0) {
-      setSubmitDisabled(false);
-    }
-  }, [firstName, lastName]);
-
-  const updateFirstName = React.useCallback(
-    (value: string) => {
-      setFirstName(() => value);
-      validate();
+  const toggleModal = React.useCallback(
+    (doctorId: string) => {
+      setModal((oldModal) => !oldModal);
+      const r = doctors.find((doctor) => doctor.doctorId === doctorId);
+      setCurrentDoctor(() => r);
     },
-    [validate]
+    [doctors]
   );
-
-  const updateLastName = React.useCallback(
-    (value: string) => {
-      setLastName(() => value);
-      validate();
-    },
-    [validate]
-  );
-
-  const updateDoctor = React.useCallback(
-    async (doctorId: string) => {
-      try {
-        let result = (
-          await axios.put(`${baseUrl}/doctors/${doctorId}`, {
-            doctorId,
-            firstName,
-            lastName,
-          })
-        ).data;
-        if (result.success) {
-          refresh();
-        }
-      } catch (e) {
-        console.log(e);
-      }
-
-      setSubmitDisabled(false);
-    },
-    [firstName, lastName, refresh]
-  );
-
   return (
     <React.Fragment>
       <table
@@ -103,20 +52,9 @@ const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, className, to
                 </td>
                 <td width="100" align="center">
                   <div>
-                    <Button outline color="warning" size="sm" onClick={toggle}>
+                    <Button outline color="warning" size="sm" onClick={() => toggleModal(doctor.doctorId)}>
                       Update
                     </Button>
-                    <UpdateDoctorModal
-                      {...doctor}
-                      modal={modal}
-                      toggle={toggle}
-                      errorMessages={errorMessages}
-                      updateFirstName={updateFirstName}
-                      updateLastName={updateLastName}
-                      className={className}
-                      submitDisabled={submitDisabled}
-                      updateDoctor={updateDoctor}
-                    />
                   </div>
                   <Button outline color="danger" size="sm" onClick={() => deleteDoctor(doctor.doctorId)}>
                     Remove
@@ -125,6 +63,14 @@ const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, className, to
               </tr>
             ))}
         </tbody>
+        {modal && (
+          <UpdateDoctorModal
+            doctor={currentDoctor}
+            modal={modal}
+            refresh={refresh}
+            toggleModal={() => setModal((oldModal) => !oldModal)}
+          />
+        )}
       </table>
     </React.Fragment>
   );

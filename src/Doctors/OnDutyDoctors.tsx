@@ -1,5 +1,5 @@
 import * as React from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { baseUrl } from "../Config/config";
 import socketIOClient from "socket.io-client";
 
@@ -21,30 +21,32 @@ const OnDutyDoctors: React.FC<OnDutyDoctors> = ({ refreshTickets }) => {
   const [onDutyDoctors, setOnDutyDoctors] = React.useState<OnDutyDoctor[]>([]);
 
   const refresh = React.useCallback(async () => {
-    let data = (await axios.get(`${baseUrl}/doctors/getondutydoctors`)).data;
-    setOnDutyDoctors(data);
+    const response: AxiosResponse<OnDutyDoctor[]> = await axios.get(`${baseUrl}/doctors/getondutydoctors`);
+    setOnDutyDoctors(() => response.data);
   }, []);
 
   React.useEffect(() => {
-    refresh();
+    refresh().then();
     const socket = socketIOClient(`${baseUrl}/queue`, { transports: ["websocket"] });
     socket.on("doctorToggleDuty", () => refresh);
+    return () => {
+      socket.close();
+    };
   }, [refresh]);
 
-  const getTicket = React.useCallback((doctor: OnDutyDoctor) => {
-    if (doctor.ticketNumber) {
-      return doctor.ticketNumber.toString().padStart(4, "0");
+  const getTicket = React.useCallback((ticketNumber: number) => {
+    if (ticketNumber) {
+      return ticketNumber.toString().padStart(4, "0");
     } else {
       return "Available";
     }
   }, []);
 
-  const getPatient = React.useCallback((doctor: OnDutyDoctor) => {
-    if (doctor.patientFirstName) {
-      let patient = doctor.patientFirstName + " " + doctor.patientLastName;
+  const getPatient = React.useCallback((firstName: string, lastName: string) => {
+    if (firstName) {
       return (
         <React.Fragment>
-          <strong className="text-danger">Patient: </strong> {patient}
+          <strong className="text-danger">Patient: </strong> {firstName + " " + lastName}
         </React.Fragment>
       );
     } else {
@@ -58,11 +60,9 @@ const OnDutyDoctors: React.FC<OnDutyDoctors> = ({ refreshTickets }) => {
 
   const nextPatient = React.useCallback(
     async (doctorId: string) => {
-      await axios.post(`${baseUrl}/doctors/nextpatient`, {
-        doctorId,
-      });
+      await axios.post(`${baseUrl}/doctors/nextpatient`, { doctorId });
       refreshTickets();
-      refresh();
+      refresh().then();
     },
     [refresh, refreshTickets]
   );
@@ -78,23 +78,24 @@ const OnDutyDoctors: React.FC<OnDutyDoctors> = ({ refreshTickets }) => {
       }}>
       {onDutyDoctors.length === 0 && "No on duty doctors."}
       {onDutyDoctors.length > 0 &&
-        onDutyDoctors.map((onDutyDoctor) => (
-          <div key={onDutyDoctor.doctorId} className="col-sm-4 card text-center">
-            <div className="card-body">
-              <h1>{getTicket(onDutyDoctor)}</h1>
-              <div className="card-text">
-                <p>
-                  <strong className="text-info">Doctor:</strong>{" "}
-                  {onDutyDoctor.doctorFirstName + " " + onDutyDoctor.doctorLastName}
-                </p>
-                <p>{getPatient(onDutyDoctor)}</p>
+        onDutyDoctors.map(
+          ({ ticketNumber, patientFirstName, patientLastName, doctorId, doctorFirstName, doctorLastName }) => (
+            <div key={doctorId} className="col-sm-4 card text-center">
+              <div className="card-body">
+                <h1>{getTicket(ticketNumber)}</h1>
+                <div className="card-text">
+                  <p>
+                    <strong className="text-info">Doctor:</strong> {doctorFirstName + " " + doctorLastName}
+                  </p>
+                  <p>{getPatient(patientFirstName, patientLastName)}</p>
+                </div>
+                <button className="btn btn-sm btn-primary" onClick={() => nextPatient(doctorId)}>
+                  Next Patient
+                </button>
               </div>
-              <button className="btn btn-sm btn-primary" onClick={() => nextPatient(onDutyDoctor.doctorId)}>
-                Next Patient
-              </button>
             </div>
-          </div>
-        ))}
+          )
+        )}
     </div>
   );
 };

@@ -1,21 +1,25 @@
 import * as React from "react";
 import axios from "axios";
 import { baseUrl } from "../Config/config";
+import { useNames } from "./useNames";
 
 export interface NewDoctorProps {
   refresh(): void;
 }
 
 const NewDoctor: React.FC<NewDoctorProps> = (props) => {
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
-  const [onDuty, setOnDuty] = React.useState(true);
-
-  const reset = () => {
-    setFirstName("");
-    setLastName("");
-    setOnDuty(true);
-  };
+  const {
+    firstName,
+    lastName,
+    onDuty,
+    reset,
+    setFirstName,
+    setLastName,
+    errorMessages,
+    toggleDuty,
+    isEditing,
+    isValid,
+  } = useNames();
 
   const submit = async () => {
     await axios
@@ -33,35 +37,12 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
       });
   };
 
-  const errorMessages: string[] = React.useMemo(() => {
-    if (!firstName && !lastName) {
-      return [];
-    }
-
-    const errorMessages = [];
-
-    if (!firstName) {
-      errorMessages.push("First name field is required.");
-    }
-    if (!lastName) {
-      errorMessages.push("Last name field is required.");
-    }
-
-    return errorMessages;
-  }, [firstName, lastName]);
-
-  const submitDisabled = React.useMemo(() => !firstName || !lastName, [firstName, lastName]);
-
-  const resetDisabled = React.useMemo(() => {
-    return !firstName && !lastName && onDuty;
-  }, [firstName, lastName, onDuty]);
-
   return (
     <React.Fragment>
       <div className="container card" style={{ marginTop: "20px", marginBottom: "20px" }}>
         <div className="form-group" style={{ marginTop: "20px" }}>
           <h4 className="text-danger">Add Doctor</h4>
-          {errorMessages.length > 0 && (
+          {isEditing && errorMessages.length > 0 && (
             <div className="alert alert-danger" role="alert">
               {errorMessages.map((errorMessage) => (
                 <li key={errorMessage}>{errorMessage}</li>
@@ -102,7 +83,7 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
             className="form-check-input"
             type="checkbox"
             id="onDuty"
-            onChange={() => setOnDuty((oldOnDuty) => !oldOnDuty)}
+            onChange={() => toggleDuty()}
             checked={onDuty}
           />
           <label className="form-check-label" htmlFor="onDuty">
@@ -110,10 +91,10 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
           </label>
         </div>
         <div className="form-group">
-          <button type="button" className="btn btn-primary" onClick={submit} disabled={submitDisabled}>
+          <button type="button" className="btn btn-primary" onClick={submit} disabled={!isValid}>
             Submit
           </button>
-          <button type="button" className="btn btn-default" onClick={reset} disabled={resetDisabled}>
+          <button type="button" className="btn btn-default" onClick={reset} disabled={!isEditing}>
             Reset
           </button>
         </div>

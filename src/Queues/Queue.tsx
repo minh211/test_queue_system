@@ -29,6 +29,10 @@ const Queue: React.FC = () => {
     const socket = socketIOClient(`${baseUrl}/queue`, { transports: ["websocket"] });
     socket.on("next", refreshTickets);
     socket.on("newPatient", refreshTickets);
+
+    return () => {
+      socket.close();
+    };
   }, [refreshTickets]);
 
   const getActiveTickets = React.useMemo(() => {
@@ -42,11 +46,7 @@ const Queue: React.FC = () => {
           <div className="col-4 card">
             <div className="container">
               <div className="row">
-                <QueueControl
-                  refreshTickets={refreshTickets}
-                  activeTickets={getActiveTickets}
-                  totalTickets={tickets.length}
-                />
+                <QueueControl refreshTickets={refreshTickets} activeTickets={getActiveTickets} />
               </div>
             </div>
           </div>

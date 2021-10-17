@@ -1,42 +1,50 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import * as React from "react";
+import axios from "axios";
+import { baseUrl } from "../Config/config";
+import { Doctor } from "./Doctors";
+import { useNames } from "./useNames";
 
 interface UpdateDoctorModalProps {
   modal: boolean;
-  toggle(): void;
+  toggleModal(): void;
+  refresh(): void;
 
-  doctorId: string;
-  className?: string;
-  firstName: string;
-  lastName: string;
-  errorMessages: string[];
-  submitDisabled: boolean;
-
-  updateFirstName(value: string): void;
-  updateLastName(value: string): void;
-  updateDoctor(doctorId: string): void;
+  doctor?: Doctor;
 }
 
-export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({
-  modal,
-  toggle,
-  className,
-  updateFirstName,
-  updateLastName,
-  updateDoctor,
-  firstName,
-  lastName,
-  errorMessages,
-  submitDisabled,
-  doctorId,
-}) => {
+export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({ modal, toggleModal, doctor, refresh }) => {
+  const { firstName, lastName, errorMessages, updateFirstName, updateLastName, isValid, isEditing } = useNames(doctor);
+
+  const updateDoctor = React.useCallback(async () => {
+    try {
+      let result = (
+        await axios.put(`${baseUrl}/doctors/${doctor?.doctorId}`, {
+          doctorId: doctor?.doctorId,
+          firstName,
+          lastName,
+        })
+      ).data;
+      if (result.success) {
+        refresh();
+        toggleModal();
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }, [doctor?.doctorId, firstName, lastName, refresh]);
+
+  if (!modal) {
+    return null;
+  }
+
   return (
-    <Modal isOpen={modal} toggle={toggle} className={className}>
-      <ModalHeader toggle={toggle}>Update Doctor</ModalHeader>
+    <Modal isOpen={modal} toggle={toggleModal}>
+      <ModalHeader toggle={toggleModal}>Update Doctor</ModalHeader>
 
       <ModalBody>
         <div className="form-group" style={{ marginTop: "20px" }}>
-          {errorMessages.length > 0 && (
+          {isEditing && errorMessages.length > 0 && (
             <div className="alert alert-danger" role="alert">
               {errorMessages.map((errorMessage) => (
                 <li key={errorMessage}>{errorMessage}</li>
@@ -75,10 +83,10 @@ export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={() => updateDoctor(doctorId)} disabled={submitDisabled}>
+        <Button color="primary" onClick={updateDoctor} disabled={!isValid}>
           Edit
         </Button>{" "}
-        <Button color="secondary" onClick={toggle}>
+        <Button color="secondary" onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>

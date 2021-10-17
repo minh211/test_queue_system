@@ -18,10 +18,14 @@ const DisplayQueue: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    refreshQueue();
+    refreshQueue().then();
     const socket = socketIOClient(baseUrl, { transports: ["websocket"] });
     socket.on("next", refreshQueue);
     socket.on("closeQueue", refreshQueue);
+
+    return () => {
+      socket.close();
+    };
   }, [refreshQueue]);
 
   const getLatestTicketWithDoctor = React.useMemo(() => {
@@ -55,20 +59,20 @@ const DisplayQueue: React.FC = () => {
       </div>
       <div className="row" style={{ marginBottom: "20px" }}>
         {getLatestTicketWithDoctor &&
-          ticketsWithDoctors.map((ticketWithDoctor) => (
-            <div key={ticketWithDoctor.ticketNumber} className="col-sm-4 card text-center">
+          ticketsWithDoctors.map(({ ticketNumber, doctor, patient }) => (
+            <div key={ticketNumber} className="col-sm-4 card text-center">
               <div className="card-body">
                 Queue number:
-                <h1 className="text-info">{ticketWithDoctor.ticketNumber.toString().padStart(4, "0")}</h1>
+                <h1 className="text-info">{ticketNumber.toString().padStart(4, "0")}</h1>
               </div>
               <div className="card-text">
                 <p>
                   <strong className="text-info">Doctor: </strong>
-                  {ticketWithDoctor.doctor}
+                  {doctor}
                 </p>
                 <p>
                   <strong className="text-info">Patient: </strong>
-                  {ticketWithDoctor.patient}
+                  {patient}
                 </p>
               </div>
             </div>

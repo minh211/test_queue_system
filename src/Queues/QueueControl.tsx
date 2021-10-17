@@ -1,12 +1,17 @@
 import * as React from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { baseUrl } from "../Config/config.js";
 import socketIOClient from "socket.io-client";
+import { Ticket } from "./Queue";
 
 interface QueueControlProps {
   activeTickets: number;
   refreshTickets(): void;
-  totalTickets: number;
+}
+
+interface Queue {
+  id: number;
+  startDate: Date;
 }
 
 const QueueControl: React.FC<QueueControlProps> = ({ refreshTickets, activeTickets }) => {
@@ -15,9 +20,12 @@ const QueueControl: React.FC<QueueControlProps> = ({ refreshTickets, activeTicke
   const [hasOpenQueue, setHasOpenQueue] = React.useState(false);
 
   const refresh = React.useCallback(async () => {
-    let activeQueue = (await axios.get(`${baseUrl}/queues/getactivequeue`)).data;
-    if (activeQueue.length) {
-      activeQueue = activeQueue[0];
+    const activeQueueResponse: AxiosResponse<(Queue & { Tickets: Array<Ticket> })[]> = await axios.get(
+      `${baseUrl}/queues/getactivequeue`
+    );
+
+    if (activeQueueResponse.data.length) {
+      const activeQueue = activeQueueResponse.data[0];
       setHasOpenQueue(true);
       setTotalTickets(activeQueue.Tickets.length);
       setStartDate(activeQueue.startDate);
@@ -30,37 +38,34 @@ const QueueControl: React.FC<QueueControlProps> = ({ refreshTickets, activeTicke
   }, [refreshTickets]);
 
   React.useEffect(() => {
-    refresh();
+    refresh().then();
     const socket = socketIOClient(`${baseUrl}/queue`, { transports: ["websocket"] });
-    socket.on("newPatient", refresh);
+    socket.on("newPatient", () => {
+      console.log("newPatient");
+      refresh().then();
+    });
+
+    return () => {
+      socket.close();
+    };
   }, [refresh]);
 
   const openNewQueue = React.useCallback(async () => {
     await axios.post(`${baseUrl}/queues/opennewqueue`);
-    refresh();
+    refresh().then();
   }, [refresh]);
 
   const closeActiveQueue = React.useCallback(async () => {
     await axios.post(`${baseUrl}/queues/closeactivequeue`);
-    refresh();
+    refresh().then();
   }, [refresh]);
 
-  const getButton = React.useMemo(() => {
-    let button = null;
-    if (hasOpenQueue) {
-      button = (
-        <button type="button" onClick={closeActiveQueue} className="btn btn-primary">
-          Close Queue
-        </button>
-      );
-    } else {
-      button = (
-        <button type="button" onClick={openNewQueue} className="btn btn-primary">
-          Open New Queue
-        </button>
-      );
-    }
-    return button;
+  const Button = React.useMemo(() => {
+    return (
+      <button type="button" onClick={hasOpenQueue ? closeActiveQueue : openNewQueue} className="btn btn-primary">
+        {hasOpenQueue ? "Close Queue" : "Open New Queue"}
+      </button>
+    );
   }, [closeActiveQueue, hasOpenQueue, openNewQueue]);
 
   return (
@@ -86,7 +91,7 @@ const QueueControl: React.FC<QueueControlProps> = ({ refreshTickets, activeTicke
             <span className="text">{startDate}</span>
           </li>
         </ul>
-        <div className="card-body">{getButton}</div>
+        <div className="card-body">{Button}</div>
       </div>
     </React.Fragment>
   );
