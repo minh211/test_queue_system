@@ -1,55 +1,56 @@
-"use strict";
-const db = require("../models/index.js");
-const Doctor = db.Doctor;
-const Ticket = db.Ticket;
-const Queue = db.Queue;
-const Patient = db.Patient;
-const io = require("../io/io").getIo();
-const home = io.of("/").on("connection", (socket) => {
+import { Doctor, Patient, Queue, Ticket } from "../models";
+import { Request, Response } from "express";
+
+import { getIo } from "../io/io";
+import { DoctorModel } from "../models/doctor";
+import { TicketModel } from "../models/ticket";
+import { PatientModel } from "../models/patient";
+
+const io = getIo();
+const home = io.of("/").on("connection", () => {
   console.log("Connected from Home page.");
 });
-const queue = io.of("/queue").on("connection", (socket) => {
+const queue = io.of("/queue").on("connection", () => {
   console.log("Connected from Queue page.");
 });
 
-exports.addDoctor = async function (req, res) {
+export interface MutationResponse {
+  success: boolean;
+  message: string;
+}
+
+export const addDoctor = async (req: Request, res: Response) => {
   let { firstName, lastName, onDuty } = req.body;
-  let result = {
+  let result: MutationResponse = {
     success: false,
     message: null,
   };
 
   try {
-    let newDoctor = await Doctor.create({
-      firstName,
-      lastName,
-      onDuty,
-    });
+    await Doctor.create({ firstName, lastName, onDuty });
     result.success = true;
     result.message = "Successfully added a new doctor.";
   } catch (e) {
     result.success = false;
     result.message = e.toString();
   }
+
   res.send(result);
 };
 
-
-exports.toggleDuty = async function (req, res) {
+export const toggleDuty = async (req: Request, res: Response) => {
   let { doctorId } = req.body;
-  let result = {
+  let result: MutationResponse = {
     success: false,
     message: null,
   };
 
   try {
-    let doctor = await Doctor.findByPk(doctorId);
+    const doctor = await Doctor.findByPk(doctorId);
     if (doctor) {
-      await doctor.update({
-        onDuty: !doctor.onDuty,
-      });
+      await doctor.update({ onDuty: !doctor.onDuty });
       result.success = true;
-      result.message = "Successfull changed doctor on-duty status.";
+      result.message = "Successful changed doctor on-duty status.";
     } else {
       result.success = false;
       result.message = "Doctor not found.";
@@ -62,10 +63,13 @@ exports.toggleDuty = async function (req, res) {
   res.send(result);
 };
 
-exports.getAllDoctors = async function (req, res) {
+export const getAllDoctors = async function (req, res) {
   let doctors = await Doctor.findAll({
     attributes: ["id", "firstName", "lastName", "onDuty"],
-    order: [["lastName"], ["firstName"]],
+    order: [
+      ["lastName", "ASC"],
+      ["firstName", "ASC"],
+    ],
   });
 
   const result = doctors.map((doctor) => {
@@ -80,13 +84,17 @@ exports.getAllDoctors = async function (req, res) {
   res.send(result);
 };
 
-exports.getOnDutyDoctors = async function (req, res) {
-  let doctors = await Doctor.findAll({
+export const getOnDutyDoctors = async function (req, res) {
+  // @ts-ignore
+  const doctors: (DoctorModel & { Tickets: (TicketModel & { patient: PatientModel })[] })[] = await Doctor.findAll({
     attributes: ["id", "firstName", "lastName"],
     where: {
       onDuty: true,
     },
-    order: [["lastName"], ["firstName"]],
+    order: [
+      ["lastName", "ASC"],
+      ["firstName", "ASC"],
+    ],
     include: [
       {
         model: Ticket,
@@ -120,12 +128,9 @@ exports.getOnDutyDoctors = async function (req, res) {
     doctorFirstName: doctor.firstName,
     doctorLastName: doctor.lastName,
     ticketId: doctor.Tickets.length > 0 ? doctor.Tickets[0].id : null,
-    ticketNumber:
-      doctor.Tickets.length > 0 ? doctor.Tickets[0].ticketNumber : null,
-    patientFirstName:
-      doctor.Tickets.length > 0 ? doctor.Tickets[0].patient.firstName : null,
-    patientLastName:
-      doctor.Tickets.length > 0 ? doctor.Tickets[0].patient.lastName : null,
+    ticketNumber: doctor.Tickets.length > 0 ? doctor.Tickets[0].ticketNumber : null,
+    patientFirstName: doctor.Tickets.length > 0 ? doctor.Tickets[0].patient.firstName : null,
+    patientLastName: doctor.Tickets.length > 0 ? doctor.Tickets[0].patient.lastName : null,
   }));
   res.send(result);
 };
@@ -151,7 +156,7 @@ exports.nextPatient = async function (req, res) {
             {
               model: Queue,
               as: "queue",
-              attribute: ["id"],
+              attributes: ["id"],
               where: {
                 isActive: true,
               },
@@ -190,8 +195,7 @@ exports.nextPatient = async function (req, res) {
 
     if (nextTicket[0]) {
       await doctor.addTicket(nextTicket[0]);
-      result.message =
-        "Successfully closed current ticket and moved to the next patient.";
+      result.message = "Successfully closed current ticket and moved to the next patient.";
     }
     result.success = true;
     home.emit("next");
@@ -210,13 +214,9 @@ exports.deleteDoctor = async function (req, res) {
     message: null,
   };
   try {
-    let doctor = await Doctor.findByPk(doctorId)
+    let doctor = await Doctor.findByPk(doctorId);
     if (doctor) {
-      await doctor.destroy({
-        where : {
-          id : doctorId,
-        }
-      });
+      await Doctor.destroy({ where: { id: doctorId } });
       result.success = true;
       result.message = "Successfully deleted doctor.";
     } else {
@@ -232,7 +232,7 @@ exports.deleteDoctor = async function (req, res) {
 };
 
 exports.updateDoctor = async function (req, res) {
-  let { doctorId }= req.params;
+  let { doctorId } = req.params;
   let { firstName, lastName } = req.body;
   let result = {
     success: false,
@@ -240,15 +240,8 @@ exports.updateDoctor = async function (req, res) {
   };
 
   try {
-    let doctor = await Doctor.findByPk(doctorId);
-    await Doctor.update(
-        {firstName, lastName},
-        {
-          where: {id: doctorId}
-        }
-        );
+    await Doctor.update({ firstName, lastName }, { where: { id: doctorId } });
 
-    console.log(doctor)
     result.success = true;
     result.message = "Successfully updated doctor information.";
   } catch (e) {
@@ -257,4 +250,3 @@ exports.updateDoctor = async function (req, res) {
   }
   res.send(result);
 };
-

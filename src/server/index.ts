@@ -1,26 +1,24 @@
 "use strict";
-const db = require("./models/index.js");
-const express = require("express");
-const bodyParser = require("body-parser");
-const morgan = require("morgan");
-const PORT = process.env.PORT || 1604;
-const helmet = require("helmet");
-const app = express();
-const cors = require("cors");
-const http = require("http");
+import * as Express from "express";
+import { json, urlencoded } from "body-parser";
+import * as morgan from "morgan";
+import * as helmet from "helmet";
+import * as cors from "cors";
+import { setIo } from "./io/io";
+import * as http from "http";
+import { Server } from "socket.io";
+import * as path from "path";
+
+const app = Express();
 const server = http.createServer(app);
-const socketIo = require("socket.io");
-const ioUtil = require("./io/io");
-const path = require("path");
-ioUtil.setIo(socketIo(server));
-const io = ioUtil.getIo();
+setIo(new Server(server));
 
 app.use(morgan("dev"));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(json());
+app.use(urlencoded({ extended: false }));
 app.use(helmet());
 app.use(cors());
-app.use(express.static(path.join(__dirname, "../build")));
+app.use(Express.static(path.join(__dirname, "../build")));
 
 let patientController = require("./controllers/patientController");
 let queueController = require("./controllers/queueController");
@@ -43,11 +41,13 @@ app.put("/doctors/:doctorId", doctorController.updateDoctor);
 app.delete("/doctors/:doctorId", doctorController.deleteDoctor);
 
 // Handle React routing, return all requests to React app
-app.get("*", (req, res) => {
+app.get("*", (_req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
 // start the server
+const PORT = process.env.PORT || 1604;
+
 server.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
