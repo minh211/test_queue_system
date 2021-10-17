@@ -2,5 +2,5 @@ node_modules/*
 public/node_modules/*
 build/*
 /.idea/
-/srcLib/
+/lib/
 /dist/

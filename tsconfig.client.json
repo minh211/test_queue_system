@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src/client/**/*"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "declaration": true,
@@ -22,7 +22,8 @@
     "strict": true,
     "target": "es5",
     "jsx": "react",
-    "outDir": "srcLib",
+    "outDir": "lib",
+    "rootDir": "./src",
     "esModuleInterop": true,
     "stripInternal": true,
     "incremental": true,
