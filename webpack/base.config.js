@@ -6,7 +6,7 @@ const resolve = (dir) => {
 };
 
 module.exports = {
-  entry: [resolve("srcLib/index.js")],
+  entry: [resolve("lib/client/index.js")],
   output: {
     path: resolve("dist"),
     filename: "js/[name].bundle.js",
