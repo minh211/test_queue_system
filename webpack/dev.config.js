@@ -12,7 +12,7 @@ module.exports = merge(baseConfig, {
   mode: "development",
   devtool: "eval-cheap-module-source-map",
   devServer: {
-    contentBase: false,
+    watchContentBase: true,
     publicPath: "/",
     historyApiFallback: true,
     clientLogLevel: "warning",

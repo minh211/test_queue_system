@@ -10,52 +10,14 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [onDuty, setOnDuty] = React.useState(true);
-  const [submitDisabled, setSubmitDisabled] = React.useState(true);
-  const [resetDisabled, setResetDisabled] = React.useState(false);
-  const [errorMessages, setErrorMessages] = React.useState<string[]>([]);
-
-  const validate = () => {
-    let errorMessages = [];
-    if (!firstName) {
-      errorMessages.push("First name field is required.");
-    }
-    if (!lastName) {
-      errorMessages.push("Last name field is required.");
-    }
-    setErrorMessages(errorMessages);
-    if (errorMessages.length === 0) {
-      setSubmitDisabled(false);
-    }
-  };
-
-  const updateFirstName = (value: string) => {
-    setFirstName(value);
-    validate();
-  };
-
-  const updateLastName = (value: string) => {
-    setLastName(value);
-    validate();
-  };
-
-  const updateOnDuty = () => {
-    setOnDuty((oldOnDuty) => !oldOnDuty);
-    validate();
-  };
 
   const reset = () => {
     setFirstName("");
     setLastName("");
     setOnDuty(true);
-    setSubmitDisabled(true);
-    setResetDisabled(false);
-    setErrorMessages([]);
   };
 
   const submit = async () => {
-    setSubmitDisabled(true);
-    setResetDisabled(true);
-
     await axios
       .post(`${baseUrl}/doctors/adddoctor`, {
         firstName,
@@ -69,10 +31,30 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
       .catch(function (error) {
         console.log(error);
       });
-
-    setSubmitDisabled(false);
-    setResetDisabled(false);
   };
+
+  const errorMessages: string[] = React.useMemo(() => {
+    if (!firstName && !lastName) {
+      return [];
+    }
+
+    const errorMessages = [];
+
+    if (!firstName) {
+      errorMessages.push("First name field is required.");
+    }
+    if (!lastName) {
+      errorMessages.push("Last name field is required.");
+    }
+
+    return errorMessages;
+  }, [firstName, lastName]);
+
+  const submitDisabled = React.useMemo(() => !firstName || !lastName, [firstName, lastName]);
+
+  const resetDisabled = React.useMemo(() => {
+    return !firstName && !lastName && onDuty;
+  }, [firstName, lastName, onDuty]);
 
   return (
     <React.Fragment>
@@ -96,8 +78,8 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
             className="form-control"
             id="firstName"
             placeholder="First Name"
-            onBlur={(e) => updateFirstName(e.target.value)}
-            onChange={(e) => updateFirstName(e.target.value)}
+            onBlur={(e) => setFirstName(e.target.value)}
+            onChange={(e) => setFirstName(e.target.value)}
             value={firstName}
           />
         </div>
@@ -110,13 +92,19 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
             className="form-control"
             id="lastName"
             placeholder="Last Name"
-            onBlur={(e) => updateLastName(e.target.value)}
-            onChange={(e) => updateLastName(e.target.value)}
+            onBlur={(e) => setLastName(e.target.value)}
+            onChange={(e) => setLastName(e.target.value)}
             value={lastName}
           />
         </div>
         <div className="form-check" style={{ marginBottom: "20px" }}>
-          <input className="form-check-input" type="checkbox" id="onDuty" onChange={updateOnDuty} checked={onDuty} />
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="onDuty"
+            onChange={() => setOnDuty((oldOnDuty) => !oldOnDuty)}
+            checked={onDuty}
+          />
           <label className="form-check-label" htmlFor="onDuty">
             On Duty
           </label>

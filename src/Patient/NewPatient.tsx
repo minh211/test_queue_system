@@ -10,33 +10,16 @@ const NewPatient: React.FC = () => {
   const [gender, setGender] = React.useState("");
   const [birthday, setBirthday] = React.useState<Date | null>(null);
   const [caseDescription, setCaseDescription] = React.useState("");
-  const [submitDisabled, setSubmitDisabled] = React.useState(true);
+  // const [submitDisabled, setSubmitDisabled] = React.useState(true);
   const [resetDisabled, setResetDisabled] = React.useState(false);
-  const [errorMessages, setErrorMessages] = React.useState<string[]>([]);
-
-  const validate = React.useCallback(() => {
-    let errorMessages = [];
-    if (!firstName) {
-      errorMessages.push("First name field is required.");
-    }
-    if (!lastName) {
-      errorMessages.push("Last name field is required.");
-    }
-    setErrorMessages(errorMessages);
-
-    if (errorMessages.length === 0) {
-      setSubmitDisabled(false);
-    }
-  }, []);
+  // const [errorMessages, setErrorMessages] = React.useState<string[]>([]);
 
   const updateFirstName = (value: string) => {
     setFirstName(value);
-    validate();
   };
 
   const updateLastName = (value: string) => {
     setLastName(value);
-    validate();
   };
 
   const reset = React.useCallback(() => {
@@ -46,12 +29,9 @@ const NewPatient: React.FC = () => {
     setBirthday(null);
     setCaseDescription("");
     setResetDisabled(false);
-    setSubmitDisabled(true);
-    setErrorMessages([]);
   }, []);
 
   const submit = React.useCallback(async () => {
-    setSubmitDisabled(true);
     setResetDisabled(true);
 
     await axios
@@ -66,9 +46,26 @@ const NewPatient: React.FC = () => {
       .catch(function (error) {
         console.log(error);
       });
-    setSubmitDisabled(false);
     setResetDisabled(false);
   }, [birthday, caseDescription, firstName, gender, lastName, reset]);
+
+  const errorMessages = React.useMemo(() => {
+    if (!firstName && !lastName) {
+      return [];
+    }
+    let errorMessages = [];
+    if (!firstName) {
+      errorMessages.push("First name field is required.");
+    }
+    if (!lastName) {
+      errorMessages.push("Last name field is required.");
+    }
+    return errorMessages;
+  }, [firstName, lastName]);
+
+  const submitDisabled = React.useMemo(() => {
+    return !firstName && !lastName;
+  }, [firstName, lastName]);
 
   return (
     <React.Fragment>

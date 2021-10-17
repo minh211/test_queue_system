@@ -1,8 +1,10 @@
 import * as React from "react";
 import axios, { AxiosResponse } from "axios";
 import NewDoctor from "./NewDoctor";
-import AllDoctors from "./AllDoctors";
+import DoctorList from "./DoctorList";
 import { baseUrl } from "../Config/config";
+
+export type MutationResponse = AxiosResponse<{ success: boolean }>;
 
 export interface Doctor {
   doctorId: string;
@@ -14,25 +16,24 @@ export interface Doctor {
 const Doctors: React.FC = () => {
   const [doctors, setDoctors] = React.useState<Doctor[]>([]);
 
-  const refresh = React.useCallback(
-    async (): Promise<AxiosResponse<Doctor[]>> => axios.get(`${baseUrl}/doctors/getalldoctors`),
-    []
-  );
+  const refresh = React.useCallback(async () => {
+    const response: AxiosResponse<Doctor[]> = await axios.get(`${baseUrl}/doctors/getalldoctors`);
+    setDoctors(() => response.data);
+  }, []);
 
   React.useEffect(() => {
-    refresh().then(({ data }) => setDoctors(() => data));
+    refresh();
   }, [refresh]);
 
   const deleteDoctor = React.useCallback(async (doctorId: string) => {
     try {
-      let result = (
-        await axios.delete(`${baseUrl}/doctors/${doctorId}`, {
-          data: { doctorId },
-        })
-      ).data;
-      if (result.success) {
-        let doctors = (await axios.get(`${baseUrl}/doctors/getalldoctors`)).data;
-        setDoctors(() => doctors);
+      const deleteResponse: MutationResponse = await axios.delete(`${baseUrl}/doctors/${doctorId}`, {
+        data: { doctorId },
+      });
+
+      if (deleteResponse.data.success) {
+        const doctorsResponse: AxiosResponse<Doctor[]> = await axios.get(`${baseUrl}/doctors/getalldoctors`);
+        setDoctors(() => doctorsResponse.data);
       }
     } catch (e) {
       console.log(e);
@@ -41,13 +42,11 @@ const Doctors: React.FC = () => {
 
   const toggleDuty = React.useCallback(async (doctorId: string) => {
     try {
-      let result = (
-        await axios.post(`${baseUrl}/doctors/toggleduty`, {
-          doctorId,
-        })
-      ).data;
+      const toggleResponse: MutationResponse = await axios.post(`${baseUrl}/doctors/toggleduty`, {
+        doctorId,
+      });
 
-      if (result.success) {
+      if (toggleResponse.data.success) {
         setDoctors((oldDoctors) =>
           oldDoctors.map((doctor) => {
             if (doctor.doctorId === doctorId) {
@@ -71,7 +70,7 @@ const Doctors: React.FC = () => {
             <NewDoctor refresh={refresh} />
           </div>
           <div className="col-8 card">
-            <AllDoctors doctors={doctors} toggleDuty={toggleDuty} deleteDoctor={deleteDoctor} refresh={refresh} />
+            <DoctorList doctors={doctors} toggleDuty={toggleDuty} deleteDoctor={deleteDoctor} refresh={refresh} />
           </div>
         </div>
       </div>
