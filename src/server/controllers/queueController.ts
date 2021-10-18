@@ -1,38 +1,29 @@
-"use strict";
-const db = require("../models/index.js");
-const Patient = db.Patient;
-const Queue = db.Queue;
-const Ticket = db.Ticket;
-const Doctor = db.Doctor;
-const Sequelize = require("sequelize");
+import { Patient, Queue, Ticket, Doctor } from "../models";
+import * as Sequelize from "sequelize";
+import { getIo } from "../io";
+import { MutationResponse } from "./doctorController";
+import { RequestHandler } from "express";
+
 const Op = Sequelize.Op;
-const io = require("../io/io").getIo();
-const home = io.of("/").on("connection", (socket) => {
+const io = getIo();
+const home = io.of("/").on("connection", () => {
   console.log("Connected from Home page.");
 });
 
-exports.getActiveQueue = async function (req, res) {
-  let queue = await Queue.findAll({
+export const getActiveQueue: RequestHandler = async function (_req, res) {
+  const queue = await Queue.findAll({
     attributes: ["id", "startDate"],
-    where: {
-      isActive: true,
-    },
-    include: [
-      {
-        model: Ticket,
-      },
-    ],
+    where: { isActive: true },
+    include: [{ model: Ticket }],
   });
   res.send(queue);
 };
 
-exports.getTickets = async function (req, res) {
-  let tickets = await Ticket.findAll({
+export const getTickets: RequestHandler = async function (_req, res) {
+  const tickets = await Ticket.findAll({
     attributes: ["id", "ticketNumber", "queueId"],
-    where: {
-      isActive: true,
-    },
-    order: [["ticketNumber"]],
+    where: { isActive: true },
+    order: [["ticketNumber", "ASC"]],
     include: [
       {
         model: Queue,
@@ -45,13 +36,7 @@ exports.getTickets = async function (req, res) {
       {
         model: Patient,
         as: "patient",
-        attributes: [
-          "firstName",
-          "lastName",
-          "gender",
-          "birthday",
-          "caseDescription",
-        ],
+        attributes: ["firstName", "lastName", "gender", "birthday", "caseDescription"],
       },
       {
         model: Doctor,
@@ -63,7 +48,7 @@ exports.getTickets = async function (req, res) {
   });
   const result = tickets.map((ticket) => ({
     ticketNo: ticket.ticketNumber,
-    queueId: ticket.queueId,
+    queueId: ticket.queue.id,
     firstName: ticket.patient.firstName,
     lastName: ticket.patient.lastName,
     gender: ticket.patient.gender,
@@ -76,14 +61,9 @@ exports.getTickets = async function (req, res) {
   res.send(result);
 };
 
-exports.getTicketsWithDoctors = async function (req, res) {
-  let ticketsWithDoctors = await Ticket.findAll({
-    where: {
-      isActive: true,
-      doctorId: {
-        [Op.ne]: null,
-      },
-    },
+export const getTicketsWithDoctors: RequestHandler = async function (_req, res) {
+  const ticketsWithDoctors = await Ticket.findAll({
+    where: { isActive: true, doctorId: { [Op.ne]: null } },
     order: [["updatedAt", "DESC"]],
     include: [
       {
@@ -106,6 +86,7 @@ exports.getTicketsWithDoctors = async function (req, res) {
       },
     ],
   });
+
   const result = ticketsWithDoctors.map((ticket) => {
     return {
       ticketId: ticket.id,
@@ -114,66 +95,53 @@ exports.getTicketsWithDoctors = async function (req, res) {
       doctor: ticket.doctor.firstName + " " + ticket.doctor.lastName,
     };
   });
+
   res.send(result);
 };
 
-exports.openNewQueue = async function (req, res) {
-  let result = {
+export const openNewQueue: RequestHandler = async function (_req, res) {
+  const result: MutationResponse = {
     success: false,
     message: null,
   };
+
   try {
-    let activeQueue = await Queue.findAll({
-      where: {
-        isActive: true,
-      },
-    });
+    const activeQueue = await Queue.findAll({ where: { isActive: true } });
     if (activeQueue.length !== 0) {
       result.success = false;
-      result.message =
-        "There is an active queue. Close this queue before opening a new one.";
+      result.message = "There is an active queue. Close this queue before opening a new one.";
     } else {
-      let queue = await Queue.create({
-        isActive: true,
-        startDate: new Date(),
-      });
+      await Queue.create({ isActive: true, startDate: new Date() });
       result.success = true;
       result.message = "Successfully opened a new queue.";
     }
-  } catch (e) {
+  } catch (e: any) {
     result.success = false;
-    result.message = e;
+    result.message = e.toString();
   }
   res.send(result);
 };
 
-exports.closeActiveQueue = async function (req, res) {
-  let result = {
+export const closeActiveQueue: RequestHandler = async function (_req, res) {
+  const result: MutationResponse = {
     success: false,
     message: null,
   };
   try {
-    let activeQueue = await Queue.findAll({
-      where: {
-        isActive: true,
-      },
-    });
-    if (activeQueue.length === 0) {
+    const activeQueues = await Queue.findAll({ where: { isActive: true } });
+    if (activeQueues.length === 0) {
       result.success = false;
       result.message = "No active queue to close.";
     } else {
-      activeQueue = activeQueue[0];
-      await activeQueue.update({
-        isActive: false,
-        endDate: new Date(),
-      });
+      const activeQueue = activeQueues[0];
+      await activeQueue.update({ isActive: false, endDate: new Date() });
       result.success = true;
       result.message = "Active queue has been successfully closed.";
       home.emit("closeQueue");
     }
-  } catch (e) {
+  } catch (e: any) {
     result.success = false;
-    result.message = e;
+    result.message = e.toString();
   }
   res.send(result);
 };

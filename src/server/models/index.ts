@@ -1,4 +1,4 @@
-import { Sequelize, Options } from "sequelize";
+import { Sequelize } from "sequelize";
 import { doctorFactory } from "./doctor";
 import { patientFactory } from "./patient";
 import { queueFactory } from "./queue";
@@ -6,10 +6,8 @@ import { ticketFactory } from "./ticket";
 
 // @ts-ignore
 import * as configs from "../config/config.json";
-
-const env = process.env.NODE_ENV || "development";
 // @ts-ignore
-const config: Required<Pick<Options, "username" | "password" | "database" | "host" | "dialect">> = configs[env];
+const config = configs[process.env.NODE_ENV || "development"];
 
 const sequelize = new Sequelize(config.database, config.username, config.password, config);
 
@@ -25,3 +23,8 @@ Queue.hasMany(Ticket, { foreignKey: "queueId" });
 Ticket.belongsTo(Queue, { as: "queue" });
 Ticket.belongsTo(Patient, { as: "patient" });
 Ticket.belongsTo(Doctor, { as: "doctor" });
+
+export * from "./doctor";
+export * from "./patient";
+export * from "./queue";
+export * from "./ticket";

@@ -1,22 +1,22 @@
-import { Sequelize, Model, BuildOptions, DataTypes, ModelStatic, Optional } from "sequelize";
+import { BuildOptions, DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { TicketModel } from "./ticket";
 
-interface DoctorAttributes {
+export interface DoctorAttributes {
+  id: string;
   firstName: string;
   lastName: string;
   onDuty: boolean;
-  id: string;
 }
-export interface DoctorModel extends Model<DoctorAttributes, Optional<DoctorAttributes, "id">>, DoctorAttributes {}
+export interface DoctorModel extends Model<DoctorAttributes, Optional<DoctorAttributes, "id">>, DoctorAttributes {
+  Tickets: TicketModel[];
+}
 
-export class Doctor extends Model<DoctorModel, DoctorAttributes> {}
-
-export type DoctorStatic = typeof Model & {
+type DoctorStatic = typeof Model & {
   new (values?: object, options?: BuildOptions): DoctorModel;
-  associate(models: Record<string, ModelStatic<Model>>): void;
 };
 
 export const doctorFactory = (sequelize: Sequelize): DoctorStatic => {
-  const DoctorModel = <DoctorStatic>sequelize.define(
+  return sequelize.define(
     "Doctor",
     {
       firstName: DataTypes.STRING,
@@ -25,10 +25,4 @@ export const doctorFactory = (sequelize: Sequelize): DoctorStatic => {
     },
     {}
   );
-  DoctorModel.associate = function (models) {
-    // associations can be defined here
-    DoctorModel.hasMany(models.Ticket, { foreignKey: "doctorId" });
-  };
-
-  return DoctorModel;
 };

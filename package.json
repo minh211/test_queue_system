@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "compile:client": "tsc --build tsconfig.client.json --watch --preserveWatchOutput",
-    "compile:server": "tsc --build tsconfig.server.json --watch --preserveWatchOutput",
+    "compile:client": "tsc --build ./src/client/tsconfig.json --watch --preserveWatchOutput",
+    "compile:server": "tsc --build ./src/server/tsconfig.json --watch --preserveWatchOutput",
     "server": "nodemon app/index.js",
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",

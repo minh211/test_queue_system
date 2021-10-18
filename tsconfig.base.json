@@ -1,13 +1,7 @@
 {
-  "include": ["src/client/**/*"],
-  "exclude": ["node_modules"],
   "compilerOptions": {
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": [
-      "es2020",
-      "dom"
-    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "newLine": "LF",
@@ -20,10 +14,6 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es5",
-    "jsx": "react",
-    "outDir": "lib",
-    "rootDir": "./src",
     "esModuleInterop": true,
     "stripInternal": true,
     "incremental": true,
@@ -31,8 +21,5 @@
     "downlevelIteration": true,
     "allowJs": true,
     "skipLibCheck": true
-  },
-  "ts-node": {
-    "transpileOnly": true
   }
 }

@@ -1,10 +1,9 @@
-"use strict";
 import * as Express from "express";
 import { json, urlencoded } from "body-parser";
 import * as morgan from "morgan";
 import * as helmet from "helmet";
 import * as cors from "cors";
-import { setIo } from "./io/io";
+import { setIo } from "./io";
 import * as http from "http";
 import { Server } from "socket.io";
 import * as path from "path";

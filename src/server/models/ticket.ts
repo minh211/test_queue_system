@@ -1,35 +1,37 @@
-import { Sequelize, BuildOptions, Model, ModelStatic, DataTypes } from "sequelize";
+import { PatientModel } from "./patient";
+import { BuildOptions, DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { QueueModel } from "./queue";
+import { DoctorModel } from "./doctor";
 
 interface TicketAttributes {
+  id: string;
   isActive: boolean;
   ticketNumber: number;
-  id: string;
+
   doctorId: string;
+  patientId: string;
+  queueId: string;
 }
 
-export interface TicketModel extends Model<TicketAttributes>, TicketAttributes {}
+export interface TicketModel
+  extends Model<TicketAttributes, Optional<TicketAttributes, "id" | "doctorId" | "patientId" | "queueId">>,
+    TicketAttributes {
+  setPatient(patient: PatientModel): Promise<void>;
+  patient: PatientModel;
 
-export class Ticket extends Model<TicketModel, TicketAttributes> {}
+  setQueue(queue: QueueModel): Promise<void>;
+  queue: QueueModel;
+
+  doctor: DoctorModel;
+}
 
 export type TicketStatic = typeof Model & {
   new (values?: object, options?: BuildOptions): TicketModel;
-  associate(models: Record<string, ModelStatic<Model>>): void;
 };
 
 export const ticketFactory = (sequelize: Sequelize): TicketStatic => {
-  const Ticket = <TicketStatic>sequelize.define(
-    "Ticket",
-    {
-      isActive: DataTypes.BOOLEAN,
-      ticketNumber: DataTypes.INTEGER,
-    },
-    {}
-  );
-  Ticket.associate = function (models) {
-    // associations can be defined here
-    Ticket.belongsTo(models.Queue, { as: "queue" });
-    Ticket.belongsTo(models.Patient, { as: "patient" });
-    Ticket.belongsTo(models.Doctor, { as: "doctor" });
-  };
-  return Ticket;
+  return <TicketStatic>sequelize.define("Ticket", {
+    isActive: DataTypes.BOOLEAN,
+    ticketNumber: DataTypes.INTEGER,
+  });
 };

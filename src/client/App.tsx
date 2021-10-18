@@ -1,13 +1,13 @@
 import * as React from "react";
 import NavBar from "./NavBar/NavBar";
 import Home from "./Home/Home";
+import { Route } from "react-router-dom";
 import Doctors from "./Doctors/Doctors";
 import Queue from "./Queues/Queue";
-import { Route } from "react-router-dom";
 
 const App = () => {
   return (
-    <div>
+    <div style={{ backgroundColor: "red" }}>
       <NavBar />
       <Route exact path="/" component={Home} />
       <Route exact path="/queue" component={Queue} />

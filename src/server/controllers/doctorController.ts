@@ -1,10 +1,8 @@
-import { Doctor, Patient, Queue, Ticket } from "../models";
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 
-import { getIo } from "../io/io";
-import { DoctorModel } from "../models/doctor";
-import { TicketModel } from "../models/ticket";
-import { PatientModel } from "../models/patient";
+import { Doctor, Patient, Queue, Ticket } from "../models";
+import { getIo } from "../io";
+import { DoctorAttributes } from "../models";
 
 const io = getIo();
 const home = io.of("/").on("connection", () => {
@@ -16,12 +14,12 @@ const queue = io.of("/queue").on("connection", () => {
 
 export interface MutationResponse {
   success: boolean;
-  message: string;
+  message: string | null;
 }
 
-export const addDoctor = async (req: Request, res: Response) => {
-  let { firstName, lastName, onDuty } = req.body;
-  let result: MutationResponse = {
+export const addDoctor: RequestHandler = async (req: Request, res: Response) => {
+  const { firstName, lastName, onDuty } = req.body as DoctorAttributes;
+  const result: MutationResponse = {
     success: false,
     message: null,
   };
@@ -30,7 +28,7 @@ export const addDoctor = async (req: Request, res: Response) => {
     await Doctor.create({ firstName, lastName, onDuty });
     result.success = true;
     result.message = "Successfully added a new doctor.";
-  } catch (e) {
+  } catch (e: any) {
     result.success = false;
     result.message = e.toString();
   }
@@ -38,9 +36,9 @@ export const addDoctor = async (req: Request, res: Response) => {
   res.send(result);
 };
 
-export const toggleDuty = async (req: Request, res: Response) => {
-  let { doctorId } = req.body;
-  let result: MutationResponse = {
+export const toggleDuty: RequestHandler = async (req: Request, res: Response) => {
+  const { doctorId } = req.body;
+  const result: MutationResponse = {
     success: false,
     message: null,
   };
@@ -55,7 +53,7 @@ export const toggleDuty = async (req: Request, res: Response) => {
       result.success = false;
       result.message = "Doctor not found.";
     }
-  } catch (e) {
+  } catch (e: any) {
     result.success = false;
     result.message = e.toString();
   }
@@ -63,8 +61,8 @@ export const toggleDuty = async (req: Request, res: Response) => {
   res.send(result);
 };
 
-export const getAllDoctors = async function (req, res) {
-  let doctors = await Doctor.findAll({
+export const getAllDoctors: RequestHandler = async function (_req, res) {
+  const doctors = await Doctor.findAll({
     attributes: ["id", "firstName", "lastName", "onDuty"],
     order: [
       ["lastName", "ASC"],
@@ -84,13 +82,10 @@ export const getAllDoctors = async function (req, res) {
   res.send(result);
 };
 
-export const getOnDutyDoctors = async function (req, res) {
-  // @ts-ignore
-  const doctors: (DoctorModel & { Tickets: (TicketModel & { patient: PatientModel })[] })[] = await Doctor.findAll({
+export const getOnDutyDoctors: RequestHandler = async function (_req, res) {
+  const doctors = await Doctor.findAll({
     attributes: ["id", "firstName", "lastName"],
-    where: {
-      onDuty: true,
-    },
+    where: { onDuty: true },
     order: [
       ["lastName", "ASC"],
       ["firstName", "ASC"],
@@ -98,9 +93,7 @@ export const getOnDutyDoctors = async function (req, res) {
     include: [
       {
         model: Ticket,
-        where: {
-          isActive: true,
-        },
+        where: { isActive: true },
         attributes: ["id", "ticketNumber"],
         required: false,
         include: [
@@ -108,9 +101,7 @@ export const getOnDutyDoctors = async function (req, res) {
             model: Queue,
             as: "queue",
             attributes: ["id"],
-            where: {
-              isActive: true,
-            },
+            where: { isActive: true },
           },
           {
             model: Patient,
@@ -135,46 +126,42 @@ export const getOnDutyDoctors = async function (req, res) {
   res.send(result);
 };
 
-exports.nextPatient = async function (req, res) {
-  let result = {
+export const nextPatient: RequestHandler = async function (req, res) {
+  const result: MutationResponse = {
     success: false,
     message: null,
   };
 
   try {
-    let { doctorId } = req.body;
-    let doctor = await Doctor.findByPk(doctorId, {
+    const { doctorId } = req.body;
+    const doctor = await Doctor.findByPk(doctorId, {
       include: [
         {
           model: Ticket,
           attributes: ["id"],
-          where: {
-            isActive: true,
-          },
+          where: { isActive: true },
           required: false,
           include: [
             {
               model: Queue,
               as: "queue",
               attributes: ["id"],
-              where: {
-                isActive: true,
-              },
+              where: { isActive: true },
             },
           ],
         },
       ],
     });
 
-    if (doctor.Tickets.length > 0) {
-      let ticket = await Ticket.findByPk(doctor.Tickets[0].id);
-      await ticket.update({
-        isActive: false,
-      });
-      result.message = "Successfully closed current ticket.";
+    if (doctor && doctor.Tickets.length > 0) {
+      const ticket = await Ticket.findByPk(doctor.Tickets[0].id);
+      if (ticket) {
+        await ticket.update({ isActive: false });
+        result.message = "Successfully closed current ticket.";
+      }
     }
 
-    let nextTicket = await Ticket.findAll({
+    const nextTicket = await Ticket.findAll({
       attributes: ["id"],
       where: {
         isActive: true,
@@ -194,12 +181,11 @@ exports.nextPatient = async function (req, res) {
     });
 
     if (nextTicket[0]) {
-      await doctor.addTicket(nextTicket[0]);
       result.message = "Successfully closed current ticket and moved to the next patient.";
     }
     result.success = true;
     home.emit("next");
-  } catch (e) {
+  } catch (e: any) {
     result.success = false;
     result.message = e.toString();
   }
@@ -207,14 +193,15 @@ exports.nextPatient = async function (req, res) {
   res.send(result);
 };
 
-exports.deleteDoctor = async function (req, res) {
-  let { doctorId } = req.params;
-  let result = {
+export const deleteDoctor: RequestHandler = async function (req, res) {
+  const { doctorId } = req.params;
+  const result: MutationResponse = {
     success: false,
     message: null,
   };
+
   try {
-    let doctor = await Doctor.findByPk(doctorId);
+    const doctor = await Doctor.findByPk(doctorId);
     if (doctor) {
       await Doctor.destroy({ where: { id: doctorId } });
       result.success = true;
@@ -223,7 +210,7 @@ exports.deleteDoctor = async function (req, res) {
       result.success = false;
       result.message = "Doctor not found.";
     }
-  } catch (e) {
+  } catch (e: any) {
     result.success = false;
     result.message = e.toString();
   }
@@ -231,10 +218,10 @@ exports.deleteDoctor = async function (req, res) {
   res.send(result);
 };
 
-exports.updateDoctor = async function (req, res) {
-  let { doctorId } = req.params;
-  let { firstName, lastName } = req.body;
-  let result = {
+export const updateDoctor: RequestHandler = async function (req, res) {
+  const { doctorId } = req.params;
+  const { firstName, lastName } = req.body;
+  const result: MutationResponse = {
     success: false,
     message: null,
   };
@@ -244,7 +231,7 @@ exports.updateDoctor = async function (req, res) {
 
     result.success = true;
     result.message = "Successfully updated doctor information.";
-  } catch (e) {
+  } catch (e: any) {
     result.success = false;
     result.message = e.toString();
   }

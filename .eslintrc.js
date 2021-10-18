@@ -5,7 +5,7 @@ module.exports = {
   },
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["./tsconfig.client.json", "./tsconfig.server.json"],
+    project: ["./src/client/tsconfig.json", "./src/server/tsconfig.json"],
     ecmaVersion: 6,
     sourceType: "module",
     ecmaFeatures: {
@@ -20,7 +20,7 @@ module.exports = {
       version: "17.0.2",
     },
   },
-
+  ignorePatterns: [".eslintrc.js"],
   rules: {
     "@typescript-eslint/ban-types": ["error", { types: { object: false } }], // TODO: Enable object for better object typing iterator
     "@typescript-eslint/explicit-module-boundary-types": "off",
