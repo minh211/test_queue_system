@@ -5,22 +5,22 @@ module.exports = {
   },
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["./src/client/tsconfig.json", "./src/server/tsconfig.json"],
-    ecmaVersion: 6,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-      modules: true,
-    },
+    project: ["./client/tsconfig.json", "./server/tsconfig.json"],
   },
-  extends: ["plugin:prettier/recommended"],
-  plugins: ["prettier", "deprecation", "@typescript-eslint", "react-hooks"],
+  extends: [
+    "eslint:recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+  ],
+  plugins: ["prettier", "deprecation", "@typescript-eslint", "react-hooks", "import"],
   settings: {
     react: {
       version: "17.0.2",
     },
   },
-  ignorePatterns: [".eslintrc.js"],
   rules: {
     "@typescript-eslint/ban-types": ["error", { types: { object: false } }], // TODO: Enable object for better object typing iterator
     "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -36,5 +36,13 @@ module.exports = {
     "react-hooks/exhaustive-deps": "error",
     "prettier/prettier": "error",
     "deprecation/deprecation": "warn",
+    "import/order": [
+      "error",
+      {
+        groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+        "newlines-between": "always",
+      },
+    ],
+    "import/newline-after-import": ["error", { count: 1 }],
   },
 };

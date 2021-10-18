@@ -2,6 +2,7 @@ node_modules/*
 public/node_modules/*
 build/*
 /.idea/
-/lib/
+/server/lib/
+/client/lib/
 /dist/
 *.tsbuildinfo

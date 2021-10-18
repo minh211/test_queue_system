@@ -4,13 +4,11 @@
   "private": true,
   "scripts": {
     "start": "run-p server client",
-
     "server": "run-p server:*",
     "server:start": "nodemon lib/server/index.js",
-    "server:watch": "tsc --build ./src/server/tsconfig.json --watch --preserveWatchOutput",
-
+    "server:watch": "tsc --build ./server/tsconfig.json --watch --preserveWatchOutput",
     "client": "run-p client:*",
-    "client:watch": "tsc --build ./src/client/tsconfig.json --watch --preserveWatchOutput",
+    "client:watch": "tsc --build ./client/tsconfig.json --watch --preserveWatchOutput",
     "client:start": "cross-env NODE_ENV=development webpack serve --config webpack/dev.config.js",
     "client:build": "cross-env NODE_ENV=production webpack --config webpack/prod.config.js"
   },
@@ -63,7 +61,7 @@
     "eslint-loader": "2.1.1",
     "eslint-plugin-deprecation": "^1.2.1",
     "eslint-plugin-flowtype": "2.50.1",
-    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-jsx-a11y": "6.1.2",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "7.11.1",

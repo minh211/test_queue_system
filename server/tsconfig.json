@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "lib": ["es2018", "esnext.asynciterable"],
+    "outDir": "lib",
+    "rootDir": ".",
+    "resolveJsonModule": true
+  },
+  "include": ["src"],
+  "files": ["src/index.ts"],
+  "exclude": ["./lib"]
+}
