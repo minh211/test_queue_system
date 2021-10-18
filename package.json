@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "compile:client": "tsc --build ./src/client/tsconfig.json --watch --preserveWatchOutput",
-    "compile:server": "tsc --build ./src/server/tsconfig.json --watch --preserveWatchOutput",
-    "server": "nodemon app/index.js",
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
-    "test": "node scripts/test.js",
-    "dev-server": "cross-env NODE_ENV=development webpack serve --config webpack/dev.config.js",
-    "build-server": "cross-env NODE_ENV=production webpack --config webpack/prod.config.js"
+    "start": "run-p server client",
+
+    "server": "run-p server:*",
+    "server:start": "nodemon lib/server/index.js",
+    "server:watch": "tsc --build ./src/server/tsconfig.json --watch --preserveWatchOutput",
+
+    "client": "run-p client:*",
+    "client:watch": "tsc --build ./src/client/tsconfig.json --watch --preserveWatchOutput",
+    "client:start": "cross-env NODE_ENV=development webpack serve --config webpack/dev.config.js",
+    "client:build": "cross-env NODE_ENV=production webpack --config webpack/prod.config.js"
   },
   "eslintConfig": {
     "extends": "react-app"
