@@ -1,11 +1,12 @@
+const fs = require("fs");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 const path = require("path");
 const DotEnv = require("dotenv");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const paths = require("../config/paths");
 const baseConfig = require("./base.config.js");
-
+const appDirectory = fs.realpathSync(process.cwd());
+const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
 DotEnv.config({ path: ".env.dev" });
 
 module.exports = merge(baseConfig, {
@@ -25,7 +26,7 @@ module.exports = merge(baseConfig, {
   plugins: [
     new HtmlWebpackPlugin({
       inject: true,
-      template: paths.appHtml,
+      template: resolveApp("client/public/index.html"),
     }),
     new webpack.HotModuleReplacementPlugin(),
   ],
