@@ -8,7 +8,7 @@
     "target": "es5",
     "jsx": "react",
     "outDir": "lib",
-    "rootDir": "."
+    "rootDir": "src"
   },
   "include": ["src"],
   "files": ["src/index.tsx"],

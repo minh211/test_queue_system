@@ -5,7 +5,7 @@
   "scripts": {
     "start": "run-p server client",
     "server": "run-p server:*",
-    "server:start": "nodemon lib/server/index.js",
+    "server:start": "nodemon server/lib/index.js",
     "server:watch": "tsc --build ./server/tsconfig.json --watch --preserveWatchOutput",
     "client": "run-p client:*",
     "client:watch": "tsc --build ./client/tsconfig.json --watch --preserveWatchOutput",
