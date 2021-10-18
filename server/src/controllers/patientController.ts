@@ -6,11 +6,11 @@ import { getIo } from "../io";
 import { MutationResponse } from "./doctorController";
 
 const io = getIo();
-const queue = io.of("/queue").on("connection", () => {
+const queue = io?.of("/queue").on("connection", () => {
   console.log("Connected from Queue page.");
 });
 
-export const create: RequestHandler = async function (req: Request, res: Response) {
+export const createPatient: RequestHandler = async function (req: Request, res: Response) {
   const { firstName, lastName, caseDescription, gender, birthday } = req.body as PatientAttributes;
   const activeQueues = await Queue.findAll({
     where: { isActive: true },
@@ -40,7 +40,7 @@ export const create: RequestHandler = async function (req: Request, res: Respons
       result.success = true;
       result.message = "Patient successfully created.";
 
-      queue.emit("newPatient");
+      queue?.emit("newPatient");
     } catch (e: any) {
       result.success = false;
       result.message = e.toString();

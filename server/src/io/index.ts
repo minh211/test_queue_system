@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 
 function init() {
-  let _io: Server;
+  let _io: Server | undefined;
 
   return {
     setIo: (io: Server) => (_io = io),

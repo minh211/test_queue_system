@@ -4,10 +4,10 @@ import { Doctor, Patient, Queue, Ticket, DoctorAttributes } from "../models";
 import { getIo } from "../io";
 
 const io = getIo();
-const home = io.of("/").on("connection", () => {
+const home = io?.of("/").on("connection", () => {
   console.log("Connected from Home page.");
 });
-const queue = io.of("/queue").on("connection", () => {
+const queue = io?.of("/queue").on("connection", () => {
   console.log("Connected from Queue page.");
 });
 
@@ -56,7 +56,7 @@ export const toggleDuty: RequestHandler = async (req: Request, res: Response) =>
     result.success = false;
     result.message = e.toString();
   }
-  queue.emit("doctorToggleDuty");
+  queue?.emit("doctorToggleDuty");
   res.send(result);
 };
 
@@ -183,7 +183,7 @@ export const nextPatient: RequestHandler = async function (req, res) {
       result.message = "Successfully closed current ticket and moved to the next patient.";
     }
     result.success = true;
-    home.emit("next");
+    home?.emit("next");
   } catch (e: any) {
     result.success = false;
     result.message = e.toString();
@@ -213,7 +213,7 @@ export const deleteDoctor: RequestHandler = async function (req, res) {
     result.success = false;
     result.message = e.toString();
   }
-  queue.emit("doctorDelete");
+  queue?.emit("doctorDelete");
   res.send(result);
 };
 
