@@ -2,12 +2,12 @@ import * as React from "react";
 
 import { Ticket } from "./Queue";
 
-interface QueueTicketsProps {
+interface TicketList {
   refreshTickets(): void;
   tickets: Ticket[];
 }
 
-const QueueTickets: React.FC<QueueTicketsProps> = ({ refreshTickets, tickets }) => {
+const TicketList: React.FC<TicketList> = ({ refreshTickets, tickets }) => {
   React.useEffect(() => {
     refreshTickets();
   }, [refreshTickets]);
@@ -50,4 +50,4 @@ const QueueTickets: React.FC<QueueTicketsProps> = ({ refreshTickets, tickets }) 
   );
 };
 
-export default QueueTickets;
+export default TicketList;

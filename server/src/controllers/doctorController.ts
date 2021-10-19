@@ -1,12 +1,10 @@
 import { Request, RequestHandler, Response } from "express";
 
-import { Doctor, Patient, Queue, Ticket, DoctorAttributes } from "../models";
+import { Doctor, DoctorAttributes, Patient, Queue, Ticket } from "../models";
 import { getIo } from "../io";
 
 const io = getIo();
-const home = io?.of("/").on("connection", () => {
-  console.log("Connected from Home page.");
-});
+
 const queue = io?.of("/queue").on("connection", () => {
   console.log("Connected from Queue page.");
 });
@@ -60,7 +58,15 @@ export const toggleDuty: RequestHandler = async (req: Request, res: Response) =>
   res.send(result);
 };
 
-export const getAllDoctors: RequestHandler = async function (_req, res) {
+export const getDoctors: RequestHandler = async function (req, res) {
+  const { onDuty } = req.query;
+
+  if (onDuty) {
+    const dutyDoctors = await getOnDutyDoctors();
+    res.send(dutyDoctors);
+    return;
+  }
+
   const doctors = await Doctor.findAll({
     attributes: ["id", "firstName", "lastName", "onDuty"],
     order: [
@@ -81,7 +87,7 @@ export const getAllDoctors: RequestHandler = async function (_req, res) {
   res.send(result);
 };
 
-export const getOnDutyDoctors: RequestHandler = async function (_req, res) {
+export const getOnDutyDoctors = async function () {
   const doctors = await Doctor.findAll({
     attributes: ["id", "firstName", "lastName"],
     where: { onDuty: true },
@@ -113,84 +119,25 @@ export const getOnDutyDoctors: RequestHandler = async function (_req, res) {
     ],
   });
 
-  const result = doctors.map((doctor) => ({
+  return doctors.map((doctor) => ({
     doctorId: doctor.id,
-    doctorFirstName: doctor.firstName,
-    doctorLastName: doctor.lastName,
-    ticketId: doctor.Tickets.length > 0 ? doctor.Tickets[0].id : null,
-    ticketNumber: doctor.Tickets.length > 0 ? doctor.Tickets[0].ticketNumber : null,
-    patientFirstName: doctor.Tickets.length > 0 ? doctor.Tickets[0].patient.firstName : null,
-    patientLastName: doctor.Tickets.length > 0 ? doctor.Tickets[0].patient.lastName : null,
+    firstName: doctor.firstName,
+    lastName: doctor.lastName,
+    ticket:
+      doctor.Tickets.length > 0
+        ? { ticketNumber: doctor.Tickets[0].ticketNumber, ticketId: doctor.Tickets[0].id }
+        : undefined,
+    patient:
+      doctor.Tickets.length > 0
+        ? {
+            firstName: doctor.Tickets[0].patient.firstName,
+            lastName: doctor.Tickets[0].patient.lastName,
+          }
+        : undefined,
   }));
-  res.send(result);
 };
 
-export const nextPatient: RequestHandler = async function (req, res) {
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
-
-  try {
-    const { doctorId } = req.body;
-    const doctor = await Doctor.findByPk(doctorId, {
-      include: [
-        {
-          model: Ticket,
-          attributes: ["id"],
-          where: { isActive: true },
-          required: false,
-          include: [
-            {
-              model: Queue,
-              as: "queue",
-              attributes: ["id"],
-              where: { isActive: true },
-            },
-          ],
-        },
-      ],
-    });
-
-    if (doctor && doctor.Tickets.length > 0) {
-      const ticket = await Ticket.findByPk(doctor.Tickets[0].id);
-      if (ticket) {
-        await ticket.update({ isActive: false });
-        result.message = "Successfully closed current ticket.";
-      }
-    }
-
-    const nextTicket = await Ticket.findAll({
-      attributes: ["id"],
-      where: {
-        isActive: true,
-        doctorId: null,
-      },
-      include: [
-        {
-          model: Queue,
-          as: "queue",
-          attributes: ["id"],
-          where: {
-            isActive: true,
-          },
-        },
-      ],
-      order: [["ticketNumber", "ASC"]],
-    });
-
-    if (nextTicket[0]) {
-      result.message = "Successfully closed current ticket and moved to the next patient.";
-    }
-    result.success = true;
-    home?.emit("next");
-  } catch (e: any) {
-    result.success = false;
-    result.message = e.toString();
-  }
-
-  res.send(result);
-};
+// TODO: it should be the PATCH request of tickets that changes isActive to false.
 
 export const deleteDoctor: RequestHandler = async function (req, res) {
   const { doctorId } = req.params;
@@ -219,14 +166,16 @@ export const deleteDoctor: RequestHandler = async function (req, res) {
 
 export const updateDoctor: RequestHandler = async function (req, res) {
   const { doctorId } = req.params;
-  const { firstName, lastName } = req.body;
+  const { firstName, lastName, onDuty } = req.body;
   const result: MutationResponse = {
     success: false,
     message: null,
   };
 
+  const updates: Partial<Omit<DoctorAttributes, "id">> = { firstName, lastName, onDuty };
+
   try {
-    await Doctor.update({ firstName, lastName }, { where: { id: doctorId } });
+    await Doctor.update(updates, { where: { id: doctorId } });
 
     result.success = true;
     result.message = "Successfully updated doctor information.";

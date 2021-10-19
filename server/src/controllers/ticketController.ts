@@ -3,7 +3,18 @@ import { Op } from "sequelize";
 
 import { Doctor, Patient, Queue, Ticket } from "../models";
 
-export const getAllTickets: RequestHandler = async function (_req, res) {
+import { MutationResponse } from "./doctorController";
+
+export const getAllTickets: RequestHandler = async function (req, res) {
+  const { active } = req.query;
+
+  console.log(active);
+  if (active) {
+    const activeTickets = await getActiveTickets();
+    res.send(activeTickets);
+    return;
+  }
+
   const tickets = await Ticket.findAll({
     attributes: ["id", "ticketNumber", "queueId"],
     where: { isActive: true },
@@ -31,6 +42,7 @@ export const getAllTickets: RequestHandler = async function (_req, res) {
     ],
   });
   const result = tickets.map((ticket) => ({
+    ticketId: ticket.id,
     ticketNo: ticket.ticketNumber,
     queueId: ticket.queue.id,
     firstName: ticket.patient.firstName,
@@ -45,7 +57,7 @@ export const getAllTickets: RequestHandler = async function (_req, res) {
   res.send(result);
 };
 
-export const getActiveTickets: RequestHandler = async function (_req, res) {
+export const getActiveTickets = async function () {
   const ticketsWithDoctors = await Ticket.findAll({
     where: { isActive: true, doctorId: { [Op.ne]: null } },
     order: [["updatedAt", "DESC"]],
@@ -71,7 +83,7 @@ export const getActiveTickets: RequestHandler = async function (_req, res) {
     ],
   });
 
-  const result = ticketsWithDoctors.map((ticket) => {
+  return ticketsWithDoctors.map((ticket) => {
     return {
       ticketId: ticket.id,
       ticketNumber: ticket.ticketNumber,
@@ -79,6 +91,43 @@ export const getActiveTickets: RequestHandler = async function (_req, res) {
       doctor: ticket.doctor.firstName + " " + ticket.doctor.lastName,
     };
   });
+};
+
+export const updateTicket: RequestHandler = async function (req, res) {
+  const result: MutationResponse = {
+    success: false,
+    message: null,
+  };
+
+  try {
+    const { ticketId } = req.params;
+
+    const { isActive, doctorId } = req.body;
+
+    const ticket = await Ticket.findByPk(ticketId);
+
+    if (ticket) {
+      if (doctorId) {
+        const doctor = await Doctor.findByPk(doctorId);
+
+        if (doctor) {
+          await ticket.setDoctor(doctor);
+        }
+      } else if (isActive === false) {
+        await ticket.update({ isActive: false });
+      } else {
+        result.message = "Can not update the ticket";
+
+        res.send(result);
+        return;
+      }
+
+      result.success = true;
+    }
+  } catch (e: any) {
+    result.success = false;
+    result.message = e.toString();
+  }
 
   res.send(result);
 };

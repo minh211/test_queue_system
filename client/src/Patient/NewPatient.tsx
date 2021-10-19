@@ -35,7 +35,7 @@ const NewPatient: React.FC = () => {
 
   const submit = React.useCallback(async () => {
     await axios
-      .post(`${baseUrl}/patients/create`, {
+      .post(`${baseUrl}/patients`, {
         firstName,
         lastName,
         caseDescription,

@@ -15,11 +15,11 @@ export interface Doctor {
   onDuty: boolean;
 }
 
-const Doctors: React.FC = () => {
+const DoctorPage: React.FC = () => {
   const [doctors, setDoctors] = React.useState<Doctor[]>([]);
 
   const refresh = React.useCallback(async () => {
-    const response: AxiosResponse<Doctor[]> = await axios.get(`${baseUrl}/doctors/getalldoctors`);
+    const response: AxiosResponse<Doctor[]> = await axios.get(`${baseUrl}/doctors`);
     setDoctors(() => response.data);
   }, []);
 
@@ -34,7 +34,7 @@ const Doctors: React.FC = () => {
       });
 
       if (deleteResponse.data.success) {
-        const doctorsResponse: AxiosResponse<Doctor[]> = await axios.get(`${baseUrl}/doctors/getalldoctors`);
+        const doctorsResponse: AxiosResponse<Doctor[]> = await axios.get(`${baseUrl}/doctors`);
         setDoctors(() => doctorsResponse.data);
       }
     } catch (e) {
@@ -42,27 +42,35 @@ const Doctors: React.FC = () => {
     }
   }, []);
 
-  const toggleDuty = React.useCallback(async (doctorId: string) => {
-    try {
-      const toggleResponse: MutationResponse = await axios.post(`${baseUrl}/doctors/toggleduty`, {
-        doctorId,
-      });
-
-      if (toggleResponse.data.success) {
-        setDoctors((oldDoctors) =>
-          oldDoctors.map((doctor) => {
-            if (doctor.doctorId === doctorId) {
-              return { ...doctor, onDuty: !doctor.onDuty };
-            }
-
-            return doctor;
-          })
-        );
+  const toggleDuty = React.useCallback(
+    async (doctorId: string) => {
+      const targetDoctor = doctors.find((doctor) => doctor.doctorId === doctorId);
+      if (!targetDoctor) {
+        return;
       }
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
+
+      try {
+        const toggleResponse: MutationResponse = await axios.patch(`${baseUrl}/doctors/${doctorId}`, {
+          onDuty: !targetDoctor.onDuty,
+        });
+
+        if (toggleResponse.data.success) {
+          setDoctors((oldDoctors) =>
+            oldDoctors.map((doctor) => {
+              if (doctor.doctorId === doctorId) {
+                return { ...doctor, onDuty: !doctor.onDuty };
+              }
+
+              return doctor;
+            })
+          );
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    [doctors]
+  );
 
   return (
     <React.Fragment>
@@ -80,4 +88,4 @@ const Doctors: React.FC = () => {
   );
 };
 
-export default Doctors;
+export default DoctorPage;

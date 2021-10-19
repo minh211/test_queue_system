@@ -1,13 +1,11 @@
 import express from "express";
 
-import { closeActiveQueue, getActiveQueues, openNewQueue } from "../controllers/queueController";
+import { closeActiveQueue, getQueues, openNewQueue } from "../controllers/queueController";
 
 const queuesRouter = express.Router();
 
-queuesRouter.post("/queue", openNewQueue);
-
-queuesRouter.delete("/queue", closeActiveQueue);
-
-queuesRouter.get("/", getActiveQueues);
+queuesRouter.get("", getQueues);
+queuesRouter.post("", openNewQueue);
+queuesRouter.patch("/:queueId", closeActiveQueue);
 
 export { queuesRouter };

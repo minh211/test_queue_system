@@ -14,7 +14,7 @@ const DisplayQueue: React.FC = () => {
   const [ticketsWithDoctors, setTicketsWithDoctors] = React.useState<TicketWithDoctor[]>([]);
 
   const refreshQueue = React.useCallback(async () => {
-    const response = (await axios.get(`${baseUrl}/queues/getticketswithdoctors`)).data;
+    const response = (await axios.get(`${baseUrl}/tickets?active=true`)).data;
     setTicketsWithDoctors(response);
   }, []);
 

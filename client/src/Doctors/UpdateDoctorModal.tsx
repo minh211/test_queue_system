@@ -4,7 +4,7 @@ import axios from "axios";
 
 import { baseUrl } from "../Config/config";
 
-import { Doctor } from "./Doctors";
+import { Doctor } from "./DoctorPage";
 import { useNames } from "./useNames";
 
 interface UpdateDoctorModalProps {
@@ -19,10 +19,13 @@ export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({ modal, tog
   const { firstName, lastName, errorMessages, updateFirstName, updateLastName, isValid, isEditing } = useNames(doctor);
 
   const updateDoctor = React.useCallback(async () => {
+    if (!doctor) {
+      return;
+    }
+
     try {
       const result = (
-        await axios.put(`${baseUrl}/doctors/${doctor?.doctorId}`, {
-          doctorId: doctor?.doctorId,
+        await axios.patch(`${baseUrl}/doctors/${doctor.doctorId}`, {
           firstName,
           lastName,
         })
@@ -34,7 +37,7 @@ export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({ modal, tog
     } catch (e) {
       console.log(e);
     }
-  }, [doctor?.doctorId, firstName, lastName, refresh]);
+  }, [doctor, firstName, lastName, refresh, toggleModal]);
 
   if (!modal) {
     return null;

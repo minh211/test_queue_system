@@ -25,11 +25,7 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
 
   const submit = async () => {
     await axios
-      .post(`${baseUrl}/doctors/adddoctor`, {
-        firstName,
-        lastName,
-        onDuty,
-      })
+      .post(`${baseUrl}/doctors`, { firstName, lastName, onDuty })
       .then(() => {
         reset();
         props.refresh();

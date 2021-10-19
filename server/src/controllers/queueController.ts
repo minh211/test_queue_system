@@ -10,10 +10,12 @@ const home = io?.of("/").on("connection", () => {
   console.log("Connected from Home page.");
 });
 
-export const getActiveQueues: RequestHandler = async function (_req, res) {
+export const getQueues: RequestHandler = async function (req, res) {
+  const { active } = req.query;
+
   const queue = await Queue.findAll({
     attributes: ["id", "startDate"],
-    where: { isActive: true },
+    where: active ? { isActive: true } : undefined,
     include: [{ model: Ticket }],
   });
   res.send(queue);
@@ -42,7 +44,13 @@ export const openNewQueue: RequestHandler = async function (_req, res) {
   res.send(result);
 };
 
-export const closeActiveQueue: RequestHandler = async function (_req, res) {
+export const closeActiveQueue: RequestHandler = async function (req, res) {
+  const { isActive } = req.body;
+
+  if (isActive !== false) {
+    return;
+  }
+
   const result: MutationResponse = {
     success: false,
     message: null,

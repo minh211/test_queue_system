@@ -23,6 +23,7 @@ export interface TicketModel
   setQueue(queue: QueueModel): Promise<void>;
   queue: QueueModel;
 
+  setDoctor(doctor: DoctorModel): Promise<void>;
   doctor: DoctorModel;
 }
 

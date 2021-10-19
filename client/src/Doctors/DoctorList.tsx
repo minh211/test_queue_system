@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "reactstrap";
 
-import { Doctor } from "./Doctors";
+import { Doctor } from "./DoctorPage";
 import { UpdateDoctorModal } from "./UpdateDoctorModal";
 
 interface DoctorListProps {

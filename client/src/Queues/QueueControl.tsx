@@ -12,27 +12,26 @@ interface QueueControlProps {
 }
 
 interface Queue {
-  id: number;
+  id: string;
   startDate: Date;
 }
 
 const QueueControl: React.FC<QueueControlProps> = ({ refreshTickets, activeTickets }) => {
   const [totalTickets, setTotalTickets] = React.useState(0);
   const [startDate, setStartDate] = React.useState<Date | null>(null);
-  const [hasOpenQueue, setHasOpenQueue] = React.useState(false);
+  const [activeQueueId, setActiveQueueId] = React.useState<string | null>(null);
 
   const refresh = React.useCallback(async () => {
     const activeQueueResponse: AxiosResponse<(Queue & { Tickets: Array<Ticket> })[]> = await axios.get(
-      `${baseUrl}/queues/getactivequeue`
+      `${baseUrl}/queues?active=true`
     );
 
     if (activeQueueResponse.data.length) {
       const activeQueue = activeQueueResponse.data[0];
-      setHasOpenQueue(true);
+      setActiveQueueId(activeQueue.id);
       setTotalTickets(activeQueue.Tickets.length);
       setStartDate(activeQueue.startDate);
     } else {
-      setHasOpenQueue(false);
       setStartDate(null);
       setTotalTickets(0);
       refreshTickets();
@@ -53,27 +52,30 @@ const QueueControl: React.FC<QueueControlProps> = ({ refreshTickets, activeTicke
   }, [refresh]);
 
   const openNewQueue = React.useCallback(async () => {
-    await axios.post(`${baseUrl}/queues/opennewqueue`);
+    await axios.post(`${baseUrl}/queues`);
     refresh().then();
   }, [refresh]);
 
   const closeActiveQueue = React.useCallback(async () => {
-    await axios.post(`${baseUrl}/queues/closeactivequeue`);
+    if (!activeQueueId) {
+      return;
+    }
+    await axios.patch(`${baseUrl}/queues/${activeQueueId}`);
     refresh().then();
-  }, [refresh]);
+  }, [activeQueueId, refresh]);
 
   const Button = React.useMemo(() => {
     return (
-      <button type="button" onClick={hasOpenQueue ? closeActiveQueue : openNewQueue} className="btn btn-primary">
-        {hasOpenQueue ? "Close Queue" : "Open New Queue"}
+      <button type="button" onClick={activeQueueId ? closeActiveQueue : openNewQueue} className="btn btn-primary">
+        {activeQueueId ? "Close Queue" : "Open New Queue"}
       </button>
     );
-  }, [closeActiveQueue, hasOpenQueue, openNewQueue]);
+  }, [closeActiveQueue, activeQueueId, openNewQueue]);
 
   return (
     <React.Fragment>
       <div className="card" style={{ marginTop: "20px", marginBottom: "20px" }}>
-        {!hasOpenQueue && (
+        {!activeQueueId && (
           <div className="alert alert-warning">
             No queue is currently open. Click <em>Open New Queue</em> to start.
           </div>

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Doctor } from "./Doctors";
+import { Doctor } from "./DoctorPage";
 
 export const useNames = (doctor?: Partial<Doctor>) => {
   const { initFirstName, initLastName, initOnDuty } = React.useMemo(() => {

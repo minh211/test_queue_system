@@ -5,10 +5,11 @@ import socketIOClient from "socket.io-client";
 import OnDutyDoctors from "../Doctors/OnDutyDoctors";
 import { baseUrl } from "../Config/config.js";
 
-import QueueTickets from "./QueueTickets";
+import TicketList from "./TicketList";
 import QueueControl from "./QueueControl";
 
 export interface Ticket {
+  ticketId: string;
   isActive: boolean;
   ticketNo: number;
   lastName: string;
@@ -23,7 +24,7 @@ const Queue: React.FC = () => {
   const [tickets, setTickets] = React.useState<Ticket[]>([]);
 
   const refreshTickets = React.useCallback(async () => {
-    const response = (await axios.get(`${baseUrl}/queues/gettickets`)).data;
+    const response = (await axios.get(`${baseUrl}/tickets`)).data;
     setTickets(response);
   }, []);
 
@@ -53,12 +54,12 @@ const Queue: React.FC = () => {
             </div>
           </div>
           <div className="col-8 card">
-            <OnDutyDoctors refreshTickets={refreshTickets} />
+            <OnDutyDoctors refreshTickets={refreshTickets} tickets={tickets} />
           </div>
         </div>
         <div className="row">
           <div className="col-12 card">
-            <QueueTickets refreshTickets={refreshTickets} tickets={tickets} />
+            <TicketList refreshTickets={refreshTickets} tickets={tickets} />
           </div>
         </div>
       </div>

@@ -1,10 +1,10 @@
 import express from "express";
 
-import { getActiveTickets, getAllTickets } from "../controllers/ticketController";
+import { updateTicket, getAllTickets } from "../controllers/ticketController";
 
 const ticketsRouter = express.Router();
 
 ticketsRouter.get("/", getAllTickets);
-ticketsRouter.get("/active", getActiveTickets);
+ticketsRouter.patch("/:ticketId", updateTicket);
 
 export { ticketsRouter };
