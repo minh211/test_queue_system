@@ -1,12 +1,10 @@
-import express from "express";
+import { Router } from "express";
 
-import { addDoctor, deleteDoctor, getDoctors, updateDoctor } from "../controllers/doctorController";
+import { addDoctor, deleteDoctor, getDoctors, updateDoctor } from "../controllers";
 
-const doctorsRouter = express.Router();
+export const doctorsRouter = Router();
 
 doctorsRouter.get("/", getDoctors);
 doctorsRouter.post("/", addDoctor);
 doctorsRouter.patch("/:doctorId", updateDoctor);
 doctorsRouter.delete("/:doctorId", deleteDoctor);
-
-export { doctorsRouter };

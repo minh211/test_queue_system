@@ -8,7 +8,10 @@ import cors from "cors";
 import { Server } from "socket.io";
 
 import { setIo } from "./io";
-import { doctorsRouter, patientsRouter, queuesRouter, ticketsRouter } from "./routers";
+import { patientsRouter } from "./routers/patients";
+import { doctorsRouter } from "./routers/doctors";
+import { queuesRouter } from "./routers/queues";
+import { ticketsRouter } from "./routers/tickets";
 
 const app = Express();
 const server = http.createServer(app);
@@ -20,10 +23,13 @@ app.use(urlencoded({ extended: false }));
 app.use(helmet());
 app.use(cors());
 
-app.use("/patients", patientsRouter);
-app.use("/queues", queuesRouter);
-app.use("/doctors", doctorsRouter);
-app.use("/tickets", ticketsRouter);
+const apiRouter = Express.Router();
+apiRouter.use("/patients", patientsRouter);
+apiRouter.use("/doctors", doctorsRouter);
+apiRouter.use("/queues", queuesRouter);
+apiRouter.use("/tickets", ticketsRouter);
+
+app.use("/api", apiRouter);
 
 const PORT = process.env.PORT || 1604;
 
@@ -51,7 +57,7 @@ function split(thing: any) {
       .toString()
       .replace("\\/?", "")
       .replace("(?=\\/|$)", "$")
-      .match(/^\/\^((?:\\[.*+?^${}()|[\]\\\/]|[^.*+?^${}()|[\]\\\/])*)\$\//);
+      .match(/^\/\^((?:\\[.*+?^${}()|[\]\\/]|[^.*+?^${}()|[\]\\/])*)\$\//);
     return match ? match[1].replace(/\\(.)/g, "$1").split("/") : "<complex:" + thing.toString() + ">";
   }
 }

@@ -1,9 +1,7 @@
-import express from "express";
+import { Router } from "express";
 
-import { createPatient } from "../controllers/patientController";
+import { createPatient } from "../controllers";
 
-const patientsRouter = express.Router();
+export const patientsRouter = Router();
 
 patientsRouter.post("/", createPatient);
-
-export { patientsRouter };

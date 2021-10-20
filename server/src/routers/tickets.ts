@@ -1,10 +1,8 @@
-import express from "express";
+import { Router } from "express";
 
-import { updateTicket, getAllTickets } from "../controllers/ticketController";
+import { updateTicket, getAllTickets } from "../controllers";
 
-const ticketsRouter = express.Router();
+export const ticketsRouter = Router();
 
 ticketsRouter.get("/", getAllTickets);
 ticketsRouter.patch("/:ticketId", updateTicket);
-
-export { ticketsRouter };
