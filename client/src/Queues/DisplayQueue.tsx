@@ -10,7 +10,7 @@ interface TicketWithDoctor {
   patient: string;
 }
 
-const DisplayQueue: React.FC = () => {
+export const DisplayQueue: React.FC = () => {
   const [ticketsWithDoctors, setTicketsWithDoctors] = React.useState<TicketWithDoctor[]>([]);
 
   const refreshQueue = React.useCallback(async () => {
@@ -82,5 +82,3 @@ const DisplayQueue: React.FC = () => {
     </div>
   );
 };
-
-export default DisplayQueue;

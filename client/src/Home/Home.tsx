@@ -1,9 +1,9 @@
 import * as React from "react";
 
-import NewPatient from "../Patient/NewPatient";
-import DisplayQueue from "../Queues/DisplayQueue";
+import { NewPatient } from "../Patient/NewPatient";
+import { DisplayQueue } from "../Queues/DisplayQueue";
 
-const Home = () => {
+export const Home = () => {
   return (
     <React.Fragment>
       <div className="container">
@@ -19,5 +19,3 @@ const Home = () => {
     </React.Fragment>
   );
 };
-
-export default Home;

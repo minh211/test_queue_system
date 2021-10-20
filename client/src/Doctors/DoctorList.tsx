@@ -1,17 +1,13 @@
 import * as React from "react";
 import { Button } from "reactstrap";
 
-import { Doctor } from "./DoctorPage";
+import { AppContext } from "../context";
+import { Doctor } from "../types";
+
 import { UpdateDoctorModal } from "./UpdateDoctorModal";
 
-interface DoctorListProps {
-  refresh(): void;
-  doctors: Doctor[];
-  toggleDuty(doctorId: string): Promise<void>;
-  deleteDoctor(doctorId: string): Promise<void>;
-}
-
-const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, toggleDuty, deleteDoctor }) => {
+export const DoctorList: React.FC = () => {
+  const { doctors, eventHandlers } = React.useContext(AppContext);
   const [modal, setModal] = React.useState(false);
 
   const [currentDoctor, setCurrentDoctor] = React.useState<Doctor | undefined>(undefined);
@@ -19,11 +15,30 @@ const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, toggleDuty, d
   const toggleModal = React.useCallback(
     (doctorId: string) => {
       setModal((oldModal) => !oldModal);
-      const r = doctors.find((doctor) => doctor.doctorId === doctorId);
-      setCurrentDoctor(() => r);
+      setCurrentDoctor(() => doctors.find((doctor) => doctor.doctorId === doctorId));
     },
     [doctors]
   );
+
+  const toggleDuty = React.useCallback(
+    async (doctorId: string) => {
+      const doctor = doctors.find((d) => d.doctorId === doctorId);
+      if (!doctor) {
+        return;
+      }
+
+      eventHandlers.updateDoctor({ doctorId, onDuty: !doctor.onDuty }).then();
+    },
+    [doctors, eventHandlers]
+  );
+
+  const deleteDoctor = React.useCallback(
+    async (doctorId: string) => {
+      eventHandlers.deleteDoctor(doctorId).then();
+    },
+    [eventHandlers]
+  );
+
   return (
     <React.Fragment>
       <table
@@ -68,7 +83,6 @@ const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, toggleDuty, d
           <UpdateDoctorModal
             doctor={currentDoctor}
             modal={modal}
-            refresh={refresh}
             toggleModal={() => setModal((oldModal) => !oldModal)}
           />
         )}
@@ -76,5 +90,3 @@ const DoctorList: React.FC<DoctorListProps> = ({ refresh, doctors, toggleDuty, d
     </React.Fragment>
   );
 };
-
-export default DoctorList;

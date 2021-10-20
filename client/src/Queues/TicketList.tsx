@@ -1,16 +1,9 @@
 import * as React from "react";
 
-import { Ticket } from "./Queue";
+import { AppContext } from "../context";
 
-interface TicketList {
-  refreshTickets(): void;
-  tickets: Ticket[];
-}
-
-const TicketList: React.FC<TicketList> = ({ refreshTickets, tickets }) => {
-  React.useEffect(() => {
-    refreshTickets();
-  }, [refreshTickets]);
+export const TicketList: React.FC = () => {
+  const { tickets } = React.useContext(AppContext);
 
   return (
     <React.Fragment>
@@ -35,13 +28,15 @@ const TicketList: React.FC<TicketList> = ({ refreshTickets, tickets }) => {
           )}
           {tickets.length > 0 &&
             tickets.map((ticket) => (
-              <tr key={ticket.ticketNo}>
-                <td style={{ width: "100px" }}>{ticket.ticketNo.toString().padStart(4, "0")}</td>
-                <td style={{ width: "200px" }}>{ticket.lastName + ", " + ticket.firstName}</td>
-                <td style={{ width: "75px" }}>{ticket.gender}</td>
-                <td style={{ width: "75px" }}>{ticket.birthday}</td>
-                <td style={{ width: "300px" }}>{ticket.caseDescription}</td>
-                <td style={{ width: "100px" }}>{ticket.doctor}</td>
+              <tr key={ticket.ticketNumber}>
+                <td style={{ width: "100px" }}>{ticket.ticketNumber.toString().padStart(4, "0")}</td>
+                <td style={{ width: "200px" }}>{ticket.patient.lastName + ", " + ticket.patient.firstName}</td>
+                <td style={{ width: "75px" }}>{ticket.patient.gender}</td>
+                <td style={{ width: "75px" }}>{ticket.patient.birthday}</td>
+                <td style={{ width: "300px" }}>{ticket.patient.caseDescription}</td>
+                <td style={{ width: "100px" }}>
+                  {ticket.doctor ? ticket.doctor.firstName + ticket.doctor.lastName : ""}
+                </td>
               </tr>
             ))}
         </tbody>
@@ -49,5 +44,3 @@ const TicketList: React.FC<TicketList> = ({ refreshTickets, tickets }) => {
     </React.Fragment>
   );
 };
-
-export default TicketList;

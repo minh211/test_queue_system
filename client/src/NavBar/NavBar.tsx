@@ -3,7 +3,7 @@ import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 
 type NavBarProps = RouteComponentProps;
 
-const NavBar: React.FC<NavBarProps> = (props) => {
+const _NavBar: React.FC<NavBarProps> = (props) => {
   const activeTab = props.location.pathname;
   return (
     <div className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
@@ -25,4 +25,4 @@ const NavBar: React.FC<NavBarProps> = (props) => {
     </div>
   );
 };
-export default withRouter(NavBar);
+export const NavBar = withRouter(_NavBar);

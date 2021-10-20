@@ -1,12 +1,15 @@
 import * as React from "react";
-import axios from "axios";
 import DatePicker from "react-datepicker";
 
-import { baseUrl } from "../Config/config.js";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNames } from "../Doctors/useNames";
+import { AppContext } from "../context";
 
-const NewPatient: React.FC = () => {
+export const NewPatient: React.FC = () => {
+  const {
+    eventHandlers: { addPatient },
+  } = React.useContext(AppContext);
+
   const {
     firstName,
     lastName,
@@ -19,12 +22,12 @@ const NewPatient: React.FC = () => {
   } = useNames();
 
   const [gender, setGender] = React.useState("");
-  const [birthday, setBirthday] = React.useState<Date | null>(null);
+  const [birthday, setBirthday] = React.useState<Date | undefined>(undefined);
   const [caseDescription, setCaseDescription] = React.useState("");
 
   const reset = React.useCallback(() => {
     setGender("");
-    setBirthday(null);
+    setBirthday(undefined);
     setCaseDescription("");
     resetNames();
   }, [resetNames]);
@@ -34,19 +37,8 @@ const NewPatient: React.FC = () => {
   }, [birthday, caseDescription, gender, isEditingNames]);
 
   const submit = React.useCallback(async () => {
-    await axios
-      .post(`${baseUrl}/patients`, {
-        firstName,
-        lastName,
-        caseDescription,
-        birthday,
-        gender,
-      })
-      .then(reset)
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, [birthday, caseDescription, firstName, gender, lastName, reset]);
+    addPatient({ firstName, lastName, caseDescription, birthday, gender }).then();
+  }, [addPatient, birthday, caseDescription, firstName, gender, lastName]);
 
   return (
     <React.Fragment>
@@ -180,5 +172,3 @@ const NewPatient: React.FC = () => {
     </React.Fragment>
   );
 };
-
-export default NewPatient;

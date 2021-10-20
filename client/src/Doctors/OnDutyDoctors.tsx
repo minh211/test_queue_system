@@ -1,47 +1,12 @@
 import * as React from "react";
-import axios, { AxiosResponse } from "axios";
-import socketIOClient from "socket.io-client";
 
-import { baseUrl } from "../Config/config";
-import { Ticket } from "../Queues/Queue";
+import { AppContext } from "../context";
 
-interface OnDutyDoctors {
-  refreshTickets(): void;
-  tickets: Ticket[];
-}
-
-export interface OnDutyDoctor {
-  doctorId: string;
-  lastName: string;
-  firstName: string;
-
-  ticket?: {
-    ticketId: string;
-    ticketNumber: number;
-  };
-
-  patient?: {
-    firstName: string;
-    lastName: string;
-  };
-}
-
-const OnDutyDoctors: React.FC<OnDutyDoctors> = ({ refreshTickets, tickets }) => {
-  const [onDutyDoctors, setOnDutyDoctors] = React.useState<OnDutyDoctor[]>([]);
-
-  const refresh = React.useCallback(async () => {
-    const response: AxiosResponse<OnDutyDoctor[]> = await axios.get(`${baseUrl}/doctors?onDuty=true`);
-    setOnDutyDoctors(() => response.data);
-  }, []);
-
-  React.useEffect(() => {
-    refresh().then();
-    const socket = socketIOClient(`${baseUrl}/queue`, { transports: ["websocket"] });
-    socket.on("doctorToggleDuty", () => refresh);
-    return () => {
-      socket.close();
-    };
-  }, [refresh]);
+export const OnDutyDoctors: React.FC = () => {
+  const {
+    onDutyDoctors,
+    eventHandlers: { closeTicket },
+  } = React.useContext(AppContext);
 
   const getTicket = React.useCallback((ticketNumber?: number) => {
     if (ticketNumber) {
@@ -67,19 +32,11 @@ const OnDutyDoctors: React.FC<OnDutyDoctors> = ({ refreshTickets, tickets }) => 
     }
   }, []);
 
-  const closeTicket = React.useCallback(
+  const onClick = React.useCallback(
     async (doctorId: string, ticketId?: string) => {
-      if (!ticketId) {
-        if (tickets.length > 0) {
-          await axios.patch(`${baseUrl}/tickets/${tickets[0].ticketId}`, { doctorId });
-        }
-      } else {
-        await axios.patch(`${baseUrl}/tickets/${ticketId}`, { isActive: false });
-      }
-      refreshTickets();
-      refresh().then();
+      closeTicket(doctorId, ticketId).then();
     },
-    [refresh, refreshTickets, tickets]
+    [closeTicket]
   );
 
   return (
@@ -103,7 +60,7 @@ const OnDutyDoctors: React.FC<OnDutyDoctors> = ({ refreshTickets, tickets }) => 
                 </p>
                 <p>{getPatient(patient?.firstName, patient?.lastName)}</p>
               </div>
-              <button className="btn btn-sm btn-primary" onClick={() => closeTicket(doctorId, ticket?.ticketId)}>
+              <button className="btn btn-sm btn-primary" onClick={() => onClick(doctorId, ticket?.ticketId)}>
                 Next Patient
               </button>
             </div>
@@ -112,5 +69,3 @@ const OnDutyDoctors: React.FC<OnDutyDoctors> = ({ refreshTickets, tickets }) => 
     </div>
   );
 };
-
-export default OnDutyDoctors;

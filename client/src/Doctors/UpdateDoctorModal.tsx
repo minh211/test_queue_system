@@ -1,21 +1,20 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import * as React from "react";
-import axios from "axios";
 
-import { baseUrl } from "../Config/config";
+import { AppContext } from "../context";
+import { Doctor } from "../types";
 
-import { Doctor } from "./DoctorPage";
 import { useNames } from "./useNames";
 
 interface UpdateDoctorModalProps {
   modal: boolean;
   toggleModal(): void;
-  refresh(): void;
 
   doctor?: Doctor;
 }
 
-export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({ modal, toggleModal, doctor, refresh }) => {
+export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({ modal, toggleModal, doctor }) => {
+  const { eventHandlers } = React.useContext(AppContext);
   const { firstName, lastName, errorMessages, updateFirstName, updateLastName, isValid, isEditing } = useNames(doctor);
 
   const updateDoctor = React.useCallback(async () => {
@@ -23,21 +22,8 @@ export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({ modal, tog
       return;
     }
 
-    try {
-      const result = (
-        await axios.patch(`${baseUrl}/doctors/${doctor.doctorId}`, {
-          firstName,
-          lastName,
-        })
-      ).data;
-      if (result.success) {
-        refresh();
-        toggleModal();
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }, [doctor, firstName, lastName, refresh, toggleModal]);
+    eventHandlers.updateDoctor({ doctorId: doctor.doctorId, firstName, lastName }).then();
+  }, [doctor, eventHandlers, firstName, lastName]);
 
   if (!modal) {
     return null;

@@ -1,15 +1,13 @@
 import * as React from "react";
-import axios from "axios";
 
-import { baseUrl } from "../Config/config";
+import { AppContext } from "../context";
 
 import { useNames } from "./useNames";
 
-export interface NewDoctorProps {
-  refresh(): void;
-}
-
-const NewDoctor: React.FC<NewDoctorProps> = (props) => {
+export const NewDoctor: React.FC = () => {
+  const {
+    eventHandlers: { addDoctor },
+  } = React.useContext(AppContext);
   const {
     firstName,
     lastName,
@@ -23,17 +21,9 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
     isValid,
   } = useNames();
 
-  const submit = async () => {
-    await axios
-      .post(`${baseUrl}/doctors`, { firstName, lastName, onDuty })
-      .then(() => {
-        reset();
-        props.refresh();
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  };
+  const submit = React.useCallback(() => {
+    addDoctor({ firstName, lastName, onDuty }).then();
+  }, [addDoctor, firstName, lastName, onDuty]);
 
   return (
     <React.Fragment>
@@ -100,5 +90,3 @@ const NewDoctor: React.FC<NewDoctorProps> = (props) => {
     </React.Fragment>
   );
 };
-
-export default NewDoctor;
