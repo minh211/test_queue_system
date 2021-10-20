@@ -22,7 +22,7 @@ module.exports = {
     },
   },
   rules: {
-    "@typescript-eslint/ban-types": ["error", { types: { object: false } }], // TODO: Enable object for better object typing iterator
+    "@typescript-eslint/ban-types": ["error", { types: { object: true } }], // TODO: Enable object for better object typing iterator
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-empty-function": "warn",

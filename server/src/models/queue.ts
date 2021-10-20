@@ -6,7 +6,7 @@ export interface QueueAttributes {
   id: string;
   isActive: boolean;
   startDate: Date;
-  endDate: Date;
+  endDate?: Date;
 }
 export interface QueueModel
   extends Model<QueueAttributes, Optional<QueueAttributes, "endDate" | "id">>,
@@ -15,7 +15,7 @@ export interface QueueModel
 }
 
 export type QueueStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): QueueModel;
+  new (values?: never, options?: BuildOptions): QueueModel;
 };
 
 export const queueFactory = (sequelize: Sequelize): QueueStatic => {

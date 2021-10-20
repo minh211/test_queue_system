@@ -8,12 +8,15 @@ export interface DoctorAttributes {
   lastName: string;
   onDuty: boolean;
 }
-export interface DoctorModel extends Model<DoctorAttributes, Optional<DoctorAttributes, "id">>, DoctorAttributes {
+
+export type CreationDoctorAttributes = Optional<DoctorAttributes, "id">;
+
+export interface DoctorModel extends Model<DoctorAttributes, CreationDoctorAttributes>, DoctorAttributes {
   Tickets: TicketModel[];
 }
 
 type DoctorStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): DoctorModel;
+  new (values?: never, options?: BuildOptions): DoctorModel;
 };
 
 export const doctorFactory = (sequelize: Sequelize): DoctorStatic => {

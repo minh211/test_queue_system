@@ -1,54 +1,42 @@
-import { Request, RequestHandler, Response } from "express";
+import { RequestHandler } from "express";
+import { Optional } from "sequelize";
+import asyncHandler from "express-async-handler";
 
 import { Patient, Queue, Ticket, PatientAttributes } from "../models";
 import { getIo } from "../io";
-
-import { MutationResponse } from "./doctorController";
+import { ResponseMessage } from "../types";
 
 const io = getIo();
 const queue = io?.of("/queue").on("connection", () => {
   console.log("Connected from Queue page.");
 });
 
-export const createPatient: RequestHandler = async function (req: Request, res: Response) {
-  const { firstName, lastName, caseDescription, gender, birthday } = req.body as PatientAttributes;
-  const activeQueues = await Queue.findAll({
-    where: { isActive: true },
-    include: [{ model: Ticket }],
-  });
+export namespace CreatePatientHandler {
+  export type ReqBody = Optional<PatientAttributes, "id">;
+  export type ResBody = ReqBody | ResponseMessage;
+}
 
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
+export const createPatient: RequestHandler<never, CreatePatientHandler.ResBody, CreatePatientHandler.ReqBody> =
+  asyncHandler(async (req, res) => {
+    const { firstName, lastName, caseDescription, gender, birthday } = req.body as PatientAttributes;
+    const activeQueues = await Queue.findAll({
+      where: { isActive: true },
+      include: [{ model: Ticket }],
+    });
 
-  if (activeQueues.length > 0) {
-    try {
-      const activeQueue = activeQueues[0];
-      const tickets = activeQueue.Tickets;
-      const ticketNumber = tickets.length === 0 ? 1 : tickets.length + 1;
-      const patient = await Patient.create({
-        firstName,
-        lastName,
-        caseDescription,
-        gender,
-        birthday,
-      });
-      const ticket = await Ticket.create({ isActive: true, ticketNumber });
-      await ticket.setPatient(patient);
-      await ticket.setQueue(activeQueue);
-      result.success = true;
-      result.message = "Patient successfully created.";
-
-      queue?.emit("newPatient");
-    } catch (e: any) {
-      result.success = false;
-      result.message = e.toString();
+    if (activeQueues.length === 0) {
+      res.status(200).send({ message: "Can not create the patient when there is no active queue" });
+      return;
     }
-  } else {
-    result.success = false;
-    result.message = "No active queue.";
-  }
 
-  res.send(result);
-};
+    const patient = await Patient.create({ firstName, lastName, caseDescription, gender, birthday });
+
+    const activeQueue = activeQueues[0];
+    const ticketNumber = activeQueue.Tickets.length + 1;
+    const ticket = await Ticket.create({ isActive: true, ticketNumber });
+    await ticket.setPatient(patient);
+    await ticket.setQueue(activeQueue);
+
+    res.status(201).send(patient);
+    queue?.emit("newPatient");
+  });

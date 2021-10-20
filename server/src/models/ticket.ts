@@ -4,7 +4,7 @@ import { PatientModel } from "./patient";
 import { QueueModel } from "./queue";
 import { DoctorModel } from "./doctor";
 
-interface TicketAttributes {
+export interface TicketAttributes {
   id: string;
   isActive: boolean;
   ticketNumber: number;
@@ -28,7 +28,7 @@ export interface TicketModel
 }
 
 export type TicketStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): TicketModel;
+  new (values?: never, options?: BuildOptions): TicketModel;
 };
 
 export const ticketFactory = (sequelize: Sequelize): TicketStatic => {

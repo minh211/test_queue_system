@@ -1,75 +1,102 @@
 import { RequestHandler } from "express";
+import asyncHandler from "express-async-handler";
 
-import { Queue, Ticket } from "../models";
+import { Queue, QueueAttributes, Ticket, TicketAttributes } from "../models";
 import { getIo } from "../io";
-
-import { MutationResponse } from "./doctorController";
+import { ResponseMessage } from "../types";
 
 const io = getIo();
 const home = io?.of("/").on("connection", () => {
   console.log("Connected from Home page.");
 });
 
-export const getQueues: RequestHandler = async function (req, res) {
-  const { active } = req.query;
+export namespace GetQueuesHandler {
+  export type ReqQuery = { active?: boolean };
+  export type ResBody =
+    | ResponseMessage
+    | (Omit<QueueAttributes, "id"> & {
+        queueId: string;
+        tickets: TicketAttributes[];
+      });
+}
 
-  const queue = await Queue.findAll({
-    attributes: ["id", "startDate"],
-    where: active ? { isActive: true } : undefined,
-    include: [{ model: Ticket }],
-  });
-  res.send(queue);
-};
+export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, GetQueuesHandler.ReqQuery> =
+  asyncHandler(async (req, res) => {
+    const { active } = req.query;
 
-export const openNewQueue: RequestHandler = async function (_req, res) {
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
+    const activeQueues = await Queue.findAll({
+      attributes: ["id", "startDate"],
+      where: active ? { isActive: true } : undefined,
+      include: [{ model: Ticket }],
+    });
 
-  try {
-    const activeQueue = await Queue.findAll({ where: { isActive: true } });
-    if (activeQueue.length !== 0) {
-      result.success = false;
-      result.message = "There is an active queue. Close this queue before opening a new one.";
-    } else {
-      await Queue.create({ isActive: true, startDate: new Date() });
-      result.success = true;
-      result.message = "Successfully opened a new queue.";
+    if (activeQueues.length === 0) {
+      res.status(404).send({ message: `Can not find ${active ? "active queue" : "any queues"}` });
+      return;
     }
-  } catch (e: any) {
-    result.success = false;
-    result.message = e.toString();
-  }
-  res.send(result);
-};
 
-export const closeActiveQueue: RequestHandler = async function (req, res) {
-  const { isActive } = req.body;
+    res.status(200).send({
+      ...activeQueues[0],
+      queueId: activeQueues[0].id,
+      tickets: activeQueues[0].Tickets,
+    });
+  });
 
-  if (isActive !== false) {
+export namespace OpenQueueHandler {
+  export type ResBody = ResponseMessage | (Omit<QueueAttributes, "id"> & { queueId: string });
+}
+
+export const openNewQueue: RequestHandler<never, OpenQueueHandler.ResBody> = asyncHandler(async (_req, res) => {
+  const activeQueues = await Queue.findAll({ where: { isActive: true } });
+
+  if (activeQueues.length > 0) {
+    res.status(200).send({ message: "Can not create a new queue when a queue is active" });
     return;
   }
 
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
-  try {
-    const activeQueues = await Queue.findAll({ where: { isActive: true } });
-    if (activeQueues.length === 0) {
-      result.success = false;
-      result.message = "No active queue to close.";
-    } else {
-      const activeQueue = activeQueues[0];
-      await activeQueue.update({ isActive: false, endDate: new Date() });
-      result.success = true;
-      result.message = "Active queue has been successfully closed.";
-      home?.emit("closeQueue");
-    }
-  } catch (e: any) {
-    result.success = false;
-    result.message = e.toString();
+  const queue = await Queue.create({ isActive: true, startDate: new Date() });
+
+  res.status(201).send({
+    queueId: queue.id,
+    startDate: queue.startDate,
+    isActive: queue.isActive,
+    endDate: queue.endDate,
+  });
+});
+
+export namespace CloseActiveQueueHandler {
+  export type ReqParams = { queueId: string };
+  export type ReqBody = { isActive?: false };
+  export type ResBody = never | ResponseMessage;
+}
+
+export const closeActiveQueue: RequestHandler<
+  CloseActiveQueueHandler.ReqParams,
+  CloseActiveQueueHandler.ResBody,
+  CloseActiveQueueHandler.ReqBody
+> = asyncHandler(async (req, res) => {
+  const { queueId } = req.params;
+  const { isActive } = req.body;
+
+  if (isActive !== false) {
+    res.status(409).send({ message: "Unsupported the patch document" });
+    return;
   }
-  res.send(result);
-};
+
+  const queue = await Queue.findByPk(queueId);
+
+  if (!queue) {
+    res.status(409).send({ message: `Can not find the queue with id ${queueId}` });
+    return;
+  }
+
+  if (!queue.isActive) {
+    res.status(409).send({ message: `The queue is already close` });
+    return;
+  }
+
+  await queue.update({ isActive: false, endDate: new Date() });
+  res.status(204).send();
+
+  home?.emit("closeQueue");
+});

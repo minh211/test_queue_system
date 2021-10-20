@@ -1,6 +1,16 @@
-import { Request, RequestHandler, Response } from "express";
+import { RequestHandler } from "express";
+import asyncHandler from "express-async-handler";
 
-import { Doctor, DoctorAttributes, Patient, Queue, Ticket } from "../models";
+import {
+  CreationDoctorAttributes,
+  Doctor,
+  DoctorAttributes,
+  Patient,
+  PatientAttributes,
+  Queue,
+  Ticket,
+  TicketAttributes,
+} from "../models";
 import { getIo } from "../io";
 
 const io = getIo();
@@ -9,61 +19,36 @@ const queue = io?.of("/queue").on("connection", () => {
   console.log("Connected from Queue page.");
 });
 
-export interface MutationResponse {
-  success: boolean;
-  message: string | null;
+export namespace AddDoctorHandler {
+  export type ReqBody = CreationDoctorAttributes;
+  export type ResBody = DoctorAttributes;
 }
 
-export const addDoctor: RequestHandler = async (req: Request, res: Response) => {
-  const { firstName, lastName, onDuty } = req.body as DoctorAttributes;
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
-
-  try {
-    await Doctor.create({ firstName, lastName, onDuty });
-    result.success = true;
-    result.message = "Successfully added a new doctor.";
-  } catch (e: any) {
-    result.success = false;
-    result.message = e.toString();
+export const addDoctor: RequestHandler<never, AddDoctorHandler.ResBody, AddDoctorHandler.ReqBody> = asyncHandler(
+  async (req, res) => {
+    const { firstName, lastName, onDuty } = req.body;
+    const doctor = await Doctor.create({ firstName, lastName, onDuty });
+    res.status(201).send(doctor);
   }
+);
 
-  res.send(result);
-};
+export namespace GetDoctorsHandler {
+  export type ReqQuery = { onDuty?: boolean };
+  export type ReqBody = never;
+  export type ResBody = DoctorAttributes[] | GetOnDutyDoctorsResponse[];
+}
 
-export const toggleDuty: RequestHandler = async (req: Request, res: Response) => {
-  const { doctorId } = req.body;
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
-
-  try {
-    const doctor = await Doctor.findByPk(doctorId);
-    if (doctor) {
-      await doctor.update({ onDuty: !doctor.onDuty });
-      result.success = true;
-      result.message = "Successful changed doctor on-duty status.";
-    } else {
-      result.success = false;
-      result.message = "Doctor not found.";
-    }
-  } catch (e: any) {
-    result.success = false;
-    result.message = e.toString();
-  }
-  queue?.emit("doctorToggleDuty");
-  res.send(result);
-};
-
-export const getDoctors: RequestHandler = async function (req, res) {
+export const getDoctors: RequestHandler<
+  never,
+  GetDoctorsHandler.ResBody,
+  GetDoctorsHandler.ReqBody,
+  GetDoctorsHandler.ReqQuery
+> = asyncHandler(async (req, res) => {
   const { onDuty } = req.query;
 
   if (onDuty) {
     const dutyDoctors = await getOnDutyDoctors();
-    res.send(dutyDoctors);
+    res.status(200).send(dutyDoctors);
     return;
   }
 
@@ -84,10 +69,16 @@ export const getDoctors: RequestHandler = async function (req, res) {
     };
   });
 
-  res.send(result);
+  res.status(200).send(result);
+});
+
+export type GetOnDutyDoctorsResponse = Pick<DoctorAttributes, "firstName" | "lastName"> & {
+  doctorId: string;
+  patient?: Pick<PatientAttributes, "firstName" | "lastName">;
+  ticket?: Pick<TicketAttributes, "ticketNumber"> & { ticketId: string };
 };
 
-export const getOnDutyDoctors = async function () {
+export const getOnDutyDoctors = async function (): Promise<GetOnDutyDoctorsResponse[]> {
   const doctors = await Doctor.findAll({
     attributes: ["id", "firstName", "lastName"],
     where: { onDuty: true },
@@ -137,51 +128,31 @@ export const getOnDutyDoctors = async function () {
   }));
 };
 
-// TODO: it should be the PATCH request of tickets that changes isActive to false.
-
-export const deleteDoctor: RequestHandler = async function (req, res) {
+export const deleteDoctor: RequestHandler<{ doctorId: string }> = asyncHandler(async (req, res) => {
   const { doctorId } = req.params;
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
 
-  try {
-    const doctor = await Doctor.findByPk(doctorId);
-    if (doctor) {
-      await Doctor.destroy({ where: { id: doctorId } });
-      result.success = true;
-      result.message = "Successfully deleted doctor.";
-    } else {
-      result.success = false;
-      result.message = "Doctor not found.";
-    }
-  } catch (e: any) {
-    result.success = false;
-    result.message = e.toString();
+  const doctor = await Doctor.findByPk(doctorId);
+  if (!doctor) {
+    res.status(404).send();
+    return;
   }
+
+  await Doctor.destroy({ where: { id: doctorId } });
   queue?.emit("doctorDelete");
-  res.send(result);
-};
+  res.status(204).send();
+});
 
-export const updateDoctor: RequestHandler = async function (req, res) {
-  const { doctorId } = req.params;
-  const { firstName, lastName, onDuty } = req.body;
-  const result: MutationResponse = {
-    success: false,
-    message: null,
-  };
+export namespace UpdateDoctorHandler {
+  export type ReqParams = { doctorId: string };
+  export type ReqBody = Partial<CreationDoctorAttributes>;
+}
 
-  const updates: Partial<Omit<DoctorAttributes, "id">> = { firstName, lastName, onDuty };
+export const updateDoctor: RequestHandler<UpdateDoctorHandler.ReqParams, never, UpdateDoctorHandler.ReqBody> =
+  asyncHandler(async (req, res) => {
+    const { doctorId } = req.params;
 
-  try {
-    await Doctor.update(updates, { where: { id: doctorId } });
+    await Doctor.update(req.body, { where: { id: doctorId } });
 
-    result.success = true;
-    result.message = "Successfully updated doctor information.";
-  } catch (e: any) {
-    result.success = false;
-    result.message = e.toString();
-  }
-  res.send(result);
-};
+    res.status(204).send();
+    return;
+  });
