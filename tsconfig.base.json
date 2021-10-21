@@ -17,7 +17,6 @@
     "esModuleInterop": true,
     "stripInternal": true,
     "incremental": true,
-    "declarationMap": true,
     "downlevelIteration": true,
     "allowJs": true,
     "skipLibCheck": true

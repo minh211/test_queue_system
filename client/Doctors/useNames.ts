@@ -38,7 +38,7 @@ export const useNames = (doctor?: Partial<Doctor>) => {
     return firstName !== initFirstName || lastName !== initLastName || onDuty !== initOnDuty;
   }, [firstName, initFirstName, initLastName, initOnDuty, lastName, onDuty]);
 
-  const isValid = React.useMemo(() => firstName && lastName, [firstName, lastName]);
+  const isValid = React.useMemo(() => !!firstName && !!lastName, [firstName, lastName]);
 
   return React.useMemo(() => {
     return {

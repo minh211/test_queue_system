@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.base.json",
   "include": ["server", "client"],
   "compilerOptions": {
     "moduleResolution": "node",
@@ -16,7 +15,7 @@
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "outDir": "lib",
-    "rootDir": "."
+    "rootDir": ".",
+    "declaration": false
   }
 }

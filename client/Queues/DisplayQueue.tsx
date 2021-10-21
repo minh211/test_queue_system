@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios";
-import socketIOClient from "socket.io-client";
+// import socketIOClient from "socket.io-client";
 
 import { baseUrl } from "../Config/config";
 
@@ -20,13 +20,13 @@ export const DisplayQueue: React.FC = () => {
 
   React.useEffect(() => {
     refreshQueue().then();
-    const socket = socketIOClient(baseUrl, { transports: ["websocket"] });
-    socket.on("next", refreshQueue);
-    socket.on("closeQueue", refreshQueue);
-
-    return () => {
-      socket.close();
-    };
+    // const socket = socketIOClient(baseUrl, { transports: ["websocket"] });
+    // socket.on("next", refreshQueue);
+    // socket.on("closeQueue", refreshQueue);
+    //
+    // return () => {
+    //   socket.close();
+    // };
   }, [refreshQueue]);
 
   const getLatestTicketWithDoctor = React.useMemo(() => {

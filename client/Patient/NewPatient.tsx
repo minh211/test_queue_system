@@ -21,6 +21,8 @@ export const NewPatient: React.FC = () => {
     reset: resetNames,
   } = useNames();
 
+  console.log({ isValid });
+
   const [gender, setGender] = React.useState("");
   const [birthday, setBirthday] = React.useState<Date | undefined>(undefined);
   const [caseDescription, setCaseDescription] = React.useState("");
