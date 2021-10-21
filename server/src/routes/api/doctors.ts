@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { addDoctor, deleteDoctor, getDoctors, updateDoctor } from "../controllers";
+import { addDoctor, deleteDoctor, getDoctors, updateDoctor } from "../../controllers";
 
 export const doctorsRouter = Router();
 

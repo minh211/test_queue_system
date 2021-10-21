@@ -8,10 +8,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 
 import { setIo } from "./io";
-import { patientsRouter } from "./routers/patients";
-import { doctorsRouter } from "./routers/doctors";
-import { queuesRouter } from "./routers/queues";
-import { ticketsRouter } from "./routers/tickets";
+import { apiRouter } from "./routes/api";
 
 const app = Express();
 const server = http.createServer(app);
@@ -22,12 +19,6 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(helmet());
 app.use(cors());
-
-const apiRouter = Express.Router();
-apiRouter.use("/patients", patientsRouter);
-apiRouter.use("/doctors", doctorsRouter);
-apiRouter.use("/queues", queuesRouter);
-apiRouter.use("/tickets", ticketsRouter);
 
 app.use("/api", apiRouter);
 

@@ -14,7 +14,7 @@ export namespace GetQueuesHandler {
   export type ReqQuery = { active?: boolean };
   export type ResBody =
     | ResponseMessage
-    | (Omit<QueueAttributes, "id"> & {
+    | (Pick<QueueAttributes, "isActive" | "startDate" | "endDate"> & {
         queueId: string;
         tickets: TicketAttributes[];
       });
@@ -22,10 +22,11 @@ export namespace GetQueuesHandler {
 
 export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, GetQueuesHandler.ReqQuery> =
   asyncHandler(async (req, res) => {
+    console.log("@");
     const { active } = req.query;
 
     const activeQueues = await Queue.findAll({
-      attributes: ["id", "startDate"],
+      attributes: ["id", "startDate", "endDate", "isActive"],
       where: active ? { isActive: true } : undefined,
       include: [{ model: Ticket }],
     });
@@ -34,10 +35,13 @@ export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, G
       res.status(404).send({ message: `Can not find ${active ? "active queue" : "any queues"}` });
       return;
     }
+    console.log({ activeQueues });
 
     res.status(200).send({
-      ...activeQueues[0],
       queueId: activeQueues[0].id,
+      isActive: activeQueues[0].isActive,
+      startDate: activeQueues[0].startDate,
+      endDate: activeQueues[0].endDate,
       tickets: activeQueues[0].Tickets,
     });
   });

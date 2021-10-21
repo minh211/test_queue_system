@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { updateTicket, getAllTickets } from "../controllers";
+import { updateTicket, getAllTickets } from "../../controllers";
 
 export const ticketsRouter = Router();
 

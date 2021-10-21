@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { closeActiveQueue, getQueues, openNewQueue } from "../controllers";
+import { closeActiveQueue, getQueues, openNewQueue } from "../../controllers";
 
 export const queuesRouter = Router();
 
