@@ -1,14 +1,9 @@
 import { Server } from "socket.io";
 
-function init() {
-  let _io: Server | undefined;
+let _io: Server;
 
-  return {
-    setIo: (io: Server) => (_io = io),
-    getIo: () => _io,
-  };
-}
-
-const { setIo, getIo } = init();
-
-export { setIo, getIo };
+export const setIo = (io: Server) => {
+  console.log("setIO");
+  _io = io;
+};
+export const getIo = () => _io;

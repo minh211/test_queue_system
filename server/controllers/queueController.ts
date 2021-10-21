@@ -35,7 +35,6 @@ export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, G
       res.status(404).send({ message: `Can not find ${active ? "active queue" : "any queues"}` });
       return;
     }
-    console.log({ activeQueues });
 
     res.status(200).send({
       queueId: activeQueues[0].id,

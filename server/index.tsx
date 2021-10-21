@@ -35,13 +35,16 @@ setIo(new Server(server));
 app.use(morgan("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 app.use(cors());
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use("/", Express.static(path.join(__dirname, "static")));
-app.use(favicon(path.join(__dirname, "views", "favicon.ico")));
+app.use("/", Express.static(path.join(__dirname, "static")), favicon(path.join(__dirname, "views", "favicon.ico")));
 
 const manifest = fs.readFileSync(path.join(__dirname, "static/manifest.json"), "utf-8");
 const assets = JSON.parse(manifest);

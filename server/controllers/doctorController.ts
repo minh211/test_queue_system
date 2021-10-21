@@ -13,11 +13,7 @@ import {
 } from "../models";
 import { getIo } from "../io";
 
-const io = getIo();
-
-const queue = io?.of("/queue").on("connection", () => {
-  console.log("Connected from Queue page.");
-});
+const doctorsSocket = getIo()?.of("/doctors");
 
 export namespace AddDoctorHandler {
   export type ReqBody = CreationDoctorAttributes;
@@ -28,6 +24,7 @@ export const addDoctor: RequestHandler<never, AddDoctorHandler.ResBody, AddDocto
   async (req, res) => {
     const { firstName, lastName, onDuty } = req.body;
     const doctor = await Doctor.create({ firstName, lastName, onDuty });
+    doctorsSocket?.emit("addDoctor");
     res.status(201).send(doctor);
   }
 );
@@ -138,7 +135,7 @@ export const deleteDoctor: RequestHandler<{ doctorId: string }> = asyncHandler(a
   }
 
   await Doctor.destroy({ where: { id: doctorId } });
-  queue?.emit("doctorDelete");
+  doctorsSocket?.emit("deleteDoctor");
   res.status(204).send();
 });
 
@@ -153,6 +150,7 @@ export const updateDoctor: RequestHandler<UpdateDoctorHandler.ReqParams, never, 
 
     await Doctor.update(req.body, { where: { id: doctorId } });
 
+    doctorsSocket?.emit("updateDoctor");
     res.status(204).send();
     return;
   });

@@ -59,8 +59,8 @@ export const DoctorList: React.FC = () => {
             </tr>
           )}
           {doctors.length > 0 &&
-            doctors.map((doctor) => (
-              <tr key={doctor.doctorId}>
+            doctors.map((doctor, i) => (
+              <tr key={i}>
                 <td>{doctor.firstName}</td>
                 <td>{doctor.lastName}</td>
                 <td width="100" align="center">

@@ -1,7 +1,6 @@
 import * as React from "react";
 import DatePicker from "react-datepicker";
 
-// import "react-datepicker/dist/react-datepicker.css";
 import { useNames } from "../Doctors/useNames";
 import { AppContext } from "../context";
 
@@ -21,8 +20,6 @@ export const NewPatient: React.FC = () => {
     reset: resetNames,
   } = useNames();
 
-  console.log({ isValid });
-
   const [gender, setGender] = React.useState("");
   const [birthday, setBirthday] = React.useState<Date | undefined>(undefined);
   const [caseDescription, setCaseDescription] = React.useState("");
@@ -35,7 +32,7 @@ export const NewPatient: React.FC = () => {
   }, [resetNames]);
 
   const isEditingPatient = React.useMemo(() => {
-    return isEditingNames || gender !== "" || birthday !== null || caseDescription !== "";
+    return isEditingNames || gender !== "" || birthday !== undefined || caseDescription !== "";
   }, [birthday, caseDescription, gender, isEditingNames]);
 
   const submit = React.useCallback(async () => {

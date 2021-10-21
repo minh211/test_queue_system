@@ -1,7 +1,8 @@
 import * as React from "react";
 import axios, { AxiosResponse } from "axios";
+import { io } from "socket.io-client";
 
-import { baseUrl } from "../Config/config";
+import { apiUrl } from "../Config/config";
 import { MutationResponse } from "../Doctors/DoctorPage";
 import { Doctor, OnDutyDoctor, Patient, Queue, Ticket } from "../types";
 
@@ -16,14 +17,14 @@ export const AppContainer: React.FC = ({ children }) => {
   const [onDutyDoctors, setOnDutyDoctors] = React.useState<OnDutyDoctor[]>([]);
 
   const getDoctors = React.useCallback(async () => {
-    const response: AxiosResponse<Doctor[]> = await axios.get(`${baseUrl}/doctors`);
+    const response: AxiosResponse<Doctor[]> = await axios.get(`${apiUrl}/doctors`);
     setDoctors(() => response.data);
   }, []);
 
   const deleteDoctor = React.useCallback(
     async (doctorId: string) => {
       try {
-        const deleteResponse: MutationResponse = await axios.delete(`${baseUrl}/doctors/${doctorId}`, {
+        const deleteResponse: MutationResponse = await axios.delete(`${apiUrl}/doctors/${doctorId}`, {
           data: { doctorId },
         });
 
@@ -40,7 +41,7 @@ export const AppContainer: React.FC = ({ children }) => {
   const updateDoctor: EventHandlers["updateDoctor"] = React.useCallback(async (updateDoctor) => {
     const { doctorId, ...updatePart } = updateDoctor;
     try {
-      const response: MutationResponse = await axios.patch(`${baseUrl}/doctors/${updateDoctor.doctorId}`, {
+      const response: MutationResponse = await axios.patch(`${apiUrl}/doctors/${updateDoctor.doctorId}`, {
         ...updatePart,
       });
 
@@ -68,7 +69,7 @@ export const AppContainer: React.FC = ({ children }) => {
   const addDoctor: EventHandlers["addDoctor"] = React.useCallback(async (doctor) => {
     // TODO: make server return new doctor
     await axios
-      .post(`${baseUrl}/doctors`, doctor)
+      .post(`${apiUrl}/doctors`, doctor)
       .then((res) => {
         setDoctors((oldDoctors) => [...oldDoctors, res.data]);
       })
@@ -78,7 +79,7 @@ export const AppContainer: React.FC = ({ children }) => {
   const addPatient: EventHandlers["addPatient"] = React.useCallback(async (patient) => {
     // TODO: make server return new doctor
     await axios
-      .post(`${baseUrl}/patients`, patient)
+      .post(`${apiUrl}/patients`, patient)
       .then((res) => {
         setPatients((oldPatients) => [...oldPatients, res.data]);
       })
@@ -86,42 +87,87 @@ export const AppContainer: React.FC = ({ children }) => {
   }, []);
 
   const getTickets: EventHandlers["getTickets"] = React.useCallback(async () => {
-    await axios.get(`${baseUrl}/tickets`).then((res) => setTickets(() => res.data));
+    await axios.get(`${apiUrl}/tickets`).then((res) => setTickets(() => res.data));
   }, []);
 
   const getQueue: EventHandlers["getQueue"] = React.useCallback(async () => {
-    await axios.get(`${baseUrl}/queues?active=true`).then((res) => setQueue(() => res.data));
+    await axios.get(`${apiUrl}/queues?active=true`).then((res) => setQueue(() => res.data));
   }, []);
 
   const closeTicket = React.useCallback(
     async (doctorId: string, ticketId?: string) => {
       if (!ticketId) {
         if (tickets.length > 0) {
-          await axios.patch(`${baseUrl}/tickets/${tickets[0].ticketId}`, { doctorId });
+          await axios.patch(`${apiUrl}/tickets/${tickets[0].ticketId}`, { doctorId });
         }
       } else {
-        await axios.patch(`${baseUrl}/tickets/${ticketId}`, { isActive: false });
+        await axios.patch(`${apiUrl}/tickets/${ticketId}`, { isActive: false });
       }
     },
     [tickets]
   );
 
   const getOnDutyDoctors = React.useCallback(async () => {
-    await axios.get(`${baseUrl}/doctors?onDuty=true`).then((res) => {
+    await axios.get(`${apiUrl}/doctors?onDuty=true`).then((res) => {
       setOnDutyDoctors(() => res.data);
     });
   }, []);
 
   const openQueue = React.useCallback(async () => {
-    await axios.post(`${baseUrl}/queues`);
+    await axios.post(`${apiUrl}/queues`);
   }, []);
 
   const closeQueue = React.useCallback(async () => {
     if (!queue) {
       return;
     }
-    await axios.patch(`${baseUrl}/queues/${queue.id}`, { isActive: false });
+    await axios.patch(`${apiUrl}/queues/${queue.id}`, { isActive: false });
   }, [queue]);
+
+  React.useEffect(() => {
+    getDoctors().then();
+    getTickets().then();
+    getQueue().then();
+  }, [getDoctors, getQueue, getTickets]);
+
+  React.useEffect(() => {
+    const doctorSocket = io("/doctors");
+    doctorSocket.on("addDoctor", () => {
+      console.log("on addDoctor");
+
+      getDoctors().then();
+      getOnDutyDoctors().then();
+    });
+    doctorSocket.on("deleteDoctor", () => {
+      console.log("on deleteDoctor");
+
+      getDoctors().then();
+      getOnDutyDoctors().then();
+    });
+    doctorSocket.on("updateDoctor", () => {
+      console.log("on updateDoctor");
+      getDoctors().then();
+      getOnDutyDoctors().then();
+    });
+
+    return () => {
+      doctorSocket.close();
+    };
+  }, [getDoctors, getOnDutyDoctors]);
+
+  // React.useEffect(() => {
+  //   const doctorSocket = io("/patients");
+  //   doctorSocket.on("addPatient", () => {
+  //     getTickets().then();
+  //     getQueue().then();
+  //   });
+  //   doctorSocket.on("deleteDoctor", () => getDoctors().then());
+  //   doctorSocket.on("updateDoctor", () => getDoctors().then());
+  //
+  //   return () => {
+  //     doctorSocket.close();
+  //   };
+  // }, [getDoctors]);
 
   const eventHandlers: EventHandlers = React.useMemo(() => {
     return {

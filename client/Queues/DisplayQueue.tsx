@@ -2,7 +2,7 @@ import * as React from "react";
 import axios from "axios";
 // import socketIOClient from "socket.io-client";
 
-import { baseUrl } from "../Config/config";
+import { apiUrl } from "../Config/config";
 
 interface TicketWithDoctor {
   ticketNumber: number;
@@ -14,13 +14,13 @@ export const DisplayQueue: React.FC = () => {
   const [ticketsWithDoctors, setTicketsWithDoctors] = React.useState<TicketWithDoctor[]>([]);
 
   const refreshQueue = React.useCallback(async () => {
-    const response = (await axios.get(`${baseUrl}/tickets?active=true`)).data;
+    const response = (await axios.get(`${apiUrl}/tickets?active=true`)).data;
     setTicketsWithDoctors(response);
   }, []);
 
   React.useEffect(() => {
     refreshQueue().then();
-    // const socket = socketIOClient(baseUrl, { transports: ["websocket"] });
+    // const socket = socketIOClient(apiUrl, { transports: ["websocket"] });
     // socket.on("next", refreshQueue);
     // socket.on("closeQueue", refreshQueue);
     //
