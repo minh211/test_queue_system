@@ -1,11 +1,25 @@
 import * as http from "http";
+import * as path from "path";
+import * as fs from "fs";
 
-import Express from "express";
+import * as React from "react";
+import * as ReactDOMServer from "react-dom/server";
 import { json, urlencoded } from "body-parser";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import Express from "express";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import morgan from "morgan";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import helmet from "helmet";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import cors from "cors";
 import { Server } from "socket.io";
+
+import App from "../client/App";
 
 import { setIo } from "./io";
 import { apiRouter } from "./routes/api";
@@ -20,7 +34,19 @@ app.use(urlencoded({ extended: false }));
 app.use(helmet());
 app.use(cors());
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use("/", Express.static(path.join(__dirname, "static")));
+
+const manifest = fs.readFileSync(path.join(__dirname, "static/manifest.json"), "utf-8");
+const assets = JSON.parse(manifest);
+
 app.use("/api", apiRouter);
+
+app.get("/", (req, res) => {
+  const component = ReactDOMServer.renderToString(React.createElement(App));
+  res.render("client", { assets, component });
+});
 
 const PORT = process.env.PORT || 1604;
 

@@ -5,7 +5,7 @@ module.exports = {
   },
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["./client/tsconfig.json", "./server/tsconfig.json"],
+    project: ["./tsconfig.client.json", "./tsconfig.server.json"],
   },
   extends: [
     "eslint:recommended",
@@ -22,7 +22,7 @@ module.exports = {
     },
   },
   rules: {
-    "@typescript-eslint/ban-types": ["error", { types: { object: true } }], // TODO: Enable object for better object typing iterator
+    "@typescript-eslint/ban-types": ["error", { types: { object: true } }],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-empty-function": "warn",
