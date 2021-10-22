@@ -1,9 +1,18 @@
 import { Server } from "socket.io";
 
-let _io: Server;
+const io = new Server();
 
-export const setIo = (io: Server) => {
-  console.log("setIO");
-  _io = io;
+const Socket = {
+  emit: function (event: any, data: any) {
+    console.log(event, data);
+    io.sockets.emit(event, data);
+  },
 };
-export const getIo = () => _io;
+
+io.on("connection", function (socket) {
+  console.log("clientCount:", Object.keys(io.engine.clients));
+
+  console.log("A user connected", socket.id);
+});
+
+export { Socket, io };

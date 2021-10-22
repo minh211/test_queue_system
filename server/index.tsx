@@ -20,17 +20,17 @@ import helmet from "helmet";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import cors from "cors";
-import { Server } from "socket.io";
 import { StaticRouter } from "react-router-dom";
 
 import App from "../client/App";
 
-import { setIo } from "./io";
+import { io } from "./io";
 import { apiRouter } from "./routes/api";
 
 const app = Express();
 const server = http.createServer(app);
-setIo(new Server(server));
+
+io.attach(server);
 
 app.use(morgan("dev"));
 app.use(json());
@@ -67,29 +67,29 @@ server.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
 
-function print(path: any, layer: any) {
-  if (layer.route) {
-    layer.route.stack.forEach(print.bind(null, path.concat(split(layer.route.path))));
-  } else if (layer.name === "router" && layer.handle.stack) {
-    layer.handle.stack.forEach(print.bind(null, path.concat(split(layer.regexp))));
-  } else if (layer.method) {
-    console.log("%s /%s", layer.method.toUpperCase(), path.concat(split(layer.regexp)).filter(Boolean).join("/"));
-  }
-}
-
-function split(thing: any) {
-  if (typeof thing === "string") {
-    return thing.split("/");
-  } else if (thing.fast_slash) {
-    return "";
-  } else {
-    const match = thing
-      .toString()
-      .replace("\\/?", "")
-      .replace("(?=\\/|$)", "$")
-      .match(/^\/\^((?:\\[.*+?^${}()|[\]\\/]|[^.*+?^${}()|[\]\\/])*)\$\//);
-    return match ? match[1].replace(/\\(.)/g, "$1").split("/") : "<complex:" + thing.toString() + ">";
-  }
-}
-
-app._router.stack.forEach(print.bind(null, []));
+// function print(path: any, layer: any) {
+//   if (layer.route) {
+//     layer.route.stack.forEach(print.bind(null, path.concat(split(layer.route.path))));
+//   } else if (layer.name === "router" && layer.handle.stack) {
+//     layer.handle.stack.forEach(print.bind(null, path.concat(split(layer.regexp))));
+//   } else if (layer.method) {
+//     console.log("%s /%s", layer.method.toUpperCase(), path.concat(split(layer.regexp)).filter(Boolean).join("/"));
+//   }
+// }
+//
+// function split(thing: any) {
+//   if (typeof thing === "string") {
+//     return thing.split("/");
+//   } else if (thing.fast_slash) {
+//     return "";
+//   } else {
+//     const match = thing
+//       .toString()
+//       .replace("\\/?", "")
+//       .replace("(?=\\/|$)", "$")
+//       .match(/^\/\^((?:\\[.*+?^${}()|[\]\\/]|[^.*+?^${}()|[\]\\/])*)\$\//);
+//     return match ? match[1].replace(/\\(.)/g, "$1").split("/") : "<complex:" + thing.toString() + ">";
+//   }
+// }
+//
+// app._router.stack.forEach(print.bind(null, []));

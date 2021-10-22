@@ -11,9 +11,9 @@ import {
   Ticket,
   TicketAttributes,
 } from "../models";
-import { getIo } from "../io";
+import { Socket, io } from "../io";
 
-const doctorsSocket = getIo()?.of("/doctors");
+const doctorNsp = io.of("/doctors");
 
 export namespace AddDoctorHandler {
   export type ReqBody = CreationDoctorAttributes;
@@ -24,7 +24,9 @@ export const addDoctor: RequestHandler<never, AddDoctorHandler.ResBody, AddDocto
   async (req, res) => {
     const { firstName, lastName, onDuty } = req.body;
     const doctor = await Doctor.create({ firstName, lastName, onDuty });
-    doctorsSocket?.emit("addDoctor");
+    Socket.emit("addDoctor", "from Socket");
+    console.log(doctorNsp);
+    doctorNsp.emit("addDoctor", "from io");
     res.status(201).send(doctor);
   }
 );
@@ -135,7 +137,7 @@ export const deleteDoctor: RequestHandler<{ doctorId: string }> = asyncHandler(a
   }
 
   await Doctor.destroy({ where: { id: doctorId } });
-  doctorsSocket?.emit("deleteDoctor");
+  // doctorsSocket?.emit("deleteDoctor");
   res.status(204).send();
 });
 
@@ -150,7 +152,7 @@ export const updateDoctor: RequestHandler<UpdateDoctorHandler.ReqParams, never, 
 
     await Doctor.update(req.body, { where: { id: doctorId } });
 
-    doctorsSocket?.emit("updateDoctor");
+    // doctorsSocket?.emit("updateDoctor");
     res.status(204).send();
     return;
   });

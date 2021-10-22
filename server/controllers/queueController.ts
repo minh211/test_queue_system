@@ -2,13 +2,13 @@ import { RequestHandler } from "express";
 import asyncHandler from "express-async-handler";
 
 import { Queue, QueueAttributes, Ticket, TicketAttributes } from "../models";
-import { getIo } from "../io";
+// import { getIo } from "../io";
 import { ResponseMessage } from "../types";
 
-const io = getIo();
-const home = io?.of("/").on("connection", () => {
-  console.log("Connected from Home page.");
-});
+// const io = getIo();
+// const home = io?.of("/").on("connection", () => {
+//   console.log("Connected from Home page.");
+// });
 
 export namespace GetQueuesHandler {
   export type ReqQuery = { active?: boolean };
@@ -22,7 +22,6 @@ export namespace GetQueuesHandler {
 
 export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, GetQueuesHandler.ReqQuery> =
   asyncHandler(async (req, res) => {
-    console.log("@");
     const { active } = req.query;
 
     const activeQueues = await Queue.findAll({
@@ -101,5 +100,5 @@ export const closeActiveQueue: RequestHandler<
   await queue.update({ isActive: false, endDate: new Date() });
   res.status(204).send();
 
-  home?.emit("closeQueue");
+  // home?.emit("closeQueue");
 });

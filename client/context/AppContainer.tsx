@@ -131,43 +131,17 @@ export const AppContainer: React.FC = ({ children }) => {
   }, [getDoctors, getQueue, getTickets]);
 
   React.useEffect(() => {
-    const doctorSocket = io("/doctors");
-    doctorSocket.on("addDoctor", () => {
-      console.log("on addDoctor");
-
-      getDoctors().then();
-      getOnDutyDoctors().then();
+    console.log("asdasda");
+    const doctorSocket = io("/");
+    doctorSocket.on("connect", () => {
+      console.log("connected from container");
     });
-    doctorSocket.on("deleteDoctor", () => {
-      console.log("on deleteDoctor");
-
-      getDoctors().then();
-      getOnDutyDoctors().then();
-    });
-    doctorSocket.on("updateDoctor", () => {
-      console.log("on updateDoctor");
-      getDoctors().then();
-      getOnDutyDoctors().then();
-    });
+    doctorSocket.on("addDoctor", (data) => console.log(`Container > ${data}`));
 
     return () => {
       doctorSocket.close();
     };
-  }, [getDoctors, getOnDutyDoctors]);
-
-  // React.useEffect(() => {
-  //   const doctorSocket = io("/patients");
-  //   doctorSocket.on("addPatient", () => {
-  //     getTickets().then();
-  //     getQueue().then();
-  //   });
-  //   doctorSocket.on("deleteDoctor", () => getDoctors().then());
-  //   doctorSocket.on("updateDoctor", () => getDoctors().then());
-  //
-  //   return () => {
-  //     doctorSocket.close();
-  //   };
-  // }, [getDoctors]);
+  }, [getDoctors]);
 
   const eventHandlers: EventHandlers = React.useMemo(() => {
     return {
