@@ -1,11 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import * as React from "react";
 
-import { Doctor, MutationResponse, OnDutyDoctor, Patient, Queue, Ticket } from "../types";
-import { apiUrl } from "../utils";
-
-import { AppContextProvider } from "./context";
-import { EventHandlers } from "./eventHandlers";
+import { apiUrl, defaultEventHandlers } from "./utils";
+import { AppContextType, Doctor, MutationResponse, OnDutyDoctor, Patient, Queue, Ticket, EventHandlers } from "./types";
 
 export const AppContainer: React.FC = ({ children }) => {
   const [doctors, setDoctors] = React.useState<Doctor[]>([]);
@@ -162,3 +159,13 @@ export const AppContainer: React.FC = ({ children }) => {
     </AppContextProvider>
   );
 };
+
+export const AppContext = React.createContext<AppContextType>({
+  doctors: [],
+  onDutyDoctors: [],
+  patients: [],
+  tickets: [],
+  eventHandlers: defaultEventHandlers,
+});
+
+const AppContextProvider = AppContext.Provider;

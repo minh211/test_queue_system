@@ -2,7 +2,7 @@ import * as React from "react";
 import DatePicker from "react-datepicker";
 import { io } from "socket.io-client";
 
-import { AppContext } from "../context";
+import { AppContext } from "../AppContainer";
 import { useNames } from "../utils";
 
 export const NewPatientPanel: React.FC = () => {

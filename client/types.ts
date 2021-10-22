@@ -46,4 +46,30 @@ export interface Queue {
   endDate: Date | undefined;
 }
 
+export interface AppContextType {
+  queue?: Queue;
+  doctors: Doctor[];
+  onDutyDoctors: OnDutyDoctor[];
+  patients: Patient[];
+  tickets: Ticket[];
+  eventHandlers: EventHandlers;
+}
+
+export interface EventHandlers {
+  getDoctors(): Promise<void>;
+  getOnDutyDoctors(): Promise<void>;
+  deleteDoctor(doctorId: string): Promise<void>;
+  addDoctor(doctor: Omit<Doctor, "doctorId">): Promise<void>;
+  updateDoctor(doctor: Pick<Doctor, "doctorId"> & Partial<Omit<Doctor, "doctorId">>): Promise<void>;
+
+  addPatient(patient: Omit<Patient, "patientId">): Promise<void>;
+
+  getTickets(): Promise<void>;
+  closeTicket(doctorId: string, ticketId?: string): Promise<void>;
+
+  getQueue(): Promise<void>;
+  closeQueue(): Promise<void>;
+  openQueue(): Promise<void>;
+}
+
 export type MutationResponse = AxiosResponse<{ success: boolean }>;

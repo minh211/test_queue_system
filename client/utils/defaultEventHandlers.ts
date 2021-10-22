@@ -1,21 +1,4 @@
-import { Doctor, Patient } from "../types";
-
-export interface EventHandlers {
-  getDoctors(): Promise<void>;
-  getOnDutyDoctors(): Promise<void>;
-  deleteDoctor(doctorId: string): Promise<void>;
-  addDoctor(doctor: Omit<Doctor, "doctorId">): Promise<void>;
-  updateDoctor(doctor: Pick<Doctor, "doctorId"> & Partial<Omit<Doctor, "doctorId">>): Promise<void>;
-
-  addPatient(patient: Omit<Patient, "patientId">): Promise<void>;
-
-  getTickets(): Promise<void>;
-  closeTicket(doctorId: string, ticketId?: string): Promise<void>;
-
-  getQueue(): Promise<void>;
-  closeQueue(): Promise<void>;
-  openQueue(): Promise<void>;
-}
+import { EventHandlers } from "../types";
 
 export const defaultEventHandlers: EventHandlers = {
   addDoctor(): Promise<void> {

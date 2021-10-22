@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "reactstrap";
 
-import { AppContext } from "../context";
+import { AppContext } from "../AppContainer";
 import { Doctor } from "../types";
 
 import { UpdateDoctorModal } from "./UpdateDoctorModal";

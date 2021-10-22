@@ -1,7 +1,7 @@
 import * as React from "react";
 import { io } from "socket.io-client";
 
-import { AppContext } from "../context";
+import { AppContext } from "../AppContainer";
 
 export const TicketList: React.FC = () => {
   const {

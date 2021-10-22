@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Route } from "react-router-dom";
 
-import { AppContainer } from "./context";
+import { AppContainer } from "./AppContainer";
 import { NavBar } from "./components";
 import { Doctor, Home, Queue } from "./views";
 

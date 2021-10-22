@@ -3,15 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "run-p server client",
-    "server": "run-p server:*",
-    "server:start": "nodemon lib/server/index.js",
-    "server:watch": "tsc --build ./tsconfig.server.json --watch --preserveWatchOutput",
-    "server:build": "webpack --config webpack.config.server.js",
-    "client": "run-p client:watch client:start",
-    "client:watch": "tsc --build ./client/tsconfig.json --watch --preserveWatchOutput",
-    "client:start": "cross-env NODE_ENV=development webpack serve --config webpack/dev.config.js",
-    "client:build": "webpack --config webpack.config.client.js"
+    "start": "node dev.js",
+    "watch:server": "tsc --project ./tsconfig.server.json --noEmit --watch --preserveWatchOutput",
+    "watch:client": "tsc --project ./tsconfig.client.json --noEmit --watch --preserveWatchOutput",
+    "build": "run-p build:*",
+    "build:server": "webpack --config webpack.config.server.js",
+    "build:client": "webpack --config webpack.config.client.js"
   },
   "browserslist": [
     ">0.2%",
@@ -27,7 +24,6 @@
     "@types/bluebird": "^3.5.36",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
-    "@types/express-serve-static-core": "^4.17.24",
     "@types/helmet": "^4.0.0",
     "@types/morgan": "^1.9.3",
     "@types/react": "^17.0.30",

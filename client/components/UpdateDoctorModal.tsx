@@ -1,7 +1,7 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import * as React from "react";
 
-import { AppContext } from "../context";
+import { AppContext } from "../AppContainer";
 import { Doctor } from "../types";
 import { useNames } from "../utils";
 

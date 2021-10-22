@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { AppContext } from "../context";
+import { AppContext } from "../AppContainer";
 import { useNames } from "../utils";
 
 export const NewDoctorPanel: React.FC = () => {
