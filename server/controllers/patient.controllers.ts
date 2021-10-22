@@ -1,5 +1,7 @@
 import { RequestHandler } from "express";
 import { Optional } from "sequelize";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import asyncHandler from "express-async-handler";
 
 import { io } from "../io";

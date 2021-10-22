@@ -4,7 +4,6 @@ const io = new Server();
 
 const Socket = {
   emit: function (event: any, data: any) {
-    console.log(event, data);
     io.sockets.emit(event, data);
   },
 };

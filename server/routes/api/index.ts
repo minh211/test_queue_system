@@ -1,9 +1,9 @@
 import * as Express from "express";
 
-import { patientsRouter } from "./patients";
-import { doctorsRouter } from "./doctors";
-import { queuesRouter } from "./queues";
-import { ticketsRouter } from "./tickets";
+import { patientsRouter } from "./patients.routes";
+import { doctorsRouter } from "./doctors.routes";
+import { queuesRouter } from "./queues.routes";
+import { ticketsRouter } from "./tickets.routes";
 
 export const apiRouter = Express.Router();
 

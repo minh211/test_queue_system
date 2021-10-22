@@ -1,4 +1,6 @@
 import { RequestHandler } from "express";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import asyncHandler from "express-async-handler";
 
 import { Queue, QueueAttributes, Ticket, TicketAttributes } from "../models";
