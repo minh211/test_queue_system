@@ -1,9 +1,7 @@
 import * as React from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 
-type NavBarProps = RouteComponentProps;
-
-const _NavBar: React.FC<NavBarProps> = (props) => {
+const _NavBar: React.FC<RouteComponentProps> = (props) => {
   const activeTab = props.location.pathname;
   return (
     <div className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">

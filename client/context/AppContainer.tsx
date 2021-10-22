@@ -1,9 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import * as React from "react";
 
-import { apiUrl } from "../Config/config";
-import { MutationResponse } from "../Doctors/DoctorPage";
-import { Doctor, OnDutyDoctor, Patient, Queue, Ticket } from "../types";
+import { Doctor, MutationResponse, OnDutyDoctor, Patient, Queue, Ticket } from "../types";
+import { apiUrl } from "../utils";
 
 import { AppContextProvider } from "./context";
 import { EventHandlers } from "./eventHandlers";

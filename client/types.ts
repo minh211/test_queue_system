@@ -1,3 +1,5 @@
+import { AxiosResponse } from "axios";
+
 export interface Patient {
   patientId: string;
   firstName: string;
@@ -43,3 +45,5 @@ export interface Queue {
   startDate: Date;
   endDate: Date | undefined;
 }
+
+export type MutationResponse = AxiosResponse<{ success: boolean }>;

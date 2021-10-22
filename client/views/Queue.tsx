@@ -1,9 +1,6 @@
 import * as React from "react";
 
-import { OnDutyDoctors } from "../Doctors/OnDutyDoctors";
-
-import { TicketList } from "./TicketList";
-import { QueueControl } from "./QueueControl";
+import { OnDutyDoctors, QueuePanel, TicketList } from "../components";
 
 export const Queue: React.FC = () => {
   return (
@@ -13,7 +10,7 @@ export const Queue: React.FC = () => {
           <div className="col-4 card">
             <div className="container">
               <div className="row">
-                <QueueControl />
+                <QueuePanel />
               </div>
             </div>
           </div>

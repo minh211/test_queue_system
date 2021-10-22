@@ -3,8 +3,7 @@ import * as React from "react";
 
 import { AppContext } from "../context";
 import { Doctor } from "../types";
-
-import { useNames } from "./useNames";
+import { useNames } from "../utils";
 
 interface UpdateDoctorModalProps {
   modal: boolean;

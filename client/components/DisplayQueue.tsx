@@ -1,8 +1,7 @@
 import * as React from "react";
 import axios from "axios";
-// import socketIOClient from "socket.io-client";
 
-import { apiUrl } from "../Config/config";
+import { apiUrl } from "../utils";
 
 interface TicketWithDoctor {
   ticketNumber: number;
@@ -20,13 +19,6 @@ export const DisplayQueue: React.FC = () => {
 
   React.useEffect(() => {
     refreshQueue().then();
-    // const socket = socketIOClient(apiUrl, { transports: ["websocket"] });
-    // socket.on("next", refreshQueue);
-    // socket.on("closeQueue", refreshQueue);
-    //
-    // return () => {
-    //   socket.close();
-    // };
   }, [refreshQueue]);
 
   const getLatestTicketWithDoctor = React.useMemo(() => {

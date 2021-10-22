@@ -1,15 +1,10 @@
 import * as React from "react";
-import { AxiosResponse } from "axios";
 import { io } from "socket.io-client";
 
 import { AppContext } from "../context";
+import { DoctorList, NewDoctorPanel } from "../components";
 
-import { NewDoctor } from "./NewDoctor";
-import { DoctorList } from "./DoctorList";
-
-export type MutationResponse = AxiosResponse<{ success: boolean }>;
-
-export const DoctorPage: React.FC = () => {
+export const Doctor: React.FC = () => {
   const {
     eventHandlers: { getDoctors },
   } = React.useContext(AppContext);
@@ -45,7 +40,7 @@ export const DoctorPage: React.FC = () => {
       <div className="container">
         <div className="row">
           <div className="col-4 card">
-            <NewDoctor />
+            <NewDoctorPanel />
           </div>
           <div className="col-8 card">
             <DoctorList />

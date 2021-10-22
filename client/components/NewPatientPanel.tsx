@@ -2,10 +2,10 @@ import * as React from "react";
 import DatePicker from "react-datepicker";
 import { io } from "socket.io-client";
 
-import { useNames } from "../Doctors/useNames";
 import { AppContext } from "../context";
+import { useNames } from "../utils";
 
-export const NewPatient: React.FC = () => {
+export const NewPatientPanel: React.FC = () => {
   const {
     eventHandlers: { addPatient, getTickets },
   } = React.useContext(AppContext);

@@ -12,7 +12,7 @@ import helmet = require("helmet");
 import cors = require("cors");
 import { StaticRouter } from "react-router-dom";
 
-import App from "../client/App";
+import { App } from "../client/App";
 
 import { io } from "./io";
 import { apiRouter } from "./routes/api";

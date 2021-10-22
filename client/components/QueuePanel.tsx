@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { AppContext } from "../context";
 
-export const QueueControl: React.FC = () => {
+export const QueuePanel: React.FC = () => {
   const {
     queue,
     tickets,

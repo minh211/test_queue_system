@@ -1,7 +1,6 @@
 import * as React from "react";
 
-import { NewPatient } from "../Patient/NewPatient";
-import { DisplayQueue } from "../Queues/DisplayQueue";
+import { DisplayQueue, NewPatientPanel } from "../components";
 
 export const Home = () => {
   return (
@@ -9,7 +8,7 @@ export const Home = () => {
       <div className="container">
         <div className="row">
           <div className="col-4 card">
-            <NewPatient />
+            <NewPatientPanel />
           </div>
           <div className="col-8 card">
             <DisplayQueue />

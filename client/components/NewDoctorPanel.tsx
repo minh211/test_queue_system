@@ -1,10 +1,9 @@
 import * as React from "react";
 
 import { AppContext } from "../context";
+import { useNames } from "../utils";
 
-import { useNames } from "./useNames";
-
-export const NewDoctor: React.FC = () => {
+export const NewDoctorPanel: React.FC = () => {
   const {
     eventHandlers: { addDoctor },
   } = React.useContext(AppContext);
