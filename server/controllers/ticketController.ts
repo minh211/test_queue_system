@@ -1,6 +1,6 @@
-import { RequestHandler } from "express";
 import { Op } from "sequelize";
 import asyncHandler from "express-async-handler";
+import { RequestHandler } from "express";
 
 import { Doctor, Patient, PatientAttributes, Queue, Ticket } from "../models";
 import { ResponseMessage } from "../types";

@@ -2,14 +2,11 @@ import { RequestHandler } from "express";
 import { Optional } from "sequelize";
 import asyncHandler from "express-async-handler";
 
+import { io } from "../io";
 import { Patient, Queue, Ticket, PatientAttributes } from "../models";
-// import { getIo } from "../io";
 import { ResponseMessage } from "../types";
 
-// const io = getIo();
-// const queue = io?.of("/queue").on("connection", () => {
-//   console.log("Connected from Queue page.");
-// });
+const queueNsp = io.of("/queues");
 
 export namespace CreatePatientHandler {
   export type ReqBody = Optional<PatientAttributes, "id">;
@@ -38,5 +35,5 @@ export const createPatient: RequestHandler<never, CreatePatientHandler.ResBody, 
     await ticket.setQueue(activeQueue);
 
     res.status(201).send(patient);
-    // queue?.emit("newPatient");
+    queueNsp.emit("addPatient");
   });

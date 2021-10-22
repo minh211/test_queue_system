@@ -2,6 +2,10 @@
   "compilerOptions": {
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "es2018",
+      "dom"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "newLine": "LF",
@@ -13,12 +17,8 @@
     "noUnusedParameters": false,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "resolveJsonModule": true,
     "strict": true,
-    "esModuleInterop": true,
-    "stripInternal": true,
-    "incremental": true,
-    "downlevelIteration": true,
-    "allowJs": true,
-    "skipLibCheck": true
+    "target": "es5"
   }
 }

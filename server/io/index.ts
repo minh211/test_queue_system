@@ -9,9 +9,7 @@ const Socket = {
   },
 };
 
-io.on("connection", function (socket) {
-  console.log("clientCount:", Object.keys(io.engine.clients));
-
+io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 });
 

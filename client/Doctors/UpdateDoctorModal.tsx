@@ -22,8 +22,8 @@ export const UpdateDoctorModal: React.FC<UpdateDoctorModalProps> = ({ modal, tog
       return;
     }
 
-    eventHandlers.updateDoctor({ doctorId: doctor.doctorId, firstName, lastName }).then();
-  }, [doctor, eventHandlers, firstName, lastName]);
+    eventHandlers.updateDoctor({ doctorId: doctor.doctorId, firstName, lastName }).then(toggleModal);
+  }, [doctor, eventHandlers, firstName, lastName, toggleModal]);
 
   if (!modal) {
     return null;

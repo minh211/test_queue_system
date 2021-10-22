@@ -2,13 +2,7 @@ import { RequestHandler } from "express";
 import asyncHandler from "express-async-handler";
 
 import { Queue, QueueAttributes, Ticket, TicketAttributes } from "../models";
-// import { getIo } from "../io";
 import { ResponseMessage } from "../types";
-
-// const io = getIo();
-// const home = io?.of("/").on("connection", () => {
-//   console.log("Connected from Home page.");
-// });
 
 export namespace GetQueuesHandler {
   export type ReqQuery = { active?: boolean };

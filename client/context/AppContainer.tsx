@@ -1,6 +1,5 @@
-import * as React from "react";
 import axios, { AxiosResponse } from "axios";
-import { io } from "socket.io-client";
+import * as React from "react";
 
 import { apiUrl } from "../Config/config";
 import { MutationResponse } from "../Doctors/DoctorPage";
@@ -129,19 +128,6 @@ export const AppContainer: React.FC = ({ children }) => {
     getTickets().then();
     getQueue().then();
   }, [getDoctors, getQueue, getTickets]);
-
-  React.useEffect(() => {
-    console.log("asdasda");
-    const doctorSocket = io("/");
-    doctorSocket.on("connect", () => {
-      console.log("connected from container");
-    });
-    doctorSocket.on("addDoctor", (data) => console.log(`Container > ${data}`));
-
-    return () => {
-      doctorSocket.close();
-    };
-  }, [getDoctors]);
 
   const eventHandlers: EventHandlers = React.useMemo(() => {
     return {

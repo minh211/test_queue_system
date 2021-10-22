@@ -1,5 +1,7 @@
 import { Sequelize } from "sequelize";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import * as configs from "../config/config.json";
 
 import { doctorFactory } from "./doctor";
@@ -11,7 +13,7 @@ import { ticketFactory } from "./ticket";
 // @ts-ignore
 const config = configs[process.env.NODE_ENV || "development"];
 
-const sequelize = new Sequelize(config.database, config.username, config.password, config);
+const sequelize = new Sequelize(config.database, config.username, config.password, { ...config, logging: false });
 
 export const Doctor = doctorFactory(sequelize);
 export const Patient = patientFactory(sequelize);

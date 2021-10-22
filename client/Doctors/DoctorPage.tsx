@@ -15,17 +15,28 @@ export const DoctorPage: React.FC = () => {
   } = React.useContext(AppContext);
 
   React.useEffect(() => {
-    const doctorSocket = io("/doctors");
-    doctorSocket.on("connect", () => {
-      console.log("/doctors onConnect from client"); // true
+    const socket = io("/doctors");
+    socket.on("connect", () => {
+      console.log("Connected /doctors namespace from DoctorPage");
     });
-    doctorSocket.on("addDoctor", (data) => {
-      console.log(`/doctors onAddDoctor ${data}`);
+
+    socket.on("addDoctor", () => {
+      console.log(`Listened /doctors addDoctor`);
+      getDoctors().then();
+    });
+
+    socket.on("updateDoctor", () => {
+      console.log(`Listened /doctors updateDoctor`);
+      getDoctors().then();
+    });
+
+    socket.on("deleteDoctor", () => {
+      console.log(`Listened /doctors deleteDoctor`);
       getDoctors().then();
     });
 
     return () => {
-      doctorSocket.close();
+      socket.disconnect();
     };
   }, [getDoctors]);
 
