@@ -20,6 +20,8 @@ export const DoctorList: React.FC = () => {
     [doctors]
   );
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const toggleDuty = React.useCallback(
     async (doctorId: string) => {
       const doctor = doctors.find((d) => d.doctorId === doctorId);
@@ -64,7 +66,7 @@ export const DoctorList: React.FC = () => {
                 <td>{doctor.firstName}</td>
                 <td>{doctor.lastName}</td>
                 <td width="100" align="center">
-                  <input type="checkbox" onChange={() => toggleDuty(doctor.doctorId)} checked={doctor.onDuty} />
+                  <input type="checkbox" onChange={() => toggleDuty(doctor.doctorId)} checked={!!doctor.onDuty} />
                 </td>
                 <td width="100" align="center">
                   <div>

@@ -1,29 +1,9 @@
 import * as React from "react";
-import { io } from "socket.io-client";
 
 import { AppContext } from "../AppContainer";
 
 export const TicketList: React.FC = () => {
-  const {
-    tickets,
-    eventHandlers: { getTickets },
-  } = React.useContext(AppContext);
-
-  React.useEffect(() => {
-    const socket = io("/queues");
-    socket.on("connect", () => {
-      console.log("Connected /tickets namespace from Queue");
-    });
-
-    socket.on("addPatient", () => {
-      console.log(`Listened /queues addPatient`);
-      getTickets().then();
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [getTickets]);
+  const { tickets } = React.useContext(AppContext);
 
   return (
     <React.Fragment>

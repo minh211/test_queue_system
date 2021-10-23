@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { closeActiveQueue, getQueues, openNewQueue } from "../../controllers";
+import { closeQueue, getQueues, openQueue } from "../../controllers";
 
 export const queuesRouter = Router();
 
 queuesRouter.get("", getQueues);
-queuesRouter.post("", openNewQueue);
-queuesRouter.patch("/:queueId", closeActiveQueue);
+queuesRouter.post("", openQueue);
+queuesRouter.patch("/:queueId", closeQueue);

@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { AppContext } from "../AppContainer";
+import { TicketsUtils } from "../utils";
 
 export const QueuePanel: React.FC = () => {
   const {
@@ -10,12 +11,13 @@ export const QueuePanel: React.FC = () => {
   } = React.useContext(AppContext);
 
   const Button = React.useMemo(() => {
+    const disabled = TicketsUtils.newTickets(tickets).length + TicketsUtils.inProgressTickets(tickets).length > 0;
     return (
-      <button type="button" onClick={queue ? closeQueue : openQueue} className="btn btn-primary">
+      <button type="button" disabled={disabled} onClick={queue ? closeQueue : openQueue} className="btn btn-primary">
         {queue ? "Close Queue" : "Open New Queue"}
       </button>
     );
-  }, [queue, closeQueue, openQueue]);
+  }, [tickets, queue, closeQueue, openQueue]);
 
   return (
     <React.Fragment>

@@ -38,7 +38,7 @@ app.use("/", express.static(path.join(__dirname, "static")), favicon(path.join(_
 
 app.use("/api", apiRouter);
 
-app.get(["/", "/queue", "/doctor"], (req, res) => {
+app.get(["/", "/queue", "/doctors"], (req, res) => {
   const manifest = fs.readFileSync(path.join(__dirname, "static/manifest.json"), "utf-8");
   const assets = JSON.parse(manifest);
   const context = {};

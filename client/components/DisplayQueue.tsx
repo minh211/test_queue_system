@@ -1,13 +1,26 @@
 import * as React from "react";
 
 import { AppContext } from "../AppContainer";
+import { TicketsUtils } from "../utils";
 
 export const DisplayQueue: React.FC = () => {
-  const { tickets, inProgressTickets } = React.useContext(AppContext);
+  const { tickets } = React.useContext(AppContext);
 
   const latestAssignedTicket = React.useMemo(() => {
-    return inProgressTickets[0] ?? null;
-  }, [inProgressTickets]);
+    return (
+      TicketsUtils.inProgressTickets(tickets).sort((a, b) =>
+        a.updatedAt < b.updatedAt ? 1 : a.updatedAt > b.updatedAt ? -1 : 0
+      )?.[0] ?? undefined
+    );
+  }, [tickets]);
+
+  const orderedTickets = React.useMemo(
+    () =>
+      TicketsUtils.inProgressTickets(tickets).sort((a, b) =>
+        (a.doctor?.doctorId ?? "").localeCompare(b.doctor?.doctorId ?? "")
+      ),
+    [tickets]
+  );
 
   return (
     <div className="container">
@@ -35,7 +48,7 @@ export const DisplayQueue: React.FC = () => {
         )}
       </div>
       <div className="row" style={{ marginBottom: "20px" }}>
-        {inProgressTickets.map(({ ticketNumber, doctor, patient }) => (
+        {orderedTickets.map(({ ticketNumber, doctor, patient }) => (
           <div key={ticketNumber} className="col-sm-4 card text-center">
             <div className="card-body">
               Queue number:

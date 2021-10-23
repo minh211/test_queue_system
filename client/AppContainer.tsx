@@ -21,10 +21,6 @@ export const AppContainer: React.FC = ({ children }) => {
     return tickets.filter(({ doctor }) => !doctor);
   }, [tickets]);
 
-  const inProgressTickets: Ticket[] = React.useMemo(() => {
-    return tickets.filter(({ doctor, isActive }) => isActive && doctor);
-  }, [tickets]);
-
   const doneTickets: Ticket[] = React.useMemo(() => {
     return tickets.filter(({ isActive }) => !isActive);
   }, [tickets]);
@@ -80,7 +76,7 @@ export const AppContainer: React.FC = ({ children }) => {
   }, []);
 
   const getTickets: EventHandlers["getTickets"] = React.useCallback(async () => {
-    const res: Res<GetTicketsHandler.AllTicketResBody> = await axios.get(`${apiUrl}/tickets`);
+    const res: Res<GetTicketsHandler.ResBody> = await axios.get(`${apiUrl}/tickets`);
     if (isSuccess(res)) {
       setTickets(() => res.data);
     }
@@ -88,7 +84,6 @@ export const AppContainer: React.FC = ({ children }) => {
 
   const getQueue: EventHandlers["getQueue"] = React.useCallback(async () => {
     const res: Res<GetQueuesHandler.QueueResBody> = await axios.get(`${apiUrl}/queues?active=true`);
-
     if (isSuccess(res)) {
       setQueue(() => res.data);
     }
@@ -192,7 +187,6 @@ export const AppContainer: React.FC = ({ children }) => {
         patients,
         newTickets,
         tickets,
-        inProgressTickets,
         doneTickets,
         queue,
         eventHandlers,
@@ -208,7 +202,6 @@ export const AppContext = React.createContext<AppContextType>({
   patients: [],
   newTickets: [],
   tickets: [],
-  inProgressTickets: [],
   doneTickets: [],
   eventHandlers: defaultEventHandlers,
 });

@@ -1,11 +1,13 @@
 import * as React from "react";
 
 import { AppContext } from "../AppContainer";
+import { TicketsUtils } from "../utils";
 
 export const OnDutyDoctors: React.FC = () => {
   const {
     onDutyDoctors,
     queue,
+    tickets,
     eventHandlers: { updateTickets },
   } = React.useContext(AppContext);
 
@@ -62,7 +64,10 @@ export const OnDutyDoctors: React.FC = () => {
                 </p>
                 <p>{getPatient(patient?.firstName, patient?.lastName)}</p>
               </div>
-              <button className="btn btn-sm btn-primary" onClick={() => onClick(doctorId, ticket?.ticketId)}>
+              <button
+                className="btn btn-sm btn-primary"
+                disabled={!patient && TicketsUtils.newTickets(tickets).length === 0}
+                onClick={() => onClick(doctorId, ticket?.ticketId)}>
                 Next Patient
               </button>
             </div>

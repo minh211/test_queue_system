@@ -1,4 +1,3 @@
-import { Op } from "sequelize";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import asyncHandler from "express-async-handler";
@@ -11,8 +10,8 @@ import { io } from "../io";
 const ticketsNsp = io.of("/tickets");
 
 export namespace GetTicketsHandler {
-  export type ReqQuery = { active?: true };
-  export type AllTicketResBody = {
+  export type ResBody = {
+    updatedAt: Date;
     isActive: boolean;
     ticketId: string;
     ticketNumber: number;
@@ -23,88 +22,16 @@ export namespace GetTicketsHandler {
       | {
           firstName: string;
           lastName: string;
+          doctorId: string;
         };
   }[];
-  export type ResBody = ActiveTicketsResBody | AllTicketResBody;
 }
 
-export const getAllTickets: RequestHandler<never, GetTicketsHandler.ResBody, never, GetTicketsHandler.ReqQuery> =
-  asyncHandler(async (req, res) => {
-    const { active } = req.query;
-
-    if (active) {
-      const activeTickets = await getActiveTickets();
-      res.status(200).send(activeTickets);
-      return;
-    }
-
-    const tickets = await Ticket.findAll({
-      attributes: ["id", "ticketNumber", "queueId", "isActive"],
-      where: { isActive: true },
-      order: [["ticketNumber", "ASC"]],
-      include: [
-        {
-          model: Queue,
-          as: "queue",
-          attributes: ["id"],
-          where: {
-            isActive: true,
-          },
-        },
-        {
-          model: Patient,
-          as: "patient",
-          attributes: ["id", "firstName", "lastName", "gender", "birthday", "caseDescription"],
-        },
-        {
-          model: Doctor,
-          as: "doctor",
-          attributes: ["firstName", "lastName"],
-          required: false,
-        },
-      ],
-    });
-
-    const result: GetTicketsHandler.AllTicketResBody = tickets.map((ticket) => ({
-      isActive: ticket.isActive,
-      ticketId: ticket.id,
-      ticketNumber: ticket.ticketNumber,
-      patient: {
-        patientId: ticket.patient.id,
-        firstName: ticket.patient.firstName,
-        lastName: ticket.patient.lastName,
-        gender: ticket.patient.gender,
-        birthday: ticket.patient.birthday,
-        caseDescription: ticket.patient.caseDescription,
-      },
-      queueId: ticket.queue.id,
-      doctor: ticket.doctor
-        ? {
-            firstName: ticket.doctor.firstName,
-            lastName: ticket.doctor.lastName,
-          }
-        : undefined,
-    }));
-    res.status(200).send(result);
-  });
-
-export type ActiveTicketsResBody = {
-  ticketId: string;
-  ticketNumber: number;
-  doctor: {
-    firstName: string;
-    lastName: string;
-  };
-  patient: {
-    firstName: string;
-    lastName: string;
-  };
-}[];
-
-export const getActiveTickets = async (): Promise<ActiveTicketsResBody> => {
-  const ticketsWithDoctors = await Ticket.findAll({
-    where: { isActive: true, doctorId: { [Op.ne]: null } },
-    order: [["updatedAt", "DESC"]],
+export const getAllTickets: RequestHandler<never, GetTicketsHandler.ResBody, never> = asyncHandler(async (req, res) => {
+  const tickets = await Ticket.findAll({
+    attributes: ["id", "ticketNumber", "queueId", "isActive", "updatedAt"],
+    where: { isActive: true },
+    order: [["ticketNumber", "ASC"]],
     include: [
       {
         model: Queue,
@@ -117,31 +44,41 @@ export const getActiveTickets = async (): Promise<ActiveTicketsResBody> => {
       {
         model: Patient,
         as: "patient",
-        attributes: ["firstName", "lastName"],
+        attributes: ["id", "firstName", "lastName", "gender", "birthday", "caseDescription"],
       },
       {
         model: Doctor,
         as: "doctor",
-        attributes: ["firstName", "lastName"],
+        attributes: ["firstName", "lastName", "id"],
+        required: false,
       },
     ],
   });
 
-  return ticketsWithDoctors.map((ticket) => {
-    return {
-      ticketId: ticket.id,
-      ticketNumber: ticket.ticketNumber,
-      patient: {
-        firstName: ticket.patient.firstName,
-        lastName: ticket.patient.lastName,
-      },
-      doctor: {
-        firstName: ticket.doctor.firstName,
-        lastName: ticket.doctor.lastName,
-      },
-    };
-  });
-};
+  const result: GetTicketsHandler.ResBody = tickets.map((ticket) => ({
+    updatedAt: ticket.updatedAt,
+    isActive: ticket.isActive,
+    ticketId: ticket.id,
+    ticketNumber: ticket.ticketNumber,
+    patient: {
+      patientId: ticket.patient.id,
+      firstName: ticket.patient.firstName,
+      lastName: ticket.patient.lastName,
+      gender: ticket.patient.gender,
+      birthday: ticket.patient.birthday,
+      caseDescription: ticket.patient.caseDescription,
+    },
+    queueId: ticket.queue.id,
+    doctor: ticket.doctor
+      ? {
+          doctorId: ticket.doctor.id + "",
+          firstName: ticket.doctor.firstName,
+          lastName: ticket.doctor.lastName,
+        }
+      : undefined,
+  }));
+  res.status(200).send(result);
+});
 
 export namespace UpdateTicketHandler {
   export type ReqParams = { ticketId: string };

@@ -15,7 +15,7 @@ export namespace CreatePatientHandler {
   export type ResBody = ReqBody | ResponseMessage;
 }
 
-export const createPatient: RequestHandler<never, CreatePatientHandler.ResBody, CreatePatientHandler.ReqBody> =
+export const addPatient: RequestHandler<never, CreatePatientHandler.ResBody, CreatePatientHandler.ReqBody> =
   asyncHandler(async (req, res) => {
     const { firstName, lastName, caseDescription, gender, birthday } = req.body as PatientAttributes;
     const activeQueues = await Queue.findAll({

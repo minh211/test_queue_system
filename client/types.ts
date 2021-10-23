@@ -1,5 +1,3 @@
-import { AxiosResponse } from "axios";
-
 export interface Patient {
   patientId: string;
   firstName: string;
@@ -35,8 +33,9 @@ export interface OnDutyDoctor {
 export interface Ticket {
   ticketId: string;
   isActive: boolean;
+  updatedAt: Date;
   ticketNumber: number;
-  doctor: { firstName: string; lastName: string } | undefined;
+  doctor: { firstName: string; lastName: string; doctorId: string } | undefined;
   patient: Patient;
 }
 
@@ -56,7 +55,6 @@ export interface AppContextType {
   tickets: Ticket[];
   eventHandlers: EventHandlers;
   newTickets: NewTicket[];
-  inProgressTickets: Ticket[];
   doneTickets: Ticket[];
 }
 
@@ -76,5 +74,3 @@ export interface EventHandlers {
   closeQueue(): Promise<void>;
   openQueue(): Promise<void>;
 }
-
-export type Res = AxiosResponse<{ success: boolean }>;

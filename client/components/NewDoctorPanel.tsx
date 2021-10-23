@@ -20,9 +20,10 @@ export const NewDoctorPanel: React.FC = () => {
     isValid,
   } = useNames();
 
-  const submit = React.useCallback(() => {
-    addDoctor({ firstName, lastName, onDuty }).then();
-  }, [addDoctor, firstName, lastName, onDuty]);
+  const submit = React.useCallback(async () => {
+    await addDoctor({ firstName, lastName, onDuty });
+    reset();
+  }, [addDoctor, firstName, lastName, onDuty, reset]);
 
   return (
     <React.Fragment>

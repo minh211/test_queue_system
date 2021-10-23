@@ -11,27 +11,12 @@ export const Doctor: React.FC = () => {
 
   React.useEffect(() => {
     const socket = io("/doctors");
-    socket.on("connect", () => {
-      console.log("Connected /doctors namespace from DoctorPage");
-    });
-
-    socket.on("addDoctor", () => {
-      console.log(`Listened /doctors addDoctor`);
-      getDoctors().then();
-    });
-
-    socket.on("updateDoctor", () => {
-      console.log(`Listened /doctors updateDoctor`);
-      getDoctors().then();
-    });
-
-    socket.on("deleteDoctor", () => {
-      console.log(`Listened /doctors deleteDoctor`);
-      getDoctors().then();
-    });
+    socket.on("addDoctor", async () => await getDoctors());
+    socket.on("updateDoctor", async () => await getDoctors());
+    socket.on("deleteDoctor", async () => await getDoctors());
 
     return () => {
-      socket.disconnect();
+      socket.close();
     };
   }, [getDoctors]);
 

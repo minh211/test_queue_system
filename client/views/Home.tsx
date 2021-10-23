@@ -6,18 +6,26 @@ import { DisplayQueue, NewPatientPanel } from "../components";
 
 export const Home = () => {
   const {
-    eventHandlers: { getTickets },
+    eventHandlers: { getTickets, getDoctors },
   } = React.useContext(AppContext);
 
   React.useEffect(() => {
     const socket = io("/tickets");
-
     socket.on("updateTicket", async () => await getTickets());
 
     return () => {
       socket.disconnect();
     };
   }, [getTickets]);
+
+  React.useEffect(() => {
+    const socket = io("/doctors");
+    socket.on("updateDoctor", async () => await getDoctors());
+
+    return () => {
+      socket.close();
+    };
+  });
 
   return (
     <React.Fragment>

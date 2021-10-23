@@ -5,6 +5,7 @@ import * as ReactDOM from "react-dom";
 import { App } from "./App";
 
 import "bootstrap/dist/css/bootstrap.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 ReactDOM.hydrate(
   <BrowserRouter>

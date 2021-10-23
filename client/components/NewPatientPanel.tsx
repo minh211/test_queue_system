@@ -1,13 +1,12 @@
 import * as React from "react";
 import DatePicker from "react-datepicker";
-import { io } from "socket.io-client";
 
 import { AppContext } from "../AppContainer";
 import { useNames } from "../utils";
 
 export const NewPatientPanel: React.FC = () => {
   const {
-    eventHandlers: { addPatient, getTickets },
+    eventHandlers: { addPatient },
   } = React.useContext(AppContext);
 
   const {
@@ -39,22 +38,6 @@ export const NewPatientPanel: React.FC = () => {
   const submit = React.useCallback(async () => {
     addPatient({ firstName, lastName, caseDescription, birthday, gender }).then(reset);
   }, [addPatient, birthday, caseDescription, firstName, gender, lastName, reset]);
-
-  React.useEffect(() => {
-    const socket = io("/patients");
-    socket.on("connect", () => {
-      console.log("Connected /patients namespace from PatientPage");
-    });
-
-    socket.on("addPatient", () => {
-      console.log(`Listened /patients addPatient`);
-      getTickets().then();
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [getTickets]);
 
   return (
     <React.Fragment>

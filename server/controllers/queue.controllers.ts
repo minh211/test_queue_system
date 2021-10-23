@@ -11,11 +11,13 @@ const queuesNsp = io.of("/queues");
 
 export namespace GetQueuesHandler {
   export type ReqQuery = { active?: boolean };
-  export type QueueResBody = Pick<QueueAttributes, "isActive" | "startDate" | "endDate"> & {
-    queueId: string;
-    tickets: TicketAttributes[];
-  };
-  export type ResBody = ResponseMessage | QueueResBody;
+  export type QueueResBody =
+    | undefined
+    | (Pick<QueueAttributes, "isActive" | "startDate" | "endDate"> & {
+        queueId: string;
+        tickets: TicketAttributes[];
+      });
+  export type ResBody = QueueResBody;
 }
 
 export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, GetQueuesHandler.ReqQuery> =
@@ -29,7 +31,7 @@ export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, G
     });
 
     if (activeQueues.length === 0) {
-      res.status(404).send({ message: `Can not find ${active ? "active queue" : "any queues"}` });
+      res.status(201).send();
       return;
     }
 
@@ -48,7 +50,7 @@ export namespace OpenQueueHandler {
   export type ResBody = ResponseMessage | (Omit<QueueAttributes, "id"> & { queueId: string });
 }
 
-export const openNewQueue: RequestHandler<never, OpenQueueHandler.ResBody> = asyncHandler(async (_req, res) => {
+export const openQueue: RequestHandler<never, OpenQueueHandler.ResBody> = asyncHandler(async (_req, res) => {
   const activeQueues = await Queue.findAll({ where: { isActive: true } });
 
   if (activeQueues.length > 0) {
@@ -73,7 +75,7 @@ export namespace CloseActiveQueueHandler {
   export type ResBody = never | ResponseMessage;
 }
 
-export const closeActiveQueue: RequestHandler<
+export const closeQueue: RequestHandler<
   CloseActiveQueueHandler.ReqParams,
   CloseActiveQueueHandler.ResBody,
   CloseActiveQueueHandler.ReqBody

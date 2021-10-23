@@ -8,6 +8,7 @@ export interface TicketAttributes {
   id: string;
   isActive: boolean;
   ticketNumber: number;
+  updatedAt: Date;
 
   doctorId: string;
   patientId: string;
@@ -15,7 +16,10 @@ export interface TicketAttributes {
 }
 
 export interface TicketModel
-  extends Model<TicketAttributes, Optional<TicketAttributes, "id" | "doctorId" | "patientId" | "queueId">>,
+  extends Model<
+      TicketAttributes,
+      Optional<TicketAttributes, "id" | "doctorId" | "patientId" | "queueId" | "updatedAt">
+    >,
     TicketAttributes {
   setPatient(patient: PatientModel): Promise<void>;
   patient: PatientModel;
