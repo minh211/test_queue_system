@@ -25,6 +25,7 @@ export interface TicketModel
 
   setDoctor(doctor: DoctorModel): Promise<void>;
   doctor: DoctorModel;
+  getDoctor(): Promise<DoctorModel>;
 }
 
 export type TicketStatic = typeof Model & {

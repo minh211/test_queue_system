@@ -19,22 +19,24 @@ const doctorNsp = io.of("/doctors");
 
 export namespace AddDoctorHandler {
   export type ReqBody = CreationDoctorAttributes;
-  export type ResBody = DoctorAttributes;
+  export type ResBody = DoctorAttributes & { doctorId: string };
 }
 
 export const addDoctor: RequestHandler<never, AddDoctorHandler.ResBody, AddDoctorHandler.ReqBody> = asyncHandler(
   async (req, res) => {
     const { firstName, lastName, onDuty } = req.body;
     const doctor = await Doctor.create({ firstName, lastName, onDuty });
-    doctorNsp.emit("addDoctor", "from io");
-    res.status(201).send(doctor);
+    doctorNsp.emit("addDoctor");
+    res.status(201).send({ ...doctor, doctorId: doctor.id });
   }
 );
 
 export namespace GetDoctorsHandler {
   export type ReqQuery = { onDuty?: boolean };
   export type ReqBody = never;
-  export type ResBody = DoctorAttributes[] | GetOnDutyDoctorsResponse[];
+  export type AllDoctorsResBody = (Omit<DoctorAttributes, "id"> & { doctorId: string })[];
+  export type OnDutyDoctorsResBody = GetOnDutyDoctorsResponse[];
+  export type ResBody = AllDoctorsResBody | OnDutyDoctorsResBody;
 }
 
 export const getDoctors: RequestHandler<
@@ -59,7 +61,7 @@ export const getDoctors: RequestHandler<
     ],
   });
 
-  const result = doctors.map((doctor) => {
+  const result: GetDoctorsHandler.AllDoctorsResBody = doctors.map((doctor) => {
     return {
       doctorId: doctor.id,
       firstName: doctor.firstName,

@@ -25,7 +25,7 @@ export const defaultEventHandlers: EventHandlers = {
   updateDoctor(): Promise<void> {
     return Promise.resolve(undefined);
   },
-  closeTicket(): Promise<void> {
+  updateTickets(): Promise<void> {
     return Promise.resolve(undefined);
   },
   closeQueue(): Promise<void> {

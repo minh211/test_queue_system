@@ -6,18 +6,24 @@ import { RequestHandler } from "express";
 
 import { Doctor, Patient, PatientAttributes, Queue, Ticket } from "../models";
 import { ResponseMessage } from "../types";
+import { io } from "../io";
+
+const ticketsNsp = io.of("/tickets");
 
 export namespace GetTicketsHandler {
   export type ReqQuery = { active?: true };
   export type AllTicketResBody = {
+    isActive: boolean;
     ticketId: string;
     ticketNumber: number;
     queueId: string;
-    patient: Omit<PatientAttributes, "id">;
-    doctor?: {
-      firstName: string;
-      lastName: string;
-    };
+    patient: Omit<PatientAttributes, "id"> & { patientId: string };
+    doctor:
+      | undefined
+      | {
+          firstName: string;
+          lastName: string;
+        };
   }[];
   export type ResBody = ActiveTicketsResBody | AllTicketResBody;
 }
@@ -33,7 +39,7 @@ export const getAllTickets: RequestHandler<never, GetTicketsHandler.ResBody, nev
     }
 
     const tickets = await Ticket.findAll({
-      attributes: ["id", "ticketNumber", "queueId"],
+      attributes: ["id", "ticketNumber", "queueId", "isActive"],
       where: { isActive: true },
       order: [["ticketNumber", "ASC"]],
       include: [
@@ -48,7 +54,7 @@ export const getAllTickets: RequestHandler<never, GetTicketsHandler.ResBody, nev
         {
           model: Patient,
           as: "patient",
-          attributes: ["firstName", "lastName", "gender", "birthday", "caseDescription"],
+          attributes: ["id", "firstName", "lastName", "gender", "birthday", "caseDescription"],
         },
         {
           model: Doctor,
@@ -59,10 +65,12 @@ export const getAllTickets: RequestHandler<never, GetTicketsHandler.ResBody, nev
       ],
     });
 
-    const result = tickets.map((ticket) => ({
+    const result: GetTicketsHandler.AllTicketResBody = tickets.map((ticket) => ({
+      isActive: ticket.isActive,
       ticketId: ticket.id,
       ticketNumber: ticket.ticketNumber,
       patient: {
+        patientId: ticket.patient.id,
         firstName: ticket.patient.firstName,
         lastName: ticket.patient.lastName,
         gender: ticket.patient.gender,
@@ -156,15 +164,8 @@ export const updateTicket: RequestHandler<
     return;
   }
 
-  if (isActive === false && !doctorId) {
-    // close ticket
-    await ticket.update({ isActive: false });
-    res.status(204).send();
-    return;
-  }
-
   if (isActive === undefined && doctorId) {
-    // assign ticket
+    // assign ticket for doctor
     const doctor = await Doctor.findByPk(doctorId);
 
     if (!doctor) {
@@ -174,6 +175,48 @@ export const updateTicket: RequestHandler<
 
     await ticket.setDoctor(doctor);
     res.status(204).send();
+    ticketsNsp.emit("updateTicket");
+    return;
+  }
+
+  if (isActive === false && !doctorId) {
+    // close ticket
+    await ticket.update({ isActive: false });
+
+    // find the next waiting ticket
+    const nextTickets = await Ticket.findAll({
+      attributes: ["id"],
+      where: {
+        isActive: true,
+        doctorId: null,
+      },
+      include: [
+        {
+          model: Queue,
+          as: "queue",
+          attributes: ["id"],
+          where: {
+            isActive: true,
+          },
+        },
+        {
+          model: Doctor,
+          as: "doctor",
+          attributes: ["firstName", "lastName"],
+        },
+      ],
+      order: [["ticketNumber", "ASC"]],
+    });
+
+    const currentDoctor = await ticket.getDoctor();
+
+    if (nextTickets && nextTickets.length) {
+      await nextTickets[0].setDoctor(currentDoctor);
+    }
+
+    res.status(204).send();
+    ticketsNsp.emit("updateTicket");
+
     return;
   }
 

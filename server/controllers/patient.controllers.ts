@@ -8,7 +8,7 @@ import { io } from "../io";
 import { Patient, Queue, Ticket, PatientAttributes } from "../models";
 import { ResponseMessage } from "../types";
 
-const queueNsp = io.of("/queues");
+const patientsNsp = io.of("/patients");
 
 export namespace CreatePatientHandler {
   export type ReqBody = Optional<PatientAttributes, "id">;
@@ -37,5 +37,5 @@ export const createPatient: RequestHandler<never, CreatePatientHandler.ResBody, 
     await ticket.setQueue(activeQueue);
 
     res.status(201).send(patient);
-    queueNsp.emit("addPatient");
+    patientsNsp.emit("addPatient");
   });

@@ -5,15 +5,17 @@ import asyncHandler from "express-async-handler";
 
 import { Queue, QueueAttributes, Ticket, TicketAttributes } from "../models";
 import { ResponseMessage } from "../types";
+import { io } from "../io";
+
+const queuesNsp = io.of("/queues");
 
 export namespace GetQueuesHandler {
   export type ReqQuery = { active?: boolean };
-  export type ResBody =
-    | ResponseMessage
-    | (Pick<QueueAttributes, "isActive" | "startDate" | "endDate"> & {
-        queueId: string;
-        tickets: TicketAttributes[];
-      });
+  export type QueueResBody = Pick<QueueAttributes, "isActive" | "startDate" | "endDate"> & {
+    queueId: string;
+    tickets: TicketAttributes[];
+  };
+  export type ResBody = ResponseMessage | QueueResBody;
 }
 
 export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, GetQueuesHandler.ReqQuery> =
@@ -31,13 +33,15 @@ export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, G
       return;
     }
 
-    res.status(200).send({
+    const body: GetQueuesHandler.QueueResBody = {
       queueId: activeQueues[0].id,
       isActive: activeQueues[0].isActive,
       startDate: activeQueues[0].startDate,
       endDate: activeQueues[0].endDate,
       tickets: activeQueues[0].Tickets,
-    });
+    };
+
+    res.status(200).send(body);
   });
 
 export namespace OpenQueueHandler {
@@ -60,6 +64,7 @@ export const openNewQueue: RequestHandler<never, OpenQueueHandler.ResBody> = asy
     isActive: queue.isActive,
     endDate: queue.endDate,
   });
+  queuesNsp.emit("openQueue");
 });
 
 export namespace CloseActiveQueueHandler {
@@ -96,5 +101,5 @@ export const closeActiveQueue: RequestHandler<
   await queue.update({ isActive: false, endDate: new Date() });
   res.status(204).send();
 
-  // home?.emit("closeQueue");
+  queuesNsp.emit("closeQueue");
 });

@@ -47,7 +47,7 @@ export const TicketList: React.FC = () => {
             </tr>
           )}
           {tickets.length > 0 &&
-            tickets.map((ticket, x) => {
+            tickets.map((ticket) => {
               console.log(ticket.ticketId);
               return (
                 <tr key={ticket.ticketId}>

@@ -36,14 +36,16 @@ export interface Ticket {
   ticketId: string;
   isActive: boolean;
   ticketNumber: number;
-  doctor?: Doctor;
+  doctor: { firstName: string; lastName: string } | undefined;
   patient: Patient;
 }
 
+export type NewTicket = Omit<Ticket, "doctor">;
+
 export interface Queue {
-  id: string;
+  queueId: string;
   startDate: Date;
-  endDate: Date | undefined;
+  endDate?: Date;
 }
 
 export interface AppContextType {
@@ -53,6 +55,9 @@ export interface AppContextType {
   patients: Patient[];
   tickets: Ticket[];
   eventHandlers: EventHandlers;
+  newTickets: NewTicket[];
+  inProgressTickets: Ticket[];
+  doneTickets: Ticket[];
 }
 
 export interface EventHandlers {
@@ -65,11 +70,11 @@ export interface EventHandlers {
   addPatient(patient: Omit<Patient, "patientId">): Promise<void>;
 
   getTickets(): Promise<void>;
-  closeTicket(doctorId: string, ticketId?: string): Promise<void>;
+  updateTickets(doctorId: string, ticketId?: string): Promise<void>;
 
   getQueue(): Promise<void>;
   closeQueue(): Promise<void>;
   openQueue(): Promise<void>;
 }
 
-export type MutationResponse = AxiosResponse<{ success: boolean }>;
+export type Res = AxiosResponse<{ success: boolean }>;

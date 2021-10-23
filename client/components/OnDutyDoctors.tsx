@@ -5,7 +5,8 @@ import { AppContext } from "../AppContainer";
 export const OnDutyDoctors: React.FC = () => {
   const {
     onDutyDoctors,
-    eventHandlers: { closeTicket },
+    queue,
+    eventHandlers: { updateTickets },
   } = React.useContext(AppContext);
 
   const getTicket = React.useCallback((ticketNumber?: number) => {
@@ -34,9 +35,9 @@ export const OnDutyDoctors: React.FC = () => {
 
   const onClick = React.useCallback(
     async (doctorId: string, ticketId?: string) => {
-      closeTicket(doctorId, ticketId).then();
+      updateTickets(doctorId, ticketId).then();
     },
-    [closeTicket]
+    [updateTickets]
   );
 
   return (
@@ -48,8 +49,9 @@ export const OnDutyDoctors: React.FC = () => {
         marginLeft: "5px",
         marginRight: "5px",
       }}>
-      {onDutyDoctors.length === 0 && "No on duty doctors."}
-      {onDutyDoctors.length > 0 &&
+      {queue && onDutyDoctors.length === 0 && "No on duty doctors."}
+      {queue &&
+        onDutyDoctors.length > 0 &&
         onDutyDoctors.map(({ ticket, patient, doctorId, firstName, lastName }) => (
           <div key={doctorId} className="col-sm-4 card text-center">
             <div className="card-body">
