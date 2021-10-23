@@ -3,9 +3,10 @@ import { RequestHandler } from "express";
 // @ts-ignore
 import asyncHandler from "express-async-handler";
 
-import { Queue, QueueAttributes, Ticket, TicketAttributes } from "../models";
+import { QueueAttributes, TicketAttributes } from "../models";
 import { ResponseMessage } from "../types";
 import { io } from "../io";
+import { QueueServices } from "../services/queue.services";
 
 const queuesNsp = io.of("/queues");
 
@@ -22,28 +23,14 @@ export namespace GetQueuesHandler {
 
 export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, GetQueuesHandler.ReqQuery> =
   asyncHandler(async (req, res) => {
-    const { active } = req.query;
+    const queue = await QueueServices.getQueue(req.query.active);
 
-    const activeQueues = await Queue.findAll({
-      attributes: ["id", "startDate", "endDate", "isActive"],
-      where: active ? { isActive: true } : undefined,
-      include: [{ model: Ticket }],
-    });
-
-    if (activeQueues.length === 0) {
+    if (!queue) {
       res.status(201).send();
       return;
     }
 
-    const body: GetQueuesHandler.QueueResBody = {
-      queueId: activeQueues[0].id,
-      isActive: activeQueues[0].isActive,
-      startDate: activeQueues[0].startDate,
-      endDate: activeQueues[0].endDate,
-      tickets: activeQueues[0].Tickets,
-    };
-
-    res.status(200).send(body);
+    res.status(200).send({ ...queue, queueId: queue.id, tickets: queue.Tickets });
   });
 
 export namespace OpenQueueHandler {
@@ -51,20 +38,16 @@ export namespace OpenQueueHandler {
 }
 
 export const openQueue: RequestHandler<never, OpenQueueHandler.ResBody> = asyncHandler(async (_req, res) => {
-  const activeQueues = await Queue.findAll({ where: { isActive: true } });
+  const newQueue = await QueueServices.openQueue();
 
-  if (activeQueues.length > 0) {
+  if (!newQueue) {
     res.status(200).send({ message: "Can not create a new queue when a queue is active" });
     return;
   }
 
-  const queue = await Queue.create({ isActive: true, startDate: new Date() });
-
   res.status(201).send({
-    queueId: queue.id,
-    startDate: queue.startDate,
-    isActive: queue.isActive,
-    endDate: queue.endDate,
+    ...newQueue,
+    queueId: newQueue.id,
   });
   queuesNsp.emit("openQueue");
 });
@@ -88,20 +71,13 @@ export const closeQueue: RequestHandler<
     return;
   }
 
-  const queue = await Queue.findByPk(queueId);
+  const success = await QueueServices.closeQueue(queueId);
 
-  if (!queue) {
-    res.status(409).send({ message: `Can not find the queue with id ${queueId}` });
+  if (!success) {
+    res.status(409).send({ message: `Can not close the queue with id ${queueId}` });
     return;
   }
 
-  if (!queue.isActive) {
-    res.status(409).send({ message: `The queue is already close` });
-    return;
-  }
-
-  await queue.update({ isActive: false, endDate: new Date() });
   res.status(204).send();
-
   queuesNsp.emit("closeQueue");
 });

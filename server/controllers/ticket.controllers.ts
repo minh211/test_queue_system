@@ -3,9 +3,11 @@
 import asyncHandler from "express-async-handler";
 import { RequestHandler } from "express";
 
-import { Doctor, Patient, PatientAttributes, Queue, Ticket } from "../models";
+import { DoctorModel, PatientAttributes, Ticket } from "../models";
 import { ResponseMessage } from "../types";
 import { io } from "../io";
+import { TicketServices } from "../services/ticket.services";
+import { DoctorsServices } from "../services";
 
 const ticketsNsp = io.of("/tickets");
 
@@ -27,57 +29,10 @@ export namespace GetTicketsHandler {
   }[];
 }
 
-export const getAllTickets: RequestHandler<never, GetTicketsHandler.ResBody, never> = asyncHandler(async (req, res) => {
-  const tickets = await Ticket.findAll({
-    attributes: ["id", "ticketNumber", "queueId", "isActive", "updatedAt"],
-    where: { isActive: true },
-    order: [["ticketNumber", "ASC"]],
-    include: [
-      {
-        model: Queue,
-        as: "queue",
-        attributes: ["id"],
-        where: {
-          isActive: true,
-        },
-      },
-      {
-        model: Patient,
-        as: "patient",
-        attributes: ["id", "firstName", "lastName", "gender", "birthday", "caseDescription"],
-      },
-      {
-        model: Doctor,
-        as: "doctor",
-        attributes: ["firstName", "lastName", "id"],
-        required: false,
-      },
-    ],
-  });
+export const getTickets: RequestHandler<never, GetTicketsHandler.ResBody, never> = asyncHandler(async (req, res) => {
+  const tickets = await TicketServices.getTickets();
 
-  const result: GetTicketsHandler.ResBody = tickets.map((ticket) => ({
-    updatedAt: ticket.updatedAt,
-    isActive: ticket.isActive,
-    ticketId: ticket.id,
-    ticketNumber: ticket.ticketNumber,
-    patient: {
-      patientId: ticket.patient.id,
-      firstName: ticket.patient.firstName,
-      lastName: ticket.patient.lastName,
-      gender: ticket.patient.gender,
-      birthday: ticket.patient.birthday,
-      caseDescription: ticket.patient.caseDescription,
-    },
-    queueId: ticket.queue.id,
-    doctor: ticket.doctor
-      ? {
-          doctorId: ticket.doctor.id + "",
-          firstName: ticket.doctor.firstName,
-          lastName: ticket.doctor.lastName,
-        }
-      : undefined,
-  }));
-  res.status(200).send(result);
+  res.status(200).send(tickets);
 });
 
 export namespace UpdateTicketHandler {
@@ -94,61 +49,34 @@ export const updateTicket: RequestHandler<
   const { ticketId } = req.params;
   const { isActive, doctorId } = req.body;
 
-  const ticket = await Ticket.findByPk(ticketId);
-
-  if (!ticket) {
-    res.status(400).send({ message: `Can not find the ticket with id ${ticketId}` });
-    return;
-  }
-
   if (isActive === undefined && doctorId) {
-    // assign ticket for doctor
-    const doctor = await Doctor.findByPk(doctorId);
+    const success = await TicketServices.progressTicket(ticketId, doctorId);
 
-    if (!doctor) {
-      res.status(400).send({ message: `Can not find the doctor with id ${doctorId}` });
+    if (!success) {
+      res.status(400).send({ message: `Can not assign ticket ${ticketId} for the doctor ${doctorId}` });
       return;
     }
 
-    await ticket.setDoctor(doctor);
     res.status(204).send();
     ticketsNsp.emit("updateTicket");
     return;
   }
 
   if (isActive === false && !doctorId) {
-    // close ticket
-    await ticket.update({ isActive: false });
+    const ticket = await Ticket.findByPk(ticketId);
+    if (!ticket) {
+      res.status(400).send({ message: `Can not find the ticket with id ${ticketId}` });
+      return;
+    }
 
-    // find the next waiting ticket
-    const nextTickets = await Ticket.findAll({
-      attributes: ["id"],
-      where: {
-        isActive: true,
-        doctorId: null,
-      },
-      include: [
-        {
-          model: Queue,
-          as: "queue",
-          attributes: ["id"],
-          where: {
-            isActive: true,
-          },
-        },
-        {
-          model: Doctor,
-          as: "doctor",
-          attributes: ["firstName", "lastName"],
-        },
-      ],
-      order: [["ticketNumber", "ASC"]],
-    });
+    await TicketServices.closeTicket(ticket);
 
-    const currentDoctor = await ticket.getDoctor();
+    const currentDoctor: DoctorModel | undefined = await ticket.getDoctor();
+    const success = await DoctorsServices.findNextPatient(currentDoctor?.id);
 
-    if (nextTickets && nextTickets.length) {
-      await nextTickets[0].setDoctor(currentDoctor);
+    if (!success) {
+      res.status(400).send({ message: `Can not find the ticket with id ${ticketId}` });
+      return;
     }
 
     res.status(204).send();

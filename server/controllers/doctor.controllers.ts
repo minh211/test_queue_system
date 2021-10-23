@@ -3,17 +3,11 @@ import { RequestHandler } from "express";
 // @ts-ignore
 import asyncHandler from "express-async-handler";
 
-import {
-  CreationDoctorAttributes,
-  Doctor,
-  DoctorAttributes,
-  Patient,
-  PatientAttributes,
-  Queue,
-  Ticket,
-  TicketAttributes,
-} from "../models";
+import { CreationDoctorAttributes, DoctorAttributes, PatientAttributes, TicketAttributes } from "../models";
 import { io } from "../io";
+import { DoctorsServices } from "../services";
+
+import getOnDutyDoctors = DoctorsServices.getOnDutyDoctors;
 
 const doctorNsp = io.of("/doctors");
 
@@ -24,8 +18,7 @@ export namespace AddDoctorHandler {
 
 export const addDoctor: RequestHandler<never, AddDoctorHandler.ResBody, AddDoctorHandler.ReqBody> = asyncHandler(
   async (req, res) => {
-    const { firstName, lastName, onDuty } = req.body;
-    const doctor = await Doctor.create({ firstName, lastName, onDuty });
+    const doctor = await DoctorsServices.addDoctor(req.body);
     doctorNsp.emit("addDoctor");
     res.status(201).send({ ...doctor, doctorId: doctor.id });
   }
@@ -53,24 +46,8 @@ export const getDoctors: RequestHandler<
     return;
   }
 
-  const doctors = await Doctor.findAll({
-    attributes: ["id", "firstName", "lastName", "onDuty"],
-    order: [
-      ["lastName", "ASC"],
-      ["firstName", "ASC"],
-    ],
-  });
-
-  const result: GetDoctorsHandler.AllDoctorsResBody = doctors.map((doctor) => {
-    return {
-      doctorId: doctor.id,
-      firstName: doctor.firstName,
-      lastName: doctor.lastName,
-      onDuty: doctor.onDuty,
-    };
-  });
-
-  res.status(200).send(result);
+  const doctors = await DoctorsServices.getAllDoctor();
+  res.status(200).send(doctors);
 });
 
 export type GetOnDutyDoctorsResponse = Pick<DoctorAttributes, "firstName" | "lastName"> & {
@@ -79,66 +56,16 @@ export type GetOnDutyDoctorsResponse = Pick<DoctorAttributes, "firstName" | "las
   ticket?: Pick<TicketAttributes, "ticketNumber"> & { ticketId: string };
 };
 
-export const getOnDutyDoctors = async function (): Promise<GetOnDutyDoctorsResponse[]> {
-  const doctors = await Doctor.findAll({
-    attributes: ["id", "firstName", "lastName"],
-    where: { onDuty: true },
-    order: [
-      ["lastName", "ASC"],
-      ["firstName", "ASC"],
-    ],
-    include: [
-      {
-        model: Ticket,
-        where: { isActive: true },
-        attributes: ["id", "ticketNumber"],
-        required: false,
-        include: [
-          {
-            model: Queue,
-            as: "queue",
-            attributes: ["id"],
-            where: { isActive: true },
-          },
-          {
-            model: Patient,
-            as: "patient",
-            attributes: ["firstName", "lastName"],
-            required: false,
-          },
-        ],
-      },
-    ],
-  });
-
-  return doctors.map((doctor) => ({
-    doctorId: doctor.id,
-    firstName: doctor.firstName,
-    lastName: doctor.lastName,
-    ticket:
-      doctor.Tickets.length > 0
-        ? { ticketNumber: doctor.Tickets[0].ticketNumber, ticketId: doctor.Tickets[0].id }
-        : undefined,
-    patient:
-      doctor.Tickets.length > 0
-        ? {
-            firstName: doctor.Tickets[0].patient.firstName,
-            lastName: doctor.Tickets[0].patient.lastName,
-          }
-        : undefined,
-  }));
-};
-
 export const deleteDoctor: RequestHandler<{ doctorId: string }> = asyncHandler(async (req, res) => {
   const { doctorId } = req.params;
 
-  const doctor = await Doctor.findByPk(doctorId);
-  if (!doctor) {
+  const deleteSuccess = DoctorsServices.deleteDoctor(doctorId);
+
+  if (!deleteSuccess) {
     res.status(404).send();
     return;
   }
 
-  await Doctor.destroy({ where: { id: doctorId } });
   doctorNsp.emit("deleteDoctor");
   res.status(204).send();
 });
@@ -150,9 +77,7 @@ export namespace UpdateDoctorHandler {
 
 export const updateDoctor: RequestHandler<UpdateDoctorHandler.ReqParams, never, UpdateDoctorHandler.ReqBody> =
   asyncHandler(async (req, res) => {
-    const { doctorId } = req.params;
-
-    await Doctor.update(req.body, { where: { id: doctorId } });
+    await DoctorsServices.updateDoctor(req.params.doctorId, req.body);
 
     doctorNsp.emit("updateDoctor");
     res.status(204).send();

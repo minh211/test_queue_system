@@ -1,8 +1,8 @@
 import { BuildOptions, DataTypes, Model, Optional, Sequelize } from "sequelize";
 
-import { PatientModel } from "./patient";
-import { QueueModel } from "./queue";
-import { DoctorModel } from "./doctor";
+import { PatientModel } from "./patient.models";
+import { QueueModel } from "./queue.models";
+import { DoctorModel } from "./doctor.models";
 
 export interface TicketAttributes {
   id: string;
@@ -29,7 +29,7 @@ export interface TicketModel
 
   setDoctor(doctor: DoctorModel): Promise<void>;
   doctor: DoctorModel;
-  getDoctor(): Promise<DoctorModel>;
+  getDoctor(): Promise<DoctorModel | undefined>;
 }
 
 export type TicketStatic = typeof Model & {

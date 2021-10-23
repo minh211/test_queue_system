@@ -1,6 +1,6 @@
 import { BuildOptions, DataTypes, Model, Optional, Sequelize } from "sequelize";
 
-import { TicketModel } from "./ticket";
+import { TicketModel } from "./ticket.models";
 
 export interface DoctorAttributes {
   id: string;

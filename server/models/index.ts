@@ -4,10 +4,10 @@ import { Sequelize } from "sequelize";
 // @ts-ignore
 import * as configs from "../config/config.json";
 
-import { doctorFactory } from "./doctor";
-import { patientFactory } from "./patient";
-import { queueFactory } from "./queue";
-import { ticketFactory } from "./ticket";
+import { doctorFactory } from "./doctor.models";
+import { patientFactory } from "./patient.models";
+import { queueFactory } from "./queue.models";
+import { ticketFactory } from "./ticket.models";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -28,7 +28,7 @@ Ticket.belongsTo(Queue, { as: "queue" });
 Ticket.belongsTo(Patient, { as: "patient" });
 Ticket.belongsTo(Doctor, { as: "doctor" });
 
-export * from "./doctor";
-export * from "./patient";
-export * from "./queue";
-export * from "./ticket";
+export * from "./doctor.models";
+export * from "./patient.models";
+export * from "./queue.models";
+export * from "./ticket.models";
