@@ -1,67 +1,24 @@
 import * as http from "http";
 import * as path from "path";
-import * as fs from "fs";
 
-import * as React from "react";
-import * as ReactDOMServer from "react-dom/server";
-import { json, urlencoded } from "body-parser";
-import favicon = require("serve-favicon");
 import express = require("express");
-import morgan = require("morgan");
-import helmet = require("helmet");
-import cors = require("cors");
-import { StaticRouter } from "react-router-dom";
-
-import { App } from "../client/App";
 
 import { io } from "./io";
-import { apiRouter } from "./routes/api";
-import { authenticateMiddleware } from "./middlewares/authenticate.middlewares";
+import { apiRouter, viewRouter } from "./routes";
+import { commonMiddlewares } from "./middlewares";
 
 const app = express();
 const server = http.createServer(app);
 
 io.attach(server);
 
-app.use(morgan("dev"));
-app.use(json());
-app.use(urlencoded({ extended: false }));
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-  })
-);
-app.use(cors());
-
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use("/", express.static(path.join(__dirname, "static")), favicon(path.join(__dirname, "views", "favicon.ico")));
+// app.use("/", express.static(path.join(__dirname, "static")));
 
+app.use(commonMiddlewares);
 app.use("/api", apiRouter);
-
-app.get(["/", "/signIn"], (req, res) => {
-  const manifest = fs.readFileSync(path.join(__dirname, "static/manifest.json"), "utf-8");
-  const assets = JSON.parse(manifest);
-  const context = {};
-  const component = ReactDOMServer.renderToString(
-    <StaticRouter location={req.url} context={context}>
-      <App />
-    </StaticRouter>
-  );
-  res.render("client", { assets, component });
-});
-
-app.get(["/queue", "/doctors"], authenticateMiddleware, (req, res) => {
-  const manifest = fs.readFileSync(path.join(__dirname, "static/manifest.json"), "utf-8");
-  const assets = JSON.parse(manifest);
-  const context = {};
-  const component = ReactDOMServer.renderToString(
-    <StaticRouter location={req.url} context={context}>
-      <App />
-    </StaticRouter>
-  );
-  res.render("client", { assets, component });
-});
+app.use("/", viewRouter);
 
 const PORT = process.env.PORT || 1604;
 

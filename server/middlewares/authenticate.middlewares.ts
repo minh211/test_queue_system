@@ -6,6 +6,11 @@ const accessTokenSecret = "youraccesstokensecret";
 export const authenticateMiddleware: RequestHandler = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
+  if (["/", "signIn"].includes(req.path)) {
+    next();
+    return;
+  }
+
   if (authHeader) {
     const token = authHeader.split(" ")[1];
 
