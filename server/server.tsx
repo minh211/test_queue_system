@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 import { io } from "./io";
 import { app } from "./app";
 
-dotenv.config({ debug: true });
+dotenv.config();
 
 const server = http.createServer(app);
 

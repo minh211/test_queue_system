@@ -10,7 +10,6 @@ import { App } from "../../client/App";
 
 export const viewController: RequestHandler = (req, res) => {
   const manifest = fs.readFileSync(path.join(__dirname, "static", "manifest.json"), "utf-8");
-  console.log(manifest);
   const assets = JSON.parse(manifest);
   const context = {};
   const component = ReactDOMServer.renderToString(

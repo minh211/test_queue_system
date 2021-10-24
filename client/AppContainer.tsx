@@ -1,10 +1,10 @@
-import { AxiosResponse as Res } from "axios";
+import axios, { AxiosResponse as Res } from "axios";
 import * as React from "react";
 import { useHistory } from "react-router-dom";
 
 import { AddDoctorHandler, GetDoctorsHandler, GetQueuesHandler, GetTicketsHandler } from "../server/controllers";
 
-import { defaultEventHandlers, useAxios } from "./utils";
+import { baseUrl, defaultEventHandlers, useAxios } from "./utils";
 import { AppContextType, Doctor, OnDutyDoctor, Patient, Queue, Ticket, EventHandlers } from "./types";
 
 function isSuccess(response: Res) {
@@ -151,7 +151,7 @@ export const AppContainer: React.FC = ({ children }) => {
   const signIn = React.useCallback(
     async (username: string, password: string) => {
       try {
-        const res = await axiosPost<{ username: string; password: string }, { accessToken: string }>(`/auth/signIn`, {
+        const res = await axios.post(`${baseUrl}/auth/signIn`, {
           username,
           password,
         });
@@ -163,7 +163,7 @@ export const AppContainer: React.FC = ({ children }) => {
         setAuthenticateError((e as any).toString());
       }
     },
-    [axiosPost, history]
+    [history]
   );
 
   const signOut = React.useCallback(async () => setAccessToken(undefined), []);

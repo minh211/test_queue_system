@@ -1,21 +1,21 @@
 import { RequestHandler } from "express";
-import * as jwt from "jsonwebtoken";
+
+import { verifyToken } from "../services";
 
 export const authenticateMiddleware: RequestHandler = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const { authorization } = req.headers;
 
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
+  if (authorization) {
+    const token = authorization.split(" ")[1];
+    if (!verifyToken(token)) {
+      return res.sendStatus(403);
+    }
 
-    jwt.verify(token, process.env.JWT_ACCESS_TOKEN as string, (err) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-
-      next();
-      return;
-    });
+    next();
+    return;
   } else {
     res.sendStatus(401);
   }
+
+  return;
 };

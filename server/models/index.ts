@@ -8,6 +8,7 @@ import { doctorFactory } from "./doctor.models";
 import { patientFactory } from "./patient.models";
 import { queueFactory } from "./queue.models";
 import { ticketFactory } from "./ticket.models";
+import { userFactory } from "./user.models";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -19,6 +20,7 @@ export const Doctor = doctorFactory(sequelize);
 export const Patient = patientFactory(sequelize);
 export const Queue = queueFactory(sequelize);
 export const Ticket = ticketFactory(sequelize);
+export const User = userFactory(sequelize);
 
 Doctor.hasMany(Ticket, { foreignKey: "doctorId" });
 Patient.hasOne(Ticket, { foreignKey: "patientId" });
@@ -32,3 +34,4 @@ export * from "./doctor.models";
 export * from "./patient.models";
 export * from "./queue.models";
 export * from "./ticket.models";
+export * from "./user.models";
