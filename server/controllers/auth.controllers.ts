@@ -1,10 +1,8 @@
 import { RequestHandler } from "express";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import asyncHandler from "express-async-handler";
 
 import { createUser, generateToken } from "../services";
 import { ResponseMessage } from "../types";
+import { asyncHandler, createError } from "../utils";
 
 export namespace SignInHandler {
   export type ReqBody = { username: string; password: string };
@@ -12,16 +10,17 @@ export namespace SignInHandler {
 }
 
 export const signIn: RequestHandler<never, SignInHandler.ResBody, SignInHandler.ReqBody> = asyncHandler(
-  async (req, res) => {
+  async (req, res, next) => {
     const { username, password } = req.body;
 
     const accessToken = await generateToken(username, password);
 
     if (accessToken) {
       res.status(200).json({ accessToken });
-    } else {
-      res.status(403).send({ message: "Username or password incorrect" });
+      return;
     }
+
+    return next(createError(403, "Username or password incorrect"));
   }
 );
 

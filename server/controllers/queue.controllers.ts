@@ -1,12 +1,10 @@
 import { RequestHandler } from "express";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import asyncHandler from "express-async-handler";
 
 import { QueueAttributes, TicketAttributes } from "../models";
 import { ResponseMessage } from "../types";
 import { io } from "../io";
 import { QueueServices } from "../services";
+import { asyncHandler, createError } from "../utils";
 
 const queuesNsp = io.of("/queues");
 
@@ -43,18 +41,16 @@ export namespace OpenQueueHandler {
   export type ResBody = ResponseMessage | (Omit<QueueAttributes, "id"> & { queueId: string });
 }
 
-export const openQueue: RequestHandler<never, OpenQueueHandler.ResBody> = asyncHandler(async (_req, res) => {
+export const openQueue: RequestHandler<never, OpenQueueHandler.ResBody> = asyncHandler(async (_req, res, next) => {
   const newQueue = await QueueServices.openQueue();
 
   if (!newQueue) {
-    res.status(200).send({ message: "Can not create a new queue when a queue is active" });
+    next(createError(409, "Can not create a new queue when a queue is active"));
     return;
   }
 
-  res.status(201).send({
-    ...newQueue,
-    queueId: newQueue.id,
-  });
+  res.status(201).send({ ...newQueue, queueId: newQueue.id });
+
   queuesNsp.emit("openQueue");
 });
 
@@ -68,19 +64,19 @@ export const closeQueue: RequestHandler<
   CloseActiveQueueHandler.ReqParams,
   CloseActiveQueueHandler.ResBody,
   CloseActiveQueueHandler.ReqBody
-> = asyncHandler(async (req, res) => {
+> = asyncHandler(async (req, res, next) => {
   const { queueId } = req.params;
   const { isActive } = req.body;
 
   if (isActive !== false) {
-    res.status(409).send({ message: "Unsupported the patch document" });
+    next(createError(409, "Unsupported the patch document"));
     return;
   }
 
   const success = await QueueServices.closeQueue(queueId);
 
   if (!success) {
-    res.status(409).send({ message: `Can not close the queue with id ${queueId}` });
+    next(createError(409, `Can not close the queue with id ${queueId}`));
     return;
   }
 

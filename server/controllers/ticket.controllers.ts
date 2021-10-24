@@ -7,6 +7,7 @@ import { DoctorModel, PatientAttributes, Ticket } from "../models";
 import { ResponseMessage } from "../types";
 import { io } from "../io";
 import { DoctorsServices, TicketServices } from "../services";
+import { createError } from "../utils";
 
 const ticketsNsp = io.of("/tickets");
 
@@ -44,7 +45,7 @@ export const updateTicket: RequestHandler<
   UpdateTicketHandler.ReqParams,
   UpdateTicketHandler.ResBody,
   UpdateTicketHandler.ReqBody
-> = asyncHandler(async (req, res) => {
+> = asyncHandler(async (req, res, next) => {
   const { ticketId } = req.params;
   const { isActive, doctorId } = req.body;
 
@@ -52,7 +53,7 @@ export const updateTicket: RequestHandler<
     const success = await TicketServices.progressTicket(ticketId, doctorId);
 
     if (!success) {
-      res.status(400).send({ message: `Can not assign ticket ${ticketId} for the doctor ${doctorId}` });
+      next(createError(400, `Can not assign ticket ${ticketId} for the doctor ${doctorId}`));
       return;
     }
 
@@ -64,7 +65,7 @@ export const updateTicket: RequestHandler<
   if (isActive === false && !doctorId) {
     const ticket = await Ticket.findByPk("" + ticketId);
     if (!ticket) {
-      res.status(400).send({ message: `Can not find the ticket with id ${ticketId}` });
+      next(createError(400, `Can not find the ticket with id ${ticketId}`));
       return;
     }
 
@@ -74,7 +75,7 @@ export const updateTicket: RequestHandler<
     const success = await DoctorsServices.findNextPatient(currentDoctor?.id);
 
     if (!success) {
-      res.status(400).send({ message: `Can not find the ticket with id ${ticketId}` });
+      next(createError(400, `Can not find the ticket with id ${ticketId}`));
       return;
     }
 
@@ -84,5 +85,5 @@ export const updateTicket: RequestHandler<
     return;
   }
 
-  res.status(400).send({ message: "Bad patch document" });
+  next(createError(400, "Bad patch document"));
 });

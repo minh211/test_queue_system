@@ -1,10 +1,8 @@
 import { RequestHandler } from "express";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import asyncHandler from "express-async-handler";
 
 import { CreationDoctorAttributes, DoctorAttributes, PatientAttributes, TicketAttributes } from "../models";
 import { io } from "../io";
+import { asyncHandler, createError } from "../utils";
 import { DoctorsServices } from "../services";
 
 import getOnDutyDoctors = DoctorsServices.getOnDutyDoctors;
@@ -56,14 +54,13 @@ export type GetOnDutyDoctorsResponse = Pick<DoctorAttributes, "firstName" | "las
   ticket?: Pick<TicketAttributes, "ticketNumber"> & { ticketId: string };
 };
 
-export const deleteDoctor: RequestHandler<{ doctorId: string }> = asyncHandler(async (req, res) => {
+export const deleteDoctor: RequestHandler<{ doctorId: string }> = asyncHandler(async (req, res, next) => {
   const { doctorId } = req.params;
 
-  const deleteSuccess = DoctorsServices.deleteDoctor(doctorId);
+  const deleteSuccess = await DoctorsServices.deleteDoctor(doctorId);
 
   if (!deleteSuccess) {
-    res.status(404).send();
-    return;
+    return next(createError(404, `Can not delete the doctor id ${doctorId}`));
   }
 
   doctorNsp.emit("deleteDoctor");

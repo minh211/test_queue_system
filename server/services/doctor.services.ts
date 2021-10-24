@@ -87,10 +87,8 @@ export namespace DoctorsServices {
     return true;
   }
 
-  export async function updateDoctor(doctorId: string, update: Partial<CreationDoctorAttributes>): Promise<boolean> {
+  export async function updateDoctor(doctorId: string, update: Partial<CreationDoctorAttributes>): Promise<void> {
     await Doctor.update(update, { where: { id: doctorId } });
-
-    return true;
   }
 
   export async function findNextPatient(doctorId?: string): Promise<boolean> {

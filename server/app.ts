@@ -2,7 +2,7 @@ import * as path from "path";
 
 import express = require("express");
 
-import { commonMiddlewares } from "./middlewares";
+import { commonMiddlewares, errorMiddleware } from "./middlewares";
 import { apiRouter, viewRouter, authRouter } from "./routes";
 
 export const app = express();
@@ -15,3 +15,5 @@ app.use(commonMiddlewares);
 app.use("/auth", authRouter);
 app.use("/api", apiRouter);
 app.use("/", viewRouter);
+
+app.use(errorMiddleware);

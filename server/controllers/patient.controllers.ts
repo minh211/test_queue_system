@@ -8,6 +8,7 @@ import { io } from "../io";
 import { PatientAttributes } from "../models";
 import { ResponseMessage } from "../types";
 import { PatientServices } from "../services";
+import { createError } from "../utils";
 
 const patientsNsp = io.of("/patients");
 
@@ -17,11 +18,11 @@ export namespace CreatePatientHandler {
 }
 
 export const addPatient: RequestHandler<never, CreatePatientHandler.ResBody, CreatePatientHandler.ReqBody> =
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res, next) => {
     const patient = await PatientServices.addPatient(req.body);
 
     if (!patient) {
-      res.status(200).send({ message: "Can not create a new patient" });
+      next(createError(409, "Can not create a new patient"));
       return;
     }
 
