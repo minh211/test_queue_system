@@ -9,11 +9,9 @@ import * as React from "react";
 import { App } from "../../client/App";
 
 export const viewController: RequestHandler = (req, res) => {
-  const manifest = fs.readFileSync(path.join(__dirname, "static", "manifest.json"), "utf-8");
-  const assets = JSON.parse(manifest);
-  const context = {};
+  const assets = JSON.parse(fs.readFileSync(path.join(__dirname, "static", "manifest.json"), "utf-8"));
   const component = ReactDOMServer.renderToString(
-    <StaticRouter location={req.url} context={context}>
+    <StaticRouter location={req.url} context={{}}>
       <App />
     </StaticRouter>
   );

@@ -6,6 +6,7 @@ import { useNames } from "../utils";
 
 export const NewPatientPanel: React.FC = () => {
   const {
+    queue,
     eventHandlers: { addPatient },
   } = React.useContext(AppContext);
 
@@ -156,7 +157,7 @@ export const NewPatientPanel: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <button type="button" className="btn btn-primary" onClick={submit} disabled={!isValid}>
+          <button type="button" className="btn btn-primary" onClick={submit} disabled={!isValid || !queue}>
             Submit
           </button>
           <button

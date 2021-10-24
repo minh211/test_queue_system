@@ -4,7 +4,7 @@ import { AppContext } from "../AppContainer";
 import { TicketsUtils } from "../utils";
 
 export const DisplayQueue: React.FC = () => {
-  const { tickets } = React.useContext(AppContext);
+  const { tickets, queue } = React.useContext(AppContext);
 
   const latestAssignedTicket = React.useMemo(() => {
     return (
@@ -25,7 +25,11 @@ export const DisplayQueue: React.FC = () => {
   return (
     <div className="container">
       <div className="row" style={{ marginTop: "20px" }}>
-        {tickets.length === 0 && "No patient is currently being attended by doctors."}
+        {!queue
+          ? "No queue is opening"
+          : tickets.length === 0
+          ? "No patient is currently being attended by doctors."
+          : null}
         {latestAssignedTicket && (
           <div className="col-lg-12 card text-center" style={{ height: "250px" }}>
             <div className="card-body">

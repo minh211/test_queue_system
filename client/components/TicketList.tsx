@@ -28,7 +28,6 @@ export const TicketList: React.FC = () => {
           )}
           {tickets.length > 0 &&
             tickets.map((ticket) => {
-              console.log(ticket.ticketId);
               return (
                 <tr key={ticket.ticketId}>
                   <td style={{ width: "100px" }}>{ticket.ticketNumber.toString().padStart(4, "0")}</td>

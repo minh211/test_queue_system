@@ -48,8 +48,6 @@ export const updateTicket: RequestHandler<
   const { ticketId } = req.params;
   const { isActive, doctorId } = req.body;
 
-  console.log({ ticketId, doctorId, isActive });
-
   if (isActive === undefined && doctorId) {
     const success = await TicketServices.progressTicket(ticketId, doctorId);
 
@@ -66,7 +64,6 @@ export const updateTicket: RequestHandler<
   if (isActive === false && !doctorId) {
     const ticket = await Ticket.findByPk("" + ticketId);
     if (!ticket) {
-      console.log("@");
       res.status(400).send({ message: `Can not find the ticket with id ${ticketId}` });
       return;
     }
