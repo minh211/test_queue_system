@@ -4,9 +4,9 @@ import { io } from "socket.io-client";
 import { AppContext } from "../AppContainer";
 import { DisplayQueue, NewPatientPanel } from "../components";
 
-export const Home = () => {
+export const HomePage = () => {
   const {
-    eventHandlers: { getTickets, getDoctors },
+    eventHandlers: { getTickets },
   } = React.useContext(AppContext);
 
   React.useEffect(() => {
@@ -14,18 +14,22 @@ export const Home = () => {
     socket.on("updateTicket", async () => await getTickets());
 
     return () => {
-      socket.disconnect();
+      socket.close();
     };
   }, [getTickets]);
 
   React.useEffect(() => {
     const socket = io("/doctors");
-    socket.on("updateDoctor", async () => await getDoctors());
+    socket.on("updateDoctor", async () => await getTickets());
 
     return () => {
       socket.close();
     };
   });
+
+  React.useEffect(() => {
+    getTickets().then();
+  }, [getTickets]);
 
   return (
     <React.Fragment>

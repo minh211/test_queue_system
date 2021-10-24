@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { AppContext } from "../AppContainer";
 
-export const SignIn = () => {
+export const SignInPage = () => {
   const {
     authenticateError,
     eventHandlers: { signIn },

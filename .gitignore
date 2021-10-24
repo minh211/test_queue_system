@@ -6,3 +6,4 @@ build/*
 /client/lib/
 /dist/
 *.tsbuildinfo
+.env

@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { closeQueue, getQueues, openQueue } from "../../controllers";
-import { authenticateMiddleware } from "../../middlewares/authenticate.middlewares";
+import { authenticateMiddleware } from "../../middlewares";
 
 export const queuesRouter = Router();
 

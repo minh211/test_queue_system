@@ -16,8 +16,6 @@ const users = [
   },
 ];
 
-const accessTokenSecret = "youraccesstokensecret";
-
 authRouter.post("/signIn", (req: Request<never, any, { username: string; password: string }>, res) => {
   const { username, password } = req.body;
 
@@ -28,7 +26,7 @@ authRouter.post("/signIn", (req: Request<never, any, { username: string; passwor
 
   if (user) {
     // Generate an access token
-    const accessToken = jwt.sign({ username: user.username, role: user.role }, accessTokenSecret);
+    const accessToken = jwt.sign({ username: user.username, role: user.role }, process.env.JWT_ACCESS_TOKEN as string);
 
     res.status(200).json({ accessToken });
   } else {

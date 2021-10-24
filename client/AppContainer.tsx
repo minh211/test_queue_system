@@ -19,6 +19,7 @@ export const AppContainer: React.FC = ({ children }) => {
   const [onDutyDoctors, setOnDutyDoctors] = React.useState<OnDutyDoctor[]>([]);
   const [authenticateError, setAuthenticateError] = React.useState<string | undefined>(undefined);
   const [accessToken, setAccessToken] = React.useState<string | undefined>(undefined);
+
   const history = useHistory();
   const { axiosGet, axiosPatch, axiosPost, axiosDelete } = useAxios(accessToken);
 
@@ -166,13 +167,6 @@ export const AppContainer: React.FC = ({ children }) => {
   );
 
   const signOut = React.useCallback(async () => setAccessToken(undefined), []);
-
-  React.useEffect(() => {
-    getDoctors().then();
-    getOnDutyDoctors().then();
-    getTickets().then();
-    getQueue().then();
-  }, [getDoctors, getOnDutyDoctors, getQueue, getTickets]);
 
   const eventHandlers: EventHandlers = React.useMemo(() => {
     return {

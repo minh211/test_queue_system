@@ -5,4 +5,7 @@ import { viewController } from "../../controllers";
 
 export const viewRouter = Router();
 
-viewRouter.get(["/", "/signIn", "/queue", "/doctors"], authenticateMiddleware, viewMiddlewares, viewController);
+viewRouter.use(viewMiddlewares);
+
+viewRouter.get(["/", "/signIn"], viewController);
+viewRouter.get(["/queue", "/doctors"], authenticateMiddleware, viewController);

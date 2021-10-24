@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { OnDutyDoctors, QueuePanel, TicketList } from "../components";
 import { AppContext } from "../AppContainer";
 
-export const Queue: React.FC = () => {
+export const QueuePage: React.FC = () => {
   const {
     eventHandlers: { getDoctors, getQueue, getOnDutyDoctors, getTickets },
   } = React.useContext(AppContext);
@@ -60,6 +60,12 @@ export const Queue: React.FC = () => {
       socket.close();
     };
   }, [getDoctors, getOnDutyDoctors]);
+
+  React.useEffect(() => {
+    getQueue().then();
+    getTickets().then();
+    getOnDutyDoctors().then();
+  }, [getOnDutyDoctors, getQueue, getTickets]);
 
   return (
     <React.Fragment>

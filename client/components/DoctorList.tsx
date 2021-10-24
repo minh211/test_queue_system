@@ -20,8 +20,6 @@ export const DoctorList: React.FC = () => {
     [doctors]
   );
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const toggleDuty = React.useCallback(
     async (doctorId: string) => {
       const doctor = doctors.find((d) => d.doctorId === doctorId);
@@ -29,15 +27,13 @@ export const DoctorList: React.FC = () => {
         return;
       }
 
-      eventHandlers.updateDoctor({ doctorId, onDuty: !doctor.onDuty }).then();
+      await eventHandlers.updateDoctor({ doctorId, onDuty: !doctor.onDuty });
     },
     [doctors, eventHandlers]
   );
 
   const deleteDoctor = React.useCallback(
-    async (doctorId: string) => {
-      eventHandlers.deleteDoctor(doctorId).then();
-    },
+    async (doctorId: string) => await eventHandlers.deleteDoctor(doctorId),
     [eventHandlers]
   );
 

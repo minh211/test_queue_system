@@ -46,6 +46,7 @@ export const getDoctors: RequestHandler<
     return;
   }
 
+  console.log("@@@");
   const doctors = await DoctorsServices.getAllDoctor();
   res.status(200).send(doctors);
 });

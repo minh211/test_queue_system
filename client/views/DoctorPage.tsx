@@ -4,10 +4,14 @@ import { io } from "socket.io-client";
 import { AppContext } from "../AppContainer";
 import { DoctorList, NewDoctorPanel } from "../components";
 
-export const Doctor: React.FC = () => {
+export const DoctorPage: React.FC = () => {
   const {
     eventHandlers: { getDoctors },
   } = React.useContext(AppContext);
+
+  React.useEffect(() => {
+    getDoctors().then();
+  }, [getDoctors]);
 
   React.useEffect(() => {
     const socket = io("/doctors");

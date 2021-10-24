@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { addDoctor, deleteDoctor, getDoctors, updateDoctor } from "../../controllers";
-import { authenticateMiddleware } from "../../middlewares/authenticate.middlewares";
+import { authenticateMiddleware } from "../../middlewares";
 
 export const doctorsRouter = Router();
 
