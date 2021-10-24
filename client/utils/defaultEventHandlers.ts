@@ -1,6 +1,12 @@
 import { EventHandlers } from "../types";
 
 export const defaultEventHandlers: EventHandlers = {
+  signIn(): Promise<void> {
+    return Promise.resolve(undefined);
+  },
+  signOut(): Promise<void> {
+    return Promise.resolve(undefined);
+  },
   addDoctor(): Promise<void> {
     return Promise.resolve(undefined);
   },

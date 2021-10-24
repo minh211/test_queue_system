@@ -39,8 +39,6 @@ export interface Ticket {
   patient: Patient;
 }
 
-export type NewTicket = Omit<Ticket, "doctor">;
-
 export interface Queue {
   queueId: string;
   startDate: Date;
@@ -48,17 +46,19 @@ export interface Queue {
 }
 
 export interface AppContextType {
+  accessToken: string | undefined;
+  authenticateError?: string;
   queue?: Queue;
   doctors: Doctor[];
   onDutyDoctors: OnDutyDoctor[];
   patients: Patient[];
   tickets: Ticket[];
   eventHandlers: EventHandlers;
-  newTickets: NewTicket[];
-  doneTickets: Ticket[];
 }
 
 export interface EventHandlers {
+  signIn(username: string, password: string): Promise<void>;
+  signOut(): Promise<void>;
   getDoctors(): Promise<void>;
   getOnDutyDoctors(): Promise<void>;
   deleteDoctor(doctorId: string): Promise<void>;

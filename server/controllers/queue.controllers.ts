@@ -6,7 +6,7 @@ import asyncHandler from "express-async-handler";
 import { QueueAttributes, TicketAttributes } from "../models";
 import { ResponseMessage } from "../types";
 import { io } from "../io";
-import { QueueServices } from "../services/queue.services";
+import { QueueServices } from "../services";
 
 const queuesNsp = io.of("/queues");
 
@@ -30,7 +30,13 @@ export const getQueues: RequestHandler<never, GetQueuesHandler.ResBody, never, G
       return;
     }
 
-    res.status(200).send({ ...queue, queueId: queue.id, tickets: queue.Tickets });
+    res.status(200).send({
+      isActive: queue.isActive,
+      startDate: queue.startDate,
+      endDate: queue.endDate,
+      queueId: queue.id,
+      tickets: queue.Tickets,
+    });
   });
 
 export namespace OpenQueueHandler {

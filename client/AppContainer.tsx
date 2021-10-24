@@ -1,10 +1,11 @@
-import axios, { AxiosResponse as Res } from "axios";
+import { AxiosResponse as Res } from "axios";
 import * as React from "react";
+import { useHistory } from "react-router-dom";
 
 import { AddDoctorHandler, GetDoctorsHandler, GetQueuesHandler, GetTicketsHandler } from "../server/controllers";
 
-import { apiUrl, defaultEventHandlers } from "./utils";
-import { AppContextType, Doctor, OnDutyDoctor, Patient, Queue, Ticket, EventHandlers, NewTicket } from "./types";
+import { defaultEventHandlers, useAxios } from "./utils";
+import { AppContextType, Doctor, OnDutyDoctor, Patient, Queue, Ticket, EventHandlers } from "./types";
 
 function isSuccess(response: Res) {
   return response.status < 300;
@@ -16,106 +17,108 @@ export const AppContainer: React.FC = ({ children }) => {
   const [tickets, setTickets] = React.useState<Ticket[]>([]);
   const [queue, setQueue] = React.useState<Queue | undefined>(undefined);
   const [onDutyDoctors, setOnDutyDoctors] = React.useState<OnDutyDoctor[]>([]);
-
-  const newTickets: NewTicket[] = React.useMemo(() => {
-    return tickets.filter(({ doctor }) => !doctor);
-  }, [tickets]);
-
-  const doneTickets: Ticket[] = React.useMemo(() => {
-    return tickets.filter(({ isActive }) => !isActive);
-  }, [tickets]);
+  const [authenticateError, setAuthenticateError] = React.useState<string | undefined>(undefined);
+  const [accessToken, setAccessToken] = React.useState<string | undefined>(undefined);
+  const history = useHistory();
+  const { axiosGet, axiosPatch, axiosPost, axiosDelete } = useAxios(accessToken);
 
   const getDoctors = React.useCallback(async () => {
-    const res: Res<GetDoctorsHandler.AllDoctorsResBody> = await axios.get(`${apiUrl}/doctors`);
+    const res = await axiosGet<GetDoctorsHandler.AllDoctorsResBody>("/doctors");
+
     if (isSuccess(res)) {
       setDoctors(() => res.data);
     }
-  }, []);
+  }, [axiosGet]);
 
   const deleteDoctor = React.useCallback(
     async (doctorId: string) => {
-      const res: Res = await axios.delete(`${apiUrl}/doctors/${doctorId}`, { data: { doctorId } });
+      const res = await axiosDelete(`/doctors/${doctorId}`);
 
       if (isSuccess(res)) {
         await getDoctors();
       }
     },
-    [getDoctors]
+    [axiosDelete, getDoctors]
   );
 
-  const updateDoctor: EventHandlers["updateDoctor"] = React.useCallback(async (updateDoctor) => {
-    const { doctorId, ...updatePart } = updateDoctor;
-    const res: Res = await axios.patch(`${apiUrl}/doctors/${updateDoctor.doctorId}`, { ...updatePart });
+  const updateDoctor: EventHandlers["updateDoctor"] = React.useCallback(
+    async (updateDoctor) => {
+      const res: Res = await axiosPatch(`/doctors/${updateDoctor.doctorId}`, updateDoctor);
 
-    if (!isSuccess(res)) {
-      return;
-    }
+      if (!isSuccess(res)) {
+        return;
+      }
 
-    setDoctors((oldDoctors) =>
-      oldDoctors.map((oldDoctor) => {
-        if (oldDoctor.doctorId !== doctorId) {
-          return oldDoctor;
-        }
+      setDoctors((oldDoctors) =>
+        oldDoctors.map((oldDoctor) => {
+          if (oldDoctor.doctorId !== updateDoctor.doctorId) {
+            return oldDoctor;
+          }
 
-        return {
-          ...oldDoctor,
-          firstName: updateDoctor.firstName ?? oldDoctor.firstName,
-          lastName: updateDoctor.lastName ?? oldDoctor.firstName,
-          onDuty: updateDoctor.onDuty ?? oldDoctor.onDuty,
-        };
-      })
-    );
-  }, []);
+          return {
+            ...oldDoctor,
+            firstName: updateDoctor.firstName ?? oldDoctor.firstName,
+            lastName: updateDoctor.lastName ?? oldDoctor.firstName,
+            onDuty: updateDoctor.onDuty ?? oldDoctor.onDuty,
+          };
+        })
+      );
+    },
+    [axiosPatch]
+  );
 
-  const addDoctor: EventHandlers["addDoctor"] = React.useCallback(async (doctor) => {
-    const res: Res<AddDoctorHandler.ResBody> = await axios.post(`${apiUrl}/doctors`, doctor);
+  const addDoctor: EventHandlers["addDoctor"] = React.useCallback(
+    async (doctor) => {
+      const res = await axiosPost<AddDoctorHandler.ReqBody, AddDoctorHandler.ResBody>(`/doctors`, doctor);
 
-    if (isSuccess(res)) {
-      setDoctors((oldDoctors) => [...oldDoctors, res.data]);
-    }
-  }, []);
+      if (isSuccess(res)) {
+        setDoctors((oldDoctors) => [...oldDoctors, res.data]);
+      }
+    },
+    [axiosPost]
+  );
 
   const getTickets: EventHandlers["getTickets"] = React.useCallback(async () => {
-    const res: Res<GetTicketsHandler.ResBody> = await axios.get(`${apiUrl}/tickets`);
+    const res = await axiosGet<GetTicketsHandler.ResBody>(`/tickets`);
     if (isSuccess(res)) {
       setTickets(() => res.data);
     }
-  }, []);
+  }, [axiosGet]);
 
   const getQueue: EventHandlers["getQueue"] = React.useCallback(async () => {
-    const res: Res<GetQueuesHandler.QueueResBody> = await axios.get(`${apiUrl}/queues?active=true`);
+    const res = await axiosGet<GetQueuesHandler.QueueResBody>(`/queues?active=true`);
     if (isSuccess(res)) {
       setQueue(() => res.data);
     }
-  }, []);
+  }, [axiosGet]);
 
   const getOnDutyDoctors = React.useCallback(async () => {
-    const res: Res<GetDoctorsHandler.OnDutyDoctorsResBody> = await axios.get(`${apiUrl}/doctors?onDuty=true`);
+    const res = await axiosGet<GetDoctorsHandler.OnDutyDoctorsResBody>(`/doctors?onDuty=true`);
 
     if (isSuccess(res)) {
       setOnDutyDoctors(() => res.data);
     }
-  }, []);
+  }, [axiosGet]);
 
   const openQueue = React.useCallback(async () => {
-    await axios.post(`${apiUrl}/queues`);
+    await axiosPost(`/queues`);
     await getQueue();
-  }, [getQueue]);
+  }, [axiosPost, getQueue]);
 
   const closeQueue = React.useCallback(async () => {
     if (!queue) {
       return;
     }
 
-    const res: Res = await axios.patch(`${apiUrl}/queues/${queue.queueId}`, { isActive: false });
+    const res = await axiosPatch(`/queues/${queue.queueId}`, { isActive: false });
     if (isSuccess(res)) {
       setQueue(undefined);
     }
-  }, [queue]);
+  }, [axiosPatch, queue]);
 
   const addPatient: EventHandlers["addPatient"] = React.useCallback(
     async (patient) => {
-      const res: Res = await axios.post(`${apiUrl}/patients`, patient);
+      const res: Res = await axiosPost(`/patients`, patient);
 
       if (isSuccess(res)) {
         setPatients((oldPatients) => [...oldPatients, res.data]);
@@ -123,7 +126,7 @@ export const AppContainer: React.FC = ({ children }) => {
       }
     },
 
-    [getTickets]
+    [axiosPost, getTickets]
   );
 
   const updateTickets = React.useCallback(
@@ -131,18 +134,38 @@ export const AppContainer: React.FC = ({ children }) => {
       if (!ticketId && tickets.length > 0) {
         const unassignedTickets = tickets.filter((ticket) => ticket.doctor === undefined);
         if (unassignedTickets.length > 0) {
-          await axios.patch(`${apiUrl}/tickets/${unassignedTickets[0].ticketId}`, { doctorId });
+          await axiosPatch(`/tickets/${unassignedTickets[0].ticketId}`, { doctorId });
           await getTickets();
           await getOnDutyDoctors();
         }
       } else if (ticketId) {
-        await axios.patch(`${apiUrl}/tickets/${ticketId}`, { isActive: false });
+        await axiosPatch(`/tickets/${ticketId}`, { isActive: false });
         await getTickets();
         await getOnDutyDoctors();
       }
     },
-    [getOnDutyDoctors, getTickets, tickets]
+    [axiosPatch, getOnDutyDoctors, getTickets, tickets]
   );
+
+  const signIn = React.useCallback(
+    async (username: string, password: string) => {
+      try {
+        const res = await axiosPost<{ username: string; password: string }, { accessToken: string }>(`/auth/signIn`, {
+          username,
+          password,
+        });
+        if (isSuccess(res)) {
+          setAccessToken(res.data.accessToken);
+          history.push("/doctors");
+        }
+      } catch (e) {
+        setAuthenticateError((e as any).toString());
+      }
+    },
+    [axiosPost, history]
+  );
+
+  const signOut = React.useCallback(async () => setAccessToken(undefined), []);
 
   React.useEffect(() => {
     getDoctors().then();
@@ -153,6 +176,8 @@ export const AppContainer: React.FC = ({ children }) => {
 
   const eventHandlers: EventHandlers = React.useMemo(() => {
     return {
+      signOut,
+      signIn,
       getDoctors,
       addDoctor,
       updateDoctor,
@@ -166,28 +191,30 @@ export const AppContainer: React.FC = ({ children }) => {
       closeQueue,
     };
   }, [
-    addDoctor,
-    addPatient,
-    closeQueue,
-    updateTickets,
-    deleteDoctor,
+    signOut,
+    signIn,
     getDoctors,
-    getOnDutyDoctors,
-    getQueue,
-    getTickets,
-    openQueue,
+    addDoctor,
     updateDoctor,
+    deleteDoctor,
+    addPatient,
+    getTickets,
+    getQueue,
+    updateTickets,
+    getOnDutyDoctors,
+    openQueue,
+    closeQueue,
   ]);
 
   return (
     <AppContextProvider
       value={{
+        accessToken,
+        authenticateError,
         onDutyDoctors,
         doctors,
         patients,
-        newTickets,
         tickets,
-        doneTickets,
         queue,
         eventHandlers,
       }}>
@@ -197,12 +224,11 @@ export const AppContainer: React.FC = ({ children }) => {
 };
 
 export const AppContext = React.createContext<AppContextType>({
+  accessToken: undefined,
   doctors: [],
   onDutyDoctors: [],
   patients: [],
-  newTickets: [],
   tickets: [],
-  doneTickets: [],
   eventHandlers: defaultEventHandlers,
 });
 

@@ -6,8 +6,7 @@ import { RequestHandler } from "express";
 import { DoctorModel, PatientAttributes, Ticket } from "../models";
 import { ResponseMessage } from "../types";
 import { io } from "../io";
-import { TicketServices } from "../services/ticket.services";
-import { DoctorsServices } from "../services";
+import { DoctorsServices, TicketServices } from "../services";
 
 const ticketsNsp = io.of("/tickets");
 
@@ -49,6 +48,8 @@ export const updateTicket: RequestHandler<
   const { ticketId } = req.params;
   const { isActive, doctorId } = req.body;
 
+  console.log({ ticketId, doctorId, isActive });
+
   if (isActive === undefined && doctorId) {
     const success = await TicketServices.progressTicket(ticketId, doctorId);
 
@@ -63,8 +64,9 @@ export const updateTicket: RequestHandler<
   }
 
   if (isActive === false && !doctorId) {
-    const ticket = await Ticket.findByPk(ticketId);
+    const ticket = await Ticket.findByPk("" + ticketId);
     if (!ticket) {
+      console.log("@");
       res.status(400).send({ message: `Can not find the ticket with id ${ticketId}` });
       return;
     }

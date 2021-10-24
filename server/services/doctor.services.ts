@@ -103,9 +103,7 @@ export namespace DoctorsServices {
 
     if (newTickets.length && doctor) {
       await newTickets[0].setDoctor(doctor);
-      return true;
     }
-
-    return false;
+    return true;
   }
 }

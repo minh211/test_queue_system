@@ -16,6 +16,7 @@ import { App } from "../client/App";
 
 import { io } from "./io";
 import { apiRouter } from "./routes/api";
+import { authenticateMiddleware } from "./middlewares/authenticate.middlewares";
 
 const app = express();
 const server = http.createServer(app);
@@ -38,7 +39,19 @@ app.use("/", express.static(path.join(__dirname, "static")), favicon(path.join(_
 
 app.use("/api", apiRouter);
 
-app.get(["/", "/queue", "/doctors"], (req, res) => {
+app.get(["/", "/signIn"], (req, res) => {
+  const manifest = fs.readFileSync(path.join(__dirname, "static/manifest.json"), "utf-8");
+  const assets = JSON.parse(manifest);
+  const context = {};
+  const component = ReactDOMServer.renderToString(
+    <StaticRouter location={req.url} context={context}>
+      <App />
+    </StaticRouter>
+  );
+  res.render("client", { assets, component });
+});
+
+app.get(["/queue", "/doctors"], authenticateMiddleware, (req, res) => {
   const manifest = fs.readFileSync(path.join(__dirname, "static/manifest.json"), "utf-8");
   const assets = JSON.parse(manifest);
   const context = {};

@@ -7,7 +7,7 @@ import asyncHandler from "express-async-handler";
 import { io } from "../io";
 import { PatientAttributes } from "../models";
 import { ResponseMessage } from "../types";
-import { PatientServices } from "../services/patient.services";
+import { PatientServices } from "../services";
 
 const patientsNsp = io.of("/patients");
 

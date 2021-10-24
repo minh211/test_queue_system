@@ -26,7 +26,7 @@ export const addDoctor: RequestHandler<never, AddDoctorHandler.ResBody, AddDocto
 
 export namespace GetDoctorsHandler {
   export type ReqQuery = { onDuty?: boolean };
-  export type ReqBody = never;
+  export type ReqBody = any;
   export type AllDoctorsResBody = (Omit<DoctorAttributes, "id"> & { doctorId: string })[];
   export type OnDutyDoctorsResBody = GetOnDutyDoctorsResponse[];
   export type ResBody = AllDoctorsResBody | OnDutyDoctorsResBody;

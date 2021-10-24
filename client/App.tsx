@@ -3,7 +3,7 @@ import { Route } from "react-router-dom";
 
 import { AppContainer } from "./AppContainer";
 import { NavBar } from "./components";
-import { Doctor, Home, Queue } from "./views";
+import { Doctor, Home, Queue, SignIn } from "./views";
 
 export const App = () => {
   return (
@@ -13,7 +13,7 @@ export const App = () => {
         <Route exact path="/" component={Home} />
         <Route exact path="/queue" component={Queue} />
         <Route exact path="/doctors" component={Doctor} />
-        {/*<Route exact path="/signin" component={} />*/}
+        <Route exact path="/signIn" component={SignIn} />
         {/*<Route exact path="/signup" component={} />*/}
       </div>
     </AppContainer>
