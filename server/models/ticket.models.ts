@@ -1,8 +1,10 @@
-import { BuildOptions, DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 
-import { PatientModel } from "./patient.models";
+import { ModelStatic } from "../utils";
+
+import { PatientModel, PublicPatientAttributes } from "./patient.models";
 import { QueueModel } from "./queue.models";
-import { DoctorModel } from "./doctor.models";
+import { DoctorModel, PublicDoctorAttributes } from "./doctor.models";
 
 export interface TicketAttributes {
   id: string;
@@ -13,6 +15,16 @@ export interface TicketAttributes {
   doctorId: string;
   patientId: string;
   queueId: string;
+}
+
+export interface PublicTicketAttributes extends Pick<TicketAttributes, "ticketNumber" | "updatedAt" | "isActive"> {
+  ticketId: string;
+}
+
+export interface PublicLinkedTicketAttributes extends PublicTicketAttributes {
+  queueId: string;
+  patient: PublicPatientAttributes;
+  doctor?: PublicDoctorAttributes;
 }
 
 export interface TicketModel
@@ -32,12 +44,8 @@ export interface TicketModel
   getDoctor(): Promise<DoctorModel | undefined>;
 }
 
-export type TicketStatic = typeof Model & {
-  new (values?: never, options?: BuildOptions): TicketModel;
-};
-
-export const ticketFactory = (sequelize: Sequelize): TicketStatic => {
-  return <TicketStatic>sequelize.define("Ticket", {
+export const ticketFactory = (sequelize: Sequelize): ModelStatic<TicketModel> => {
+  return sequelize.define("Ticket", {
     isActive: DataTypes.BOOLEAN,
     ticketNumber: DataTypes.INTEGER,
   });

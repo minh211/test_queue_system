@@ -9,7 +9,14 @@ export interface PatientAttributes extends Identifier {
   birthday?: Date;
   caseDescription?: string;
 }
-export interface PatientModel extends Model<PatientAttributes, Optional<PatientAttributes, "id">>, PatientAttributes {}
+
+export type CreationPatientAttributes = Optional<PatientAttributes, "id">;
+
+export interface PublicPatientAttributes extends CreationPatientAttributes {
+  patientId: string;
+}
+
+export interface PatientModel extends Model<PatientAttributes, CreationPatientAttributes>, PatientAttributes {}
 
 type PatientStatic = typeof Model & {
   new (values?: never, options?: BuildOptions): PatientModel;

@@ -1,5 +1,5 @@
 import { Doctor, Patient, Queue, Ticket, TicketModel } from "../models";
-import { GetTicketsHandler } from "../controllers";
+import { ServerApi } from "../api";
 
 export namespace TicketServices {
   export async function createTicket(ticketNumber: number): Promise<TicketModel> {
@@ -49,7 +49,7 @@ export namespace TicketServices {
     });
   }
 
-  export async function getTickets(): Promise<GetTicketsHandler.ResBody> {
+  export async function getTickets(): Promise<ServerApi.GetTickets.ResBody> {
     const tickets = await Ticket.findAll({
       attributes: ["id", "ticketNumber", "queueId", "isActive", "updatedAt"],
       where: { isActive: true },
@@ -81,6 +81,7 @@ export namespace TicketServices {
       ticketId: ticket.id,
       ticketNumber: ticket.ticketNumber,
       patient: {
+        ...ticket.patient,
         patientId: ticket.patient.id,
         firstName: ticket.patient.firstName,
         lastName: ticket.patient.lastName,
@@ -91,9 +92,10 @@ export namespace TicketServices {
       queueId: ticket.queue.id,
       doctor: ticket.doctor
         ? {
-            doctorId: ticket.doctor.id + "",
             firstName: ticket.doctor.firstName,
             lastName: ticket.doctor.lastName,
+            onDuty: ticket.doctor.onDuty,
+            doctorId: ticket.doctor.id + "",
           }
         : undefined,
     }));

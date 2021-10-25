@@ -35,7 +35,7 @@ export interface Ticket {
   isActive: boolean;
   updatedAt: Date;
   ticketNumber: number;
-  doctor: { firstName: string; lastName: string; doctorId: string } | undefined;
+  doctor?: { firstName: string; lastName: string; doctorId: string };
   patient: Patient;
 }
 

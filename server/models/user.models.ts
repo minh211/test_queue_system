@@ -1,4 +1,6 @@
-import { BuildOptions, DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "sequelize";
+
+import { ModelStatic } from "../utils";
 
 export interface UserAttributes {
   username: string;
@@ -7,11 +9,7 @@ export interface UserAttributes {
 
 export interface UserModel extends Model<UserAttributes>, UserAttributes {}
 
-type UserStatic = typeof Model & {
-  new (values?: never, options?: BuildOptions): UserModel;
-};
-
-export const userFactory = (sequelize: Sequelize): UserStatic => {
+export const userFactory = (sequelize: Sequelize): ModelStatic<UserModel> => {
   return sequelize.define(
     "User",
     {

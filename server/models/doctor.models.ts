@@ -1,6 +1,9 @@
-import { BuildOptions, DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 
-import { TicketModel } from "./ticket.models";
+import { ModelStatic, Named } from "../utils";
+
+import { PublicTicketAttributes, TicketModel } from "./ticket.models";
+import { PublicPatientAttributes } from "./patient.models";
 
 export interface DoctorAttributes {
   id: string;
@@ -11,15 +14,17 @@ export interface DoctorAttributes {
 
 export type CreationDoctorAttributes = Optional<DoctorAttributes, "id">;
 
+export interface PublicDoctorAttributes extends CreationDoctorAttributes {
+  doctorId: string;
+  patient?: Named<PublicPatientAttributes>;
+  ticket?: PublicTicketAttributes;
+}
+
 export interface DoctorModel extends Model<DoctorAttributes, CreationDoctorAttributes>, DoctorAttributes {
   Tickets: TicketModel[];
 }
 
-type DoctorStatic = typeof Model & {
-  new (values?: never, options?: BuildOptions): DoctorModel;
-};
-
-export const doctorFactory = (sequelize: Sequelize): DoctorStatic => {
+export const doctorFactory = (sequelize: Sequelize): ModelStatic<DoctorModel> => {
   return sequelize.define(
     "Doctor",
     {

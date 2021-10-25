@@ -27,7 +27,7 @@ module.exports = {
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-empty-function": "warn",
     "@typescript-eslint/no-empty-interface": "off",
-    "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
+    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     curly: "error",
     "no-inner-declarations": "off",
     "react/display-name": "off",

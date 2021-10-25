@@ -1,5 +1,12 @@
-import { CreationDoctorAttributes, Doctor, DoctorModel, Patient, Queue, Ticket } from "../models";
-import { GetDoctorsHandler, GetOnDutyDoctorsResponse } from "../controllers";
+import {
+  CreationDoctorAttributes,
+  Doctor,
+  DoctorModel,
+  Patient,
+  PublicDoctorAttributes,
+  Queue,
+  Ticket,
+} from "../models";
 
 import { TicketServices } from "./ticket.services";
 
@@ -8,7 +15,7 @@ export namespace DoctorsServices {
     return await Doctor.create(params);
   }
 
-  export async function getAllDoctor(): Promise<GetDoctorsHandler.AllDoctorsResBody> {
+  export async function getAllDoctor(): Promise<PublicDoctorAttributes[]> {
     const doctors = await Doctor.findAll({
       attributes: ["id", "firstName", "lastName", "onDuty"],
       order: [
@@ -27,7 +34,7 @@ export namespace DoctorsServices {
     });
   }
 
-  export async function getOnDutyDoctors(): Promise<GetOnDutyDoctorsResponse[]> {
+  export async function getOnDutyDoctors(): Promise<PublicDoctorAttributes[]> {
     const doctors = await Doctor.findAll({
       attributes: ["id", "firstName", "lastName"],
       where: { onDuty: true },
@@ -63,9 +70,15 @@ export namespace DoctorsServices {
       doctorId: doctor.id,
       firstName: doctor.firstName,
       lastName: doctor.lastName,
+      onDuty: doctor.onDuty,
       ticket:
         doctor.Tickets.length > 0
-          ? { ticketNumber: doctor.Tickets[0].ticketNumber, ticketId: doctor.Tickets[0].id }
+          ? {
+              ticketNumber: doctor.Tickets[0].ticketNumber,
+              ticketId: doctor.Tickets[0].id,
+              updatedAt: doctor.Tickets[0].updatedAt,
+              isActive: doctor.Tickets[0].isActive,
+            }
           : undefined,
       patient:
         doctor.Tickets.length > 0

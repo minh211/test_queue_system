@@ -1,6 +1,7 @@
 const nodeExternals = require("webpack-node-externals");
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 module.exports = {
   name: "server",
@@ -13,7 +14,7 @@ module.exports = {
     filename: "[name].js",
   },
   resolve: {
-    extensions: [".ts", ".tsx"],
+    extensions: [".ts", ".tsx", ".js"],
   },
   externals: [nodeExternals()],
   target: "node",
@@ -34,13 +35,20 @@ module.exports = {
       {
         test: /\.tsx?$/,
         loader: "ts-loader",
+        exclude: /node_modules/,
         options: {
           configFile: "tsconfig.server.json",
+          transpileOnly: true,
         },
       },
     ],
   },
   plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: "./tsconfig.server.json",
+      },
+    }),
     new CopyPlugin({
       patterns: [
         { context: "server", from: "views", to: "views" },

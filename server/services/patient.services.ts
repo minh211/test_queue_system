@@ -1,13 +1,11 @@
-import { Optional } from "sequelize";
-
-import { Patient, PatientAttributes, PatientModel } from "../models";
+import { CreationPatientAttributes, Patient, PatientModel } from "../models";
 
 import { QueueServices } from "./queue.services";
 import { TicketServices } from "./ticket.services";
 
 export namespace PatientServices {
-  export async function addPatient(params: Optional<PatientAttributes, "id">): Promise<PatientModel | undefined> {
-    const activeQueue = await QueueServices.getQueue(true);
+  export async function addPatient(params: CreationPatientAttributes): Promise<PatientModel | undefined> {
+    const activeQueue = await QueueServices.getActiveQueue();
 
     if (!activeQueue) {
       return undefined;

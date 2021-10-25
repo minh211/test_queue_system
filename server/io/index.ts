@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 const io = new Server();
 
 const Socket = {
-  emit: function (event: any, data: any) {
+  emit: function (event: string, data: unknown) {
     io.sockets.emit(event, data);
   },
 };

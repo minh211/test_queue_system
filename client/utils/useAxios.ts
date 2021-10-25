@@ -12,22 +12,21 @@ export function useAxios(accessToken: string | undefined) {
   }, [accessToken]);
 
   const axiosGet = React.useCallback(
-    async <Response>(url: string) => axiosInstance.get<Response>(url),
+    async <Response = unknown>(url: string) => axiosInstance.get<Response>(url),
     [axiosInstance]
   );
 
   const axiosPost = React.useCallback(
-    async <Payload, Response>(url: string, payload?: Payload) => axiosInstance.post<Response>(url, payload),
+    async <Payload = unknown, Response = unknown>(url: string, payload?: Payload) =>
+      axiosInstance.post<Response>(url, payload),
     [axiosInstance]
   );
 
-  const axiosDelete = React.useCallback(
-    async <Payload>(url: string, payload?: Payload) => axiosInstance.delete(url, payload),
-    [axiosInstance]
-  );
+  const axiosDelete = React.useCallback(async (url: string) => axiosInstance.delete(url), [axiosInstance]);
 
   const axiosPatch = React.useCallback(
-    async <Payload, Response>(url: string, payload: Payload) => axiosInstance.patch<Response>(url, payload),
+    async <Payload = unknown, Response = unknown>(url: string, payload: Payload) =>
+      axiosInstance.patch<Response>(url, payload),
     [axiosInstance]
   );
 

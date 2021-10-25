@@ -1,24 +1,28 @@
-import { BuildOptions, DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 
-import { TicketModel } from "./ticket.models";
+import { ModelStatic } from "../utils";
+
+import { PublicTicketAttributes, TicketModel } from "./ticket.models";
 
 export interface QueueAttributes {
   id: string;
   isActive: boolean;
   startDate: Date;
-  endDate?: Date;
+  endDate: Date | undefined;
 }
-export interface QueueModel
-  extends Model<QueueAttributes, Optional<QueueAttributes, "endDate" | "id">>,
-    QueueAttributes {
+
+export type CreationQueueAttributes = Optional<QueueAttributes, "endDate" | "id">;
+
+export interface PublicQueueAttributes extends Omit<QueueAttributes, "id"> {
+  queueId: string;
+  tickets: PublicTicketAttributes[];
+}
+
+export interface QueueModel extends Model<QueueAttributes, CreationQueueAttributes>, QueueAttributes {
   Tickets: TicketModel[];
 }
 
-export type QueueStatic = typeof Model & {
-  new (values?: never, options?: BuildOptions): QueueModel;
-};
-
-export const queueFactory = (sequelize: Sequelize): QueueStatic => {
+export const queueFactory = (sequelize: Sequelize): ModelStatic<QueueModel> => {
   return sequelize.define("Queue", {
     isActive: DataTypes.BOOLEAN,
     startDate: DataTypes.DATE,

@@ -1,10 +1,10 @@
 import { Queue, QueueModel, Ticket } from "../models";
 
 export namespace QueueServices {
-  export async function getQueue(active?: boolean): Promise<QueueModel | undefined> {
+  export async function getActiveQueue(): Promise<QueueModel | undefined> {
     const queues = await Queue.findAll({
       attributes: ["id", "startDate", "endDate", "isActive"],
-      where: active ? { isActive: true } : undefined,
+      where: { isActive: true },
       include: [{ model: Ticket }],
     });
 
@@ -16,7 +16,7 @@ export namespace QueueServices {
   }
 
   export async function openQueue(): Promise<QueueModel | undefined> {
-    const activeQueue = await getQueue(true);
+    const activeQueue = await getActiveQueue();
 
     if (activeQueue) {
       return undefined;
