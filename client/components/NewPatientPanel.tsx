@@ -1,5 +1,6 @@
 import * as React from "react";
 import DatePicker from "react-datepicker";
+import Button from "@atlaskit/button";
 
 import { AppContext } from "../AppContainer";
 import { useNames } from "../utils";
@@ -157,16 +158,12 @@ export const NewPatientPanel: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <button type="button" className="btn btn-primary" onClick={submit} disabled={!isValid || !queue}>
+          <Button appearance="primary" onClick={submit} isDisabled={!isValid || !queue}>
             Submit
-          </button>
-          <button
-            type="button"
-            className="btn btn-default btn-outline-danger "
-            onClick={reset}
-            disabled={!isEditingPatient}>
+          </Button>
+          <Button onClick={reset} isDisabled={!isEditingPatient}>
             Reset
-          </button>
+          </Button>
         </div>
       </div>
     </React.Fragment>
