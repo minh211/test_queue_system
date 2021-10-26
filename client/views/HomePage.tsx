@@ -6,7 +6,7 @@ import { DisplayQueue, NewPatientPanel } from "../components";
 
 export const HomePage = () => {
   const {
-    eventHandlers: { getTickets },
+    eventHandlers: { getTickets, getQueue },
   } = React.useContext(AppContext);
 
   React.useEffect(() => {
@@ -29,7 +29,8 @@ export const HomePage = () => {
 
   React.useEffect(() => {
     getTickets().then();
-  }, [getTickets]);
+    getQueue().then();
+  }, [getQueue, getTickets]);
 
   return (
     <React.Fragment>

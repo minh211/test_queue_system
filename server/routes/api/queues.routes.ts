@@ -5,7 +5,6 @@ import { authenticateMiddleware } from "../../middlewares";
 
 export const queuesRouter = Router();
 
-queuesRouter.use(authenticateMiddleware);
 queuesRouter.get("", getQueues);
-queuesRouter.post("", openQueue);
-queuesRouter.patch("/:queueId", updateQueue);
+queuesRouter.post("", authenticateMiddleware, openQueue);
+queuesRouter.patch("/:queueId", authenticateMiddleware, updateQueue);
