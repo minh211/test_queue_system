@@ -50,10 +50,7 @@ module.exports = {
       },
     }),
     new CopyPlugin({
-      patterns: [
-        { context: "server", from: "views", to: "views" },
-        { context: ".", from: "resource", to: "static" },
-      ],
+      patterns: [{ context: "server", from: "views", to: "views" }],
     }),
   ],
 };
