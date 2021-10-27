@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": ["server", "client"],
+  "exclude": ["./node_modules"],
+  "compilerOptions": {
+    "target": "es2018",
+    "jsx": "react",
+    "incremental": true,
+    "esModuleInterop": true,
+    "stripInternal": true,
+    "declaration": false,
+    "resolveJsonModule": true
+  }}
