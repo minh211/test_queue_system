@@ -15,7 +15,7 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
   ],
-  plugins: ["prettier", "deprecation", "@typescript-eslint", "react-hooks", "import"],
+  plugins: ["prettier", "@typescript-eslint", "react-hooks", "import"],
   settings: {
     react: {
       version: "17.0.2",
@@ -35,7 +35,6 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "error",
     "prettier/prettier": "error",
-    "deprecation/deprecation": "warn",
     "import/order": [
       "error",
       {

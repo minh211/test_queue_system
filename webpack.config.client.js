@@ -1,6 +1,8 @@
 const path = require("path");
+const webpack = require("webpack");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
+const dotenv = require("dotenv");
 
 module.exports = {
   name: "client",
@@ -14,7 +16,7 @@ module.exports = {
     publicPath: "",
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js"],
+    extensions: [".ts", ".tsx", ".js", ".mjs"],
   },
   target: "web",
   module: {
@@ -50,6 +52,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      "process.env": JSON.stringify(dotenv.config().parsed), // it will automatically pick up key values from .env file
+    }),
     new CleanWebpackPlugin({
       verbose: true,
       cleanOnceBeforeBuildPatterns: ["**/*", "!manifest.json"],

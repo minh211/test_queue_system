@@ -1,8 +1,8 @@
 import * as React from "react";
 import { io } from "socket.io-client";
 
-import { AppContext } from "../AppContainer";
 import { DisplayQueue, NewPatientPanel } from "../components";
+import { AppContext } from "../AppContainer";
 
 export const HomePage = () => {
   const {
@@ -33,17 +33,17 @@ export const HomePage = () => {
   }, [getQueue, getTickets]);
 
   return (
-    <React.Fragment>
-      <div className="container">
-        <div className="row">
-          <div className="col-4 card">
+    <section role="main">
+      <div className="aui-page-panel">
+        <div className="aui-page-panel-inner">
+          <aside className="aui-page-panel-sidebar" style={{ borderRight: "1px solid #DFE1E6" }}>
             <NewPatientPanel />
-          </div>
-          <div className="col-8 card">
+          </aside>
+          <section className="aui-page-panel-content">
             <DisplayQueue />
-          </div>
+          </section>
         </div>
       </div>
-    </React.Fragment>
+    </section>
   );
 };
