@@ -3,7 +3,8 @@ const webpack = require("webpack");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const dotenv = require("dotenv");
-
+const WebpackBar = require("webpackbar");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 module.exports = {
   name: "client",
   entry: {
@@ -22,6 +23,11 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        use: ["source-map-loader"],
+        enforce: "pre",
+      },
+      {
         test: /\.svg$/,
         use: ["svg-loader"],
       },
@@ -36,29 +42,32 @@ module.exports = {
       },
       {
         test: /\.tsx?$/,
-        loader: "ts-loader",
-        options: {
-          configFile: "tsconfig.client.json",
-        },
-      },
-      {
-        test: /\.m?js$/,
         use: {
-          loader: "babel-loader",
-          options: { presets: ["@babel/preset-env"], plugins: ["babel-plugin-styled-components"] },
+          loader: "esbuild-loader",
+          options: {
+            loader: "tsx",
+            target: "es2015",
+            tsconfigRaw: require("./tsconfig.client.json"),
+          },
         },
+        exclude: /node_modules/,
       },
-      { test: /\.js$/, loader: "webpack-remove-debug" },
     ],
   },
   plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: "./tsconfig.client.json",
+      },
+    }),
     new webpack.DefinePlugin({
       "process.env": JSON.stringify(dotenv.config().parsed), // it will automatically pick up key values from .env file
     }),
     new CleanWebpackPlugin({
-      verbose: true,
+      verbose: false,
       cleanOnceBeforeBuildPatterns: ["**/*", "!manifest.json"],
     }),
     new WebpackManifestPlugin(),
+    new WebpackBar({ name: "client" }),
   ],
 };

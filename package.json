@@ -62,6 +62,7 @@
     "css-loader": "^6.5.0",
     "dotenv": "10.0.0",
     "ejs": "^3.1.6",
+    "esbuild-loader": "^2.16.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
@@ -104,7 +105,8 @@
     "webpack-cli": "^4.9.1",
     "webpack-manifest-plugin": "^4.0.2",
     "webpack-node-externals": "^3.0.0",
-    "webpack-remove-debug": "^0.1.0"
+    "webpack-remove-debug": "^0.1.0",
+    "webpackbar": "^5.0.0-3"
   },
   "dependencies": {
     "@babel/runtime": "^7.15.4"

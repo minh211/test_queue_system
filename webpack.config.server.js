@@ -2,7 +2,7 @@ const nodeExternals = require("webpack-node-externals");
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-
+const WebpackBar = require("webpackbar");
 module.exports = {
   name: "server",
   entry: {
@@ -34,12 +34,15 @@ module.exports = {
       },
       {
         test: /\.tsx?$/,
-        loader: "ts-loader",
-        exclude: /node_modules/,
-        options: {
-          configFile: "tsconfig.server.json",
-          transpileOnly: true,
+        use: {
+          loader: "esbuild-loader",
+          options: {
+            loader: "tsx",
+            target: "es2015",
+            tsconfigRaw: require("./tsconfig.server.json"),
+          },
         },
+        exclude: /node_modules/,
       },
     ],
   },
@@ -52,5 +55,6 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ context: "server", from: "views", to: "views" }],
     }),
+    new WebpackBar({ name: "server", color: "blue" }),
   ],
 };

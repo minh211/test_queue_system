@@ -14,5 +14,5 @@ io.attach(server);
 const PORT = process.env.PORT || 1604;
 
 server.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
+  console.log(`Server is listening on http://localhost:${PORT} `);
 });
