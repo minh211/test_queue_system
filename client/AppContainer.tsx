@@ -70,7 +70,10 @@ export const AppContainer: React.FC = ({ children }) => {
 
   const addDoctor: EventHandlers["addDoctor"] = React.useCallback(
     async (doctor) => {
-      const res = await axiosPost<ServerApi.AddDoctor.ReqBody, ServerApi.AddDoctor.ResBody>(`/doctors`, doctor);
+      const res = await axiosPost<ServerApi.AddDoctor.ReqBody, ServerApi.AddDoctor.ResBody>(`/doctors`, {
+        ...doctor,
+        onDuty: doctor.onDuty || false,
+      });
 
       if (isSuccess(res)) {
         setDoctors((oldDoctors) => [...oldDoctors, res.data]);

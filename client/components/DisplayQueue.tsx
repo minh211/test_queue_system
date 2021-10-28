@@ -27,33 +27,14 @@ export const DisplayQueue: React.FC = () => {
 
   return (
     <div>
-      <div>
+      <LatestTicketCardWrapper>
         {!queue
           ? "No queue is opening"
           : tickets.length === 0
           ? "No patient is currently being attended by doctors."
           : null}
-        {latestAssignedTicket && (
-          <div className="col-lg-12 text-center" style={{ height: "250px" }}>
-            <div className="card-body">
-              Current queue number:
-              <h1 className="text-info display-4">
-                <strong>{latestAssignedTicket.ticketNumber.toString().padStart(4, "0")}</strong>
-              </h1>
-            </div>
-            <div className="card-text">
-              <p>
-                <strong className="text-info">Doctor: </strong>
-                {latestAssignedTicket.doctor?.firstName + " " + latestAssignedTicket.doctor?.lastName}
-              </p>
-              <p>
-                <strong className="text-info">Patient: </strong>
-                {latestAssignedTicket.patient.firstName + latestAssignedTicket.patient.lastName}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+        {latestAssignedTicket && <TicketCard {...latestAssignedTicket} />}
+      </LatestTicketCardWrapper>
       <TicketListWrapper>
         {orderedTickets.map((ticket) => (
           <TicketCard {...ticket} />
@@ -63,9 +44,12 @@ export const DisplayQueue: React.FC = () => {
   );
 };
 
+const LatestTicketCardWrapper = styled.div`
+  margin: 32px 34%;
+`;
+
 const TicketListWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 1% 1%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
 `;
