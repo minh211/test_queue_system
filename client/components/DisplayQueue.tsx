@@ -1,7 +1,10 @@
 import * as React from "react";
+import styled from "styled-components";
 
 import { AppContext } from "../AppContainer";
 import { TicketsUtils } from "../utils";
+
+import { TicketCard } from "./TicketCard";
 
 export const DisplayQueue: React.FC = () => {
   const { tickets, queue } = React.useContext(AppContext);
@@ -23,15 +26,15 @@ export const DisplayQueue: React.FC = () => {
   );
 
   return (
-    <div className="container">
-      <div className="row" style={{ marginTop: "20px" }}>
+    <div>
+      <div>
         {!queue
           ? "No queue is opening"
           : tickets.length === 0
           ? "No patient is currently being attended by doctors."
           : null}
         {latestAssignedTicket && (
-          <div className="col-lg-12 card text-center" style={{ height: "250px" }}>
+          <div className="col-lg-12 text-center" style={{ height: "250px" }}>
             <div className="card-body">
               Current queue number:
               <h1 className="text-info display-4">
@@ -51,26 +54,18 @@ export const DisplayQueue: React.FC = () => {
           </div>
         )}
       </div>
-      <div className="row" style={{ marginBottom: "20px" }}>
-        {orderedTickets.map(({ ticketNumber, doctor, patient }) => (
-          <div key={ticketNumber} className="col-sm-4 card text-center">
-            <div className="card-body">
-              Queue number:
-              <h1 className="text-info">{ticketNumber.toString().padStart(4, "0")}</h1>
-            </div>
-            <div className="card-text">
-              <p>
-                <strong className="text-info">Doctor: </strong>
-                {`${doctor?.firstName} ${doctor?.lastName}`}
-              </p>
-              <p>
-                <strong className="text-info">Patient: </strong>
-                {`${patient.firstName} ${patient.lastName}`}
-              </p>
-            </div>
-          </div>
+      <TicketListWrapper>
+        {orderedTickets.map((ticket) => (
+          <TicketCard {...ticket} />
         ))}
-      </div>
+      </TicketListWrapper>
     </div>
   );
 };
+
+const TicketListWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1% 1%;
+`;

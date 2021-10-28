@@ -39,6 +39,10 @@ export interface Ticket {
   patient: Patient;
 }
 
+export interface InProgressTicket extends Ticket {
+  doctor: { firstName: string; lastName: string; doctorId: string };
+}
+
 export interface Queue {
   queueId: string;
   startDate: Date;

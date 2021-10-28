@@ -45,7 +45,7 @@ module.exports = {
         test: /\.m?js$/,
         use: {
           loader: "babel-loader",
-          options: { presets: ["@babel/preset-env"], plugins: ["@babel/plugin-transform-object-assign"] },
+          options: { presets: ["@babel/preset-env"], plugins: ["babel-plugin-styled-components"] },
         },
       },
       { test: /\.js$/, loader: "webpack-remove-debug" },
