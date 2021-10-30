@@ -10,7 +10,7 @@ module.exports = {
   entry: {
     client: path.resolve(__dirname, "client/index.tsx"),
   },
-  mode: "production",
+  mode: "development",
   output: {
     path: path.resolve(__dirname + "/dist/static"),
     filename: "[name].[contenthash].js",

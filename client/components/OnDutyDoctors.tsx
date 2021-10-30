@@ -59,6 +59,7 @@ export const OnDutyDoctors: React.FC = () => {
         <TicketCardWrapper>
           {onDutyDoctors.map(({ ticket, doctorId, firstName, lastName, patient }) => (
             <TicketCard
+              key={doctorId}
               doctor={{ firstName, lastName }}
               patient={patient}
               ticketNumber={ticket?.ticketNumber}

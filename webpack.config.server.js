@@ -3,12 +3,13 @@ const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const WebpackBar = require("webpackbar");
+const webpack = require("webpack");
 module.exports = {
   name: "server",
   entry: {
     server: path.resolve(__dirname, "server/server.tsx"),
   },
-  mode: "production",
+  mode: "development",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
@@ -56,5 +57,6 @@ module.exports = {
       patterns: [{ context: "server", from: "views", to: "views" }],
     }),
     new WebpackBar({ name: "server", color: "blue" }),
+    new webpack.HotModuleReplacementPlugin(),
   ],
 };

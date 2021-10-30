@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import EmptyState from "@atlaskit/empty-state";
 
 import { AppContext } from "../AppContainer";
 import { TicketsUtils } from "../utils";
@@ -28,11 +29,11 @@ export const DisplayQueue: React.FC = () => {
   return (
     <div>
       <LatestTicketCardWrapper>
-        {!queue
-          ? "No queue is opening"
-          : tickets.length === 0
-          ? "No patient is currently being attended by doctors."
-          : null}
+        {!queue ? (
+          <EmptyState header="No queue is opening" />
+        ) : tickets.length === 0 ? (
+          <EmptyState header="No patient is currently being attended by doctors." />
+        ) : null}
         {latestAssignedTicket && <TicketCard {...latestAssignedTicket} />}
       </LatestTicketCardWrapper>
       <TicketListWrapper>
