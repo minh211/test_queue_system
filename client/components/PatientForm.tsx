@@ -16,7 +16,7 @@ function validate(value: string | undefined) {
   return undefined;
 }
 
-export const NewPatientPanel: React.FC = () => {
+export const PatientForm: React.FC = () => {
   const { queue, eventHandlers } = React.useContext(AppContext);
 
   return (

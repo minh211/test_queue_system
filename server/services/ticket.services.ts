@@ -52,7 +52,6 @@ export namespace TicketServices {
   export async function getTickets(): Promise<ServerApi.GetTickets.ResBody> {
     const tickets = await Ticket.findAll({
       attributes: ["id", "ticketNumber", "queueId", "isActive", "updatedAt"],
-      where: { isActive: true },
       order: [["ticketNumber", "ASC"]],
       include: [
         {

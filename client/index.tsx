@@ -15,21 +15,3 @@ ReactDOM.hydrate(
   </BrowserRouter>,
   rootEl
 );
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-console.log(module.hot);
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-if (module.hot) {
-  // Whenever a new version of App.js is available
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  module.hot.accept("./App", function () {
-    // Require the new version and render it instead
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const NextApp = require("./App");
-    ReactDOM.render(<NextApp />, rootEl);
-  });
-}
