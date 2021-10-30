@@ -12,10 +12,12 @@ import { Doctor } from "../types";
 import { UpdateDoctorModal } from "./UpdateDoctorModal";
 
 export const DoctorList: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
-  const { doctors, eventHandlers } = React.useContext(AppContext);
+  const {
+    doctors,
+    eventHandlers: { updateDoctor, deleteDoctor },
+  } = React.useContext(AppContext);
   const [modal, setModal] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState(1);
-
   const [currentDoctor, setCurrentDoctor] = React.useState<Doctor | undefined>(undefined);
 
   const toggleModal = React.useCallback(
@@ -27,20 +29,15 @@ export const DoctorList: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   );
 
   const toggleDuty = React.useCallback(
-    async (doctorId: string) => {
-      const doctor = doctors.find((d) => d.doctorId === doctorId);
-      if (!doctor) {
-        return;
-      }
-
-      await eventHandlers.updateDoctor({ doctorId, onDuty: !doctor.onDuty });
+    async (doctor: Doctor) => {
+      await updateDoctor({ ...doctor, onDuty: !doctor.onDuty });
     },
-    [doctors, eventHandlers]
+    [updateDoctor]
   );
 
-  const deleteDoctor = React.useCallback(
-    async (doctorId: string) => await eventHandlers.deleteDoctor(doctorId),
-    [eventHandlers]
+  const handleDeleteDoctor = React.useCallback(
+    async (doctorId: string) => await deleteDoctor(doctorId),
+    [deleteDoctor]
   );
 
   if (!isLoading && doctors.length === 0) {
@@ -69,7 +66,7 @@ export const DoctorList: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
               key: "onDuty",
               content: (
                 <Checkbox
-                  onChange={() => toggleDuty(doctor.doctorId)}
+                  onChange={() => toggleDuty(doctor)}
                   isChecked={doctor.onDuty}
                   size="large"
                   name="checkbox-default"
@@ -87,7 +84,7 @@ export const DoctorList: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
                     Update
                   </Button>
                   <Button
-                    onClick={() => deleteDoctor(doctor.doctorId)}
+                    onClick={() => handleDeleteDoctor(doctor.doctorId)}
                     iconBefore={<EditorRemoveIcon label="Delete" size="small" />}
                     appearance="danger">
                     Delete

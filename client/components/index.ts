@@ -7,3 +7,4 @@ export * from "./OnDutyDoctors";
 export * from "./QueuePanel";
 export * from "./TicketList";
 export * from "./UpdateDoctorModal";
+export * from "./NotificationCenter";
