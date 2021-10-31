@@ -1,23 +1,21 @@
 import { RequestHandler } from "express";
 
-// import { verifyToken } from "../services";
+import { verifyToken } from "../services";
 
 export const authenticateMiddleware: RequestHandler = (req, res, next) => {
-  // const { authorization } = req.headers;
+  const { authorization } = req.headers;
 
-  next();
+  if (authorization) {
+    const token = authorization.split(" ")[1];
+    if (!verifyToken(token)) {
+      return res.sendStatus(403);
+    }
 
-  // if (authorization) {
-  //   const token = authorization.split(" ")[1];
-  //   if (!verifyToken(token)) {
-  //     return res.sendStatus(403);
-  //   }
-  //
-  //   next();
-  //   return;
-  // } else {
-  //   res.sendStatus(401);
-  // }
+    next();
+    return;
+  } else {
+    res.sendStatus(401);
+  }
 
   return;
 };
