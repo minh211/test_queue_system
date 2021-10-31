@@ -9,28 +9,50 @@ const _NavBar: React.FC<RouteComponentProps> = (props) => {
     accessToken,
     eventHandlers: { signOut },
   } = React.useContext(AppContext);
+
   return (
-    <div className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-      <h5 className="my-0 mr-md-auto font-weight-normal text-info">HospitalQ</h5>
-      <nav className="my-2 my-md-0 mr-md-3">
-        {accessToken ? (
-          <>
-            <Link className={(activeTab === "/" && "p-2 text-info") || "p-2 text-dark"} to="/">
+    <nav className="aui-header" role="navigation">
+      <div className="aui-header-primary">
+        <span id="logo" className="aui-header-logo aui-header-logo-textonly">
+          <Link to="/">HospitalQ</Link>
+        </span>
+      </div>
+      <div className="aui-header-secondary" style={{ top: 0, bottom: 0 }}>
+        <ul className="aui-nav">
+          <li>
+            <Link style={activeTab === "/" ? { backgroundColor: "hsl(218, 76%, 15%, 48%)" } : undefined} to="/">
               Home
             </Link>
-            <Link className={(activeTab === "/queue" && "p-2 text-info") || "p-2 text-dark"} to="/queue">
-              Queue
+          </li>
+          {accessToken && (
+            <li>
+              <Link
+                style={activeTab === "/queue" ? { backgroundColor: "hsla(218, 76%, 15%, 48%)" } : undefined}
+                to="/queue">
+                Queue
+              </Link>
+            </li>
+          )}
+          {accessToken && (
+            <li>
+              <Link
+                style={activeTab === "/doctors" ? { backgroundColor: "hsl(218, 76%, 15%, 48%)" } : undefined}
+                to="/doctors">
+                Doctors
+              </Link>
+            </li>
+          )}
+          <li>
+            <Link
+              style={{ backgroundColor: "hsl(216, 100%, 40%)" }}
+              to={accessToken ? "/" : "/signIn"}
+              onClick={signOut}>
+              {accessToken ? "Sign Out" : "Sign In"}
             </Link>
-            <Link className={(activeTab === "/doctors" && "p-2 text-info") || "p-2 text-dark"} to="/doctors">
-              Doctors
-            </Link>
-          </>
-        ) : null}
-      </nav>
-      <Link className="btn btn-outline-info" to={accessToken ? "/" : "/signIn"} onClick={signOut}>
-        {accessToken ? "Sign Out" : "Sign In"}
-      </Link>
-    </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
   );
 };
 export const NavBar = withRouter(_NavBar);

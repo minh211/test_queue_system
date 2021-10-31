@@ -2,15 +2,17 @@ import * as React from "react";
 import { io } from "socket.io-client";
 
 import { AppContext } from "../AppContainer";
-import { DoctorList, NewDoctorPanel } from "../components";
+import { DoctorList, DoctorForm } from "../components";
 
 export const DoctorPage: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState(true);
+
   const {
-    eventHandlers: { getDoctors },
+    eventHandlers: { getDoctors, addDoctor },
   } = React.useContext(AppContext);
 
   React.useEffect(() => {
-    getDoctors().then();
+    getDoctors().then(() => setIsLoading(false));
   }, [getDoctors]);
 
   React.useEffect(() => {
@@ -25,17 +27,17 @@ export const DoctorPage: React.FC = () => {
   }, [getDoctors]);
 
   return (
-    <React.Fragment>
-      <div className="container">
-        <div className="row">
-          <div className="col-4 card">
-            <NewDoctorPanel />
-          </div>
-          <div className="col-8 card">
-            <DoctorList />
-          </div>
+    <section role="main">
+      <div className="aui-page-panel">
+        <div className="aui-page-panel-inner">
+          <aside className="aui-page-panel-sidebar" style={{ borderRight: "1px solid #DFE1E6" }}>
+            <DoctorForm onSubmit={addDoctor} />
+          </aside>
+          <section className="aui-page-panel-content">
+            <DoctorList isLoading={isLoading} />
+          </section>
         </div>
       </div>
-    </React.Fragment>
+    </section>
   );
 };

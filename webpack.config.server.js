@@ -2,13 +2,14 @@ const nodeExternals = require("webpack-node-externals");
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-
+const WebpackBar = require("webpackbar");
+const webpack = require("webpack");
 module.exports = {
   name: "server",
   entry: {
     server: path.resolve(__dirname, "server/server.tsx"),
   },
-  mode: "production",
+  mode: "development",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
@@ -34,12 +35,15 @@ module.exports = {
       },
       {
         test: /\.tsx?$/,
-        loader: "ts-loader",
-        exclude: /node_modules/,
-        options: {
-          configFile: "tsconfig.server.json",
-          transpileOnly: true,
+        use: {
+          loader: "esbuild-loader",
+          options: {
+            loader: "tsx",
+            target: "es2015",
+            tsconfigRaw: require("./tsconfig.server.json"),
+          },
         },
+        exclude: /node_modules/,
       },
     ],
   },
@@ -50,10 +54,9 @@ module.exports = {
       },
     }),
     new CopyPlugin({
-      patterns: [
-        { context: "server", from: "views", to: "views" },
-        { context: ".", from: "resource", to: "static" },
-      ],
+      patterns: [{ context: "server", from: "views", to: "views" }],
     }),
+    new WebpackBar({ name: "server", color: "blue" }),
+    new webpack.HotModuleReplacementPlugin(),
   ],
 };
