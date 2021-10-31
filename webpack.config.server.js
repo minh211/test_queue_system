@@ -40,7 +40,7 @@ module.exports = {
           options: {
             loader: "tsx",
             target: "es2015",
-            tsconfigRaw: require("./tsconfig.server.json"),
+            tsconfigRaw: require("./server/tsconfig.json"),
           },
         },
         exclude: /node_modules/,
@@ -50,7 +50,7 @@ module.exports = {
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       typescript: {
-        configFile: "./tsconfig.server.json",
+        configFile: "./server/tsconfig.json",
       },
     }),
     new CopyPlugin({

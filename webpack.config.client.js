@@ -42,7 +42,7 @@ module.exports = {
           options: {
             loader: "tsx",
             target: "es2015",
-            tsconfigRaw: require("./tsconfig.client.json"),
+            tsconfigRaw: require("./client/tsconfig.json"),
           },
         },
         exclude: /node_modules/,
@@ -52,7 +52,7 @@ module.exports = {
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       typescript: {
-        configFile: "./tsconfig.client.json",
+        configFile: "./client/tsconfig.json",
       },
     }),
     new webpack.DefinePlugin({

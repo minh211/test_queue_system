@@ -1,0 +1,27 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "./node_modules"
+  ],
+  "compilerOptions": {
+    "module": "commonjs",
+    "lib": [
+      "es2018",
+      "esnext.asynciterable",
+      "dom"
+    ],
+    "target": "es2018",
+    "jsx": "react",
+    "incremental": true,
+    "esModuleInterop": true,
+    "stripInternal": true,
+    "declaration": false,
+    "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
+  }
+}

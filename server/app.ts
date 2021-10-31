@@ -1,9 +1,9 @@
 import * as path from "path";
 
-import express = require("express");
+import express from "express";
 
 import { commonMiddlewares, errorMiddleware } from "./middlewares";
-import { apiRouter, viewRouter, authRouter } from "./routes";
+import { apiRouter, authRouter, viewRouter } from "./routes";
 
 export const app = express();
 

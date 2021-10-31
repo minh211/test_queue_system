@@ -1,11 +1,10 @@
 import * as Path from "path";
 
-import express = require("express");
+import express, { RequestHandler } from "express";
 import { json, urlencoded } from "body-parser";
-import morgan = require("morgan");
-import helmet = require("helmet");
-import cors = require("cors");
-import { RequestHandler } from "express";
+import morgan from "morgan";
+import helmet from "helmet";
+import cors from "cors";
 
 export const commonMiddlewares: RequestHandler[] = [
   morgan("dev"),
